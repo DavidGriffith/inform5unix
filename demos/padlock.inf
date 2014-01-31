@@ -1,0 +1,142 @@
+!--------------------------------------------------------------------------
+! A chest and a padlock.  There are actually two chests.  Chest1 is an
+! ordinary chest - you can put objects in it, open it, shut it, etc.  If
+! you lock it with the padlock, it gets removed and Chest2 put in its
+! place.  Chest2 pretends to be a container, but is actually a supporter
+! with one child - the padlock.  When you unlock the padlock and remove it
+! from Chest2, then Chest2 is swapped for Chest1 again.
+! 
+! Note: the verb "lock" is extended so that "lock padlock" allows you to
+! lock the padlock (without the parser asking you what you want to lock it
+! with).
+! 
+! Note: the verb "unlock" is extended so that "unlock padlock" chooses a
+! default object when it is sensible to do so (i.e. when the player is
+! carrying a single key).  Although this may seem tempting to generalise
+! this, in fact there are tricky issues involved - supposing that the keys
+! are red herrings and the lock should be picked with the hairpin?  Do you
+! choose the hairpin as the default, or do you choose the key
+! (unsuccessfully), even when the player is carrying the hairpin?
+! 
+! Gareth Rees, 31/10/94, with thanks to Scott Harvey for the idea.
+!--------------------------------------------------------------------------
+
+Constant Story "PADLOCK";
+Constant Headline "^An Interactive Locked-box Mystery^by Gareth Rees^";
+
+Include "parser";
+Include "verblib";
+Include "grammar";
+
+Attribute is_key;
+
+[ Initialise;
+    location = Dungeon1;
+    print "^^^^^What is in the box?^^";
+];
+
+[ PadlockTest;
+    if (noun == Padlock) rtrue; else rfalse;
+];
+
+[ PadlockLockSub;
+    if (noun ~= Padlock) "error!";
+    if (Padlock has locked) "It's already locked.";
+    give Padlock locked;
+    "You snap the padlock shut.";
+];
+
+[ OneKeyTest i j;
+    objectloop (i in player) { if (i has is_key) j++; }
+    if (j == 1) rtrue; else rfalse;
+];
+
+[ MyUnlockSub i j;
+    objectloop (i in player) { if (i has is_key) j = i; }
+    print "(with ", (the) j, ")^";
+    <<Unlock noun j>>;
+];
+
+Extend "lock" first * noun=PadlockTest -> PadlockLock;
+
+Extend "unlock" first * noun=OneKeyTest -> MyUnlock;
+
+Object  Chest1 "chest" nothing
+ has    container openable
+ with   name "chest",
+        capacity 5,
+        before [ i;
+         Lock:
+            if (second == Padlock) {
+                if (Padlock has locked) "The padlock is locked shut.";
+                if (self has open) "The chest is open.";
+                i = parent(self);
+                remove self;
+                move padlock to Chest2;
+                move Chest2 to i;
+                give padlock locked;
+                "You snap the padlock shut on the chest.";
+            }
+            "The chest has no lock.";
+        ];
+
+Object  Dungeon1 "Cavern"
+ has    light
+ with   description "A dark and forbidding cavern.",
+        cant_go "The only exit is a low passage to the north.",
+        n_to Dungeon2;
+
+Nearby  IronKey "iron key"
+ has    is_key
+ with   name "iron" "key";
+
+Nearby  Chest2 "chest"
+ has    supporter openable locked lockable
+ with   name "chest",
+        before [;
+         Unlock: "The chest has no lock.  But you could try the padlock.";
+         Open: "The chest is held shut by the padlock.";
+         Receive:
+            if (noun ~= Padlock)
+                "Putting things on the chest would achieve nothing.";
+        ];
+
+Object  Padlock "padlock" Chest2
+ has    concealed lockable locked
+ with   name "padlock" "lock",
+        before [;
+         Take, Remove:
+            if (self has locked && parent(self) == Chest2)
+                "The padlock is securely attached to the chest.";
+            if (parent(self) == Chest2) give self general;
+         PutOn:
+            if (second == Chest1) <<Lock Chest1 self>>;
+        ],
+        after [ i;
+         Take, Remove:
+            if (self has general) {
+                i = parent(Chest2);
+                remove Chest2;
+                move Chest1 to i;
+                give self ~general;
+            }
+        ],
+        with_key BrassKey;
+
+Object  Steve "the head of Steve Meretsky" Chest1
+ with   name "head" "of" "Steve" "Meretsky",
+        article "the",
+        description "His eyes glint brightly in the gloomy light.";
+
+Object  Dungeon2 "Narrow passage"
+ has    light
+ with   description "A difficult squeeze.",
+        cant_go "The passage is too narrow to proceed further.  Better go \
+            back south to the cavern.",
+        s_to Dungeon1;
+
+Nearby  BrassKey "brass key"
+ has    is_key
+ with   name "brass" "key";
+
+End;

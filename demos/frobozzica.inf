@@ -1,0 +1,237 @@
+!--------------------------------------------------------------------------
+! FROBOZZICA: a demonstration by Gareth Rees
+! 
+! The Inform library by default provides a system allowing "look up topic
+! in book" and "consult book about topic", using grammar lines like
+! 
+!     Verb "consult"
+!         * noun "about" ConTopic -> Consult
+! 
+! where the "ConTopic" routine just parses any old rubbish that the player
+! might type, but sets the variable `consult_from' to the number of the
+! first word in the rubbish.  An object can then parse these words itself
+! to determine what the player asked.
+! 
+! However, this can get a bit tedious if a topic has many words relating to
+! it and you don't care about an exact match, or if several books need to
+! refer to the same topic.  It would be better to get the parser to parse
+! topics like objects.  This example game shows how it can be done, and how
+! a similar system can be implemented allowing conversational topics to be
+! parsed in the same way.
+!--------------------------------------------------------------------------
+
+Constant Story "ENCYCLOPEDIA FROBOZZICA";
+Constant Headline "^An interactive demonstration^by Gareth Rees^";
+
+Include "parser";
+Include "verblib";
+Include "grammar";
+
+
+!--------------------------------------------------------------------------
+! TOPICS
+! 
+! Each topic that may be looked up in a book or asked of an NPC is given an
+! object of class `TopicClass' inside the object `Topics' (the contents of
+! which are put into scope at the right time).  The `TopicClass' makes sure
+! that the topic's name is never printed, and so a correctly parsed topic
+! cannot be distinguished from an unrecognised string of words.  For
+! example, "look up zork" may produce the question "What do you want to
+! look up that in?" (if there were two books nearby), rather than "What do
+! you want to look up the Zork in?", which would have given away the
+! existence of the `Zork' topic.
+! 
+! CAVEAT: if two topics share a word in common, then an attempt to look up
+! that word will result in "Which do you mean, that or that?"  Several
+! solutions spring to mind: one is to avoid words in common wherever
+! possible; another is to give the topics `parse_name' routines that don't
+! allow the shared word on its own to refer to that topic.
+!--------------------------------------------------------------------------
+
+Class   TopicClass
+ has    proper
+ with   short_name "that";
+
+Object  Topics "topics";
+
+Nearby  TopicZork "Zork" class TopicClass
+ with   name "zork" "great" "underground" "empire" "gue";
+
+Nearby  TopicWizard "Wizard of Frobozz" class TopicClass
+ with   name "wizard" "of" "frobozz";
+
+Nearby  TopicFlathead "Lord Dimwit Flathead" class TopicClass
+ with   name "dimwit" "flathead" "excessive";
+
+!--------------------------------------------------------------------------
+! CONSULTING AND CONVERSATIONAL GRAMMAR
+! 
+! We ensure that each possible pattern of input has two grammar lines
+! associated with it, one involving a `scope=TopicScope' that parses topics
+! as objects, and another using `ConTopic' or `ConTopicI' or so on, that
+! reads any number of words (possibly stopping at a preposition).
+! 
+! The idea is that if the topic is recognised, then the first grammar line
+! will match, and generate a `NewConsult' or `Question' action.  But if the
+! topic is not recognised, the second line will match, and generate a
+! `Consult' or `NoQuestion action.  The second type of line acts as a
+! `catch all' so that the player can't find out which words are valid
+! topics except by looking them up in the correct book or asking them of
+! the right person.
+! 
+! There is a third type of grammar line, marked with (*), which can never
+! be successfully parsed, but which is there to provide good error
+! messages.  For example, given the grammar lines
+! 
+!     Verb "read"
+!         ...
+!         * "about" ConTopicI "in" noun  -> Consult     ! (1)
+!         * "about" ConTopic "in" noun   -> Consult;    ! (2)
+! 
+! and the input
+! 
+!     read about aardvark
+! 
+! then the grammar line (1) can't match (because there was no word `in' in
+! the input).  If line (2) weren't present the error message would be "I
+! only understood you as far as wanting to read about."  But the ConTopic
+! in line (2) matches the `aardvark', the preposition `in' is inferred by
+! the parser, and it asks the question "What do you want to read about that
+! in?", a much more acceptable error message.
+! 
+! The grammar line (+) is necessary for "look" on its own to continue to
+! work.
+!--------------------------------------------------------------------------
+
+[ TopicScope;
+    if (scope_stage == 1) rfalse;
+    if (scope_stage == 2) {
+        ScopeWithin(Topics);
+        rtrue;
+    }
+    "** Error: input should have matched a later line in grammar **";
+];
+
+[ NewConsultRSub; <<NewConsult second noun>>; ];
+[ NewConsultSub; consult_words = 0; <<Consult noun>>; ];
+
+Extend "look" first
+    *                                    -> Look         ! (+)
+    * "up" scope=TopicScope "in" noun    -> NewConsultR;
+
+Extend "look" last
+    * "up" ConTopic "in" noun            -> Consult;     ! (*)
+
+Extend "consult" first
+    * noun "about" scope=TopicScope      -> NewConsult
+    * noun "on" scope=TopicScope         -> NewConsult;
+
+Extend "read" first
+    * "about" scope=TopicScope "in" noun -> NewConsultR
+    * scope=TopicScope "in" noun         -> NewConsultR;
+
+Extend "read" last
+    * "about" ConTopic "in" noun         -> Consult      ! (*)
+    * ConTopic "in" noun                 -> Consult;     ! (*)
+
+[ QuestionSub; if (RunLife(noun,##Ask)~=0) rfalse; "No reply."; ];
+[ RQuestionSub; <<Question second noun>>; ];
+[ NoQuestionSub; <<Question noun 0>>; ];
+[ SaySub; "Nothing happens."; ];
+
+[ ConTopicPrep prep w; consult_from = wn;
+  do w=NextWordStopped(); until (w==prep or -1); if (w==-1) return -1;
+  wn--; consult_words = wn-consult_from;
+  if (consult_words==0) return -1; return 0; ];
+[ ConTopicTo; return ConTopicPrep('to'); ];
+[ ConTopicAt; return ConTopicPrep('at'); ];
+
+Extend "ask" replace
+    * creature "about" scope=TopicScope  -> Question
+    * creature "for" scope=TopicScope    -> Question
+    * creature scope=TopicScope          -> Question
+    * creature ConTopic                  -> NoQuestion;
+
+Extend "say" replace
+    * scope=TopicScope "to" creature     -> RQuestion
+    * scope=TopicScope "at" creature     -> RQuestion
+    * ConTopicTo "to" creature           -> NoQuestion
+    * ConTopicAt "at" creature           -> NoQuestion
+    * ConTopic "to" creature             -> NoQuestion     ! (*)
+    * ConTopic                           -> Say;
+
+Extend "tell" replace
+    * creature "about" scope=TopicScope  -> Question
+    * creature "about" ConTopic          -> NoQuestion
+    * creature scope=TopicScope          -> Question
+    * creature ConTopic                  -> NoQuestion;
+
+
+!--------------------------------------------------------------------------
+! THE GAME
+! 
+! Some example objects with which to test the above definitions.  The
+! extracts from the Encyclopedia Frobozzica have been lifted from the text
+! written by Nino Ruffini, and available on the WWW at (for example)
+! <http://www.spies.com/harrison/frobozz.html>.
+!--------------------------------------------------------------------------
+
+[ Initialise;
+    location = Library;
+    "^^^^^Everything you wanted to know about Zork but were afraid to \
+    ask...^^";
+];
+
+Object  Library "Library of Zork"
+ has    light
+ with   description "A vast chamber, filled with the knowledge, legends \
+            and lore of the Great Underground Empire.",
+        cant_go "You wander for a while among the bookstacks, but can't \
+            find a way out.";
+
+Nearby  Encyclopedia "Encyclopedia Frobozzica"
+ with   name "encyclopedia" "encyclopaedia" "frobozzica" "book",
+        description "The Encyclopedia is so packed full of amazing facts \
+            that you'll have to look them up one at a time.",
+        before [;
+         NewConsult:
+            switch(second) {
+             TopicZork: "Formerly known as Quendor, the Great Underground \
+                Empire reached its height under King Duncanthrax, began \
+                declining under the excessive rule of Dimwit Flathead, \
+                and finally fell in 883 GUE. The area is now called the \
+                Land of Frobozz, after its largest province.";
+             TopicWizard: "The Wizard of Frobozz was once a member of the \
+                influential Accardi chapter of the Enchanters' Guild. \
+                This Wizard was a strange little man, usually wearing a \
+                long cloak, a high pointed hat with astrological signs, \
+                and a long stringy beard. Once a court wizard, he was \
+                exiled by Dimwit Flathead after accidentally turning \
+                Flathead's castle into a mountain of fudge.";
+             TopicFlathead: "Lord Dimwit Flathead the Excessive, the \
+                great-great-grandson of King Duncanthrax, ruled the Great \
+                Underground Empire from 770 GUE to 789 GUE. He was the \
+                seventh king of the Flathead Dynasty, coming to the \
+                throne after Mumberthrax, and before Loowit.";
+            }
+            "You can't find what you want in the Encyclopedia.";
+        ];
+
+Nearby  Librarian "librarian"
+ has    animate
+ with   name "librarian",
+        description "His long beard, fiery eyes, and pointy black hat \
+            with stars on suggests that he may be more than he seems.",
+        life [;
+         Ask:
+            switch(second) {
+             TopicZork: "~Zork doesn't really exist. It's just a bunch of \
+                 adventure games by a company called Infocom.~";
+             TopicWizard: "~Fie to that flamboyant fellow in a fez! His \
+                phantasms and fiends are but flippant fibs, foolish \
+                fictions and flights of fancy.~";
+             TopicFlathead: "~What a dimwit he was!~";
+            }
+        ];
+
+End;

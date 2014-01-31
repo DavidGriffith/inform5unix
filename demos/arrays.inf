@@ -1,0 +1,126 @@
+
+!  This tiny game is just intended to test the new array
+!  facilities introduced by Inform 5.5.
+ 
+Switches dv5;
+
+Constant DEBUG;
+Constant Story "ARRAY TEST";
+Constant Headline "^An Interactive Bit of the Sermon on the Mount^";
+
+Include "Parser";
+Include "VerbLib";
+
+Global array1 -> 20;
+Global array2 --> 20;
+Global array3 -> "ABCDEF";
+Global array4 -> 3 6 9 12;
+Global array5 --> 1 2 3 4 5 6 1000 2000 3000 4000;
+Global array6 -> 10;
+Global array7 --> 'one' 'two' 'three';
+Global array8 --> "un" "deux" "trois";
+Global array9 --> lilies #r$Dump #r$Initialise;
+
+Global narray1 string 20;
+Global narray2 table 20;
+Global narray3 string "GHIJKL";
+Global narray4 string 15 18 21 24;
+Global narray5 table 1000 2000 3000 4000 6 5 4 3 2 1;
+Global narray6 string 10;
+Global narray7 table 'four' 'five' 'six';
+Global narray8 table "quatre" "cinq" "six";
+Global narray9 table lilies #r$Dump #r$Initialise;
+
+Global array10 -> 255 255;
+
+Object  The_Fields "Fields"
+ has    light
+ with   description
+           "Consider the lilies of the fields, how they grow; \
+            they toil not, neither do they spin; yet I say unto you, \
+            even Solomon in all his glory was not arrayed such as are \
+            these.";
+
+Nearby lilies "lilies of the fields"
+  has  scenery
+  with name "lilies" "lily" "of" "fields",
+  description
+  [ i;
+
+  print "Array 1^"; BDump(array1, array2);
+  print "Array 2^"; Dump(array2, array3);
+  print "Array 3^"; BDump(array3, array4);
+  for (i=0:i<6:i++) print char array3->i, ", "; new_line;
+  print "Array 4^"; BDump(array4, array5);
+  print "Array 5^"; Dump(array5, array6);
+  for (i=0:i<10:i++) print array5-->i, ", "; new_line;
+  print "Array 6^"; BDump(array6, array7);
+  print "Array 7^"; Dump(array7, array8);
+  for (i=0:i<3:i++) print (address) array7-->i, ", "; new_line;
+  print "Array 8^"; Dump(array8, array9);
+  for (i=0:i<3:i++) print (string) array8-->i, ", "; new_line;
+  print "Array 9^"; Dump(array9, narray1);
+
+  print "Table 1^"; BDump(narray1, narray2, 1);
+  print "Table 2^"; Dump(narray2, narray3, 1);
+  print "Table 3^"; BDump(narray3, narray4, 1);
+  for (i=1:i<=6:i++) print char narray3->i, ", "; new_line;
+  print "Table 4^"; BDump(narray4, narray5, 1);
+  print "Table 5^"; Dump(narray5, narray6, 1);
+  for (i=1:i<=10:i++) print narray5-->i, ", "; new_line;
+  print "Table 6^"; BDump(narray6, narray7, 1);
+  print "Table 7^"; Dump(narray7, narray8, 1);
+  for (i=1:i<=3:i++) print (address) narray7-->i, ", "; new_line;
+  print "Table 8^"; Dump(narray8, narray9, 1);
+  for (i=1:i<=3:i++) print (string) narray8-->i, ", "; new_line;
+  print "Table 9^"; Dump(narray9, array10, 1);
+
+  ];
+
+[ Initialise;
+  location = The_Fields;
+ "^^^^^Worried about arrays and Inform 5.5? Try the...^";
+];
+
+[ Dump from to fl i j;
+  if (fl==1) { print "Size "; j=7; } else j=0;
+  for (i=from:i<to:i=i+2, j++)
+  {   print (Hex) i-->0, " ";
+      if (j%8==7) new_line;
+  }
+  new_line;
+];
+
+[ BDump from to fl i j;
+  if (fl==1) { print "Size "; j=15; } else j=0;
+  for (i=from:i<to:i=i+1, j++)
+  {   print (BHex) i->0, " ";
+      if (j%16==15) new_line;
+  }
+  new_line;
+];
+
+[ Hex x;
+  HexDig(x/$1000); HexDig(x/$100); HexDig(x/$10); HexDig(x);
+];
+
+[ BHex x;
+  HexDig(x/$10); HexDig(x);
+];
+
+[ HexDig y;
+  y=y%16;
+  switch(y)
+  {   10: print "a";
+      11: print "b";
+      12: print "c";
+      13: print "d";
+      14: print "e";
+      15: print "f";
+      default: print y;
+  }
+];
+
+Include "Grammar";
+Verb "consider" * noun -> Examine;
+end;

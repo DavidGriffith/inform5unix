@@ -1,0 +1,31 @@
+!
+! A great step backward in interactive fiction...
+!
+
+Object hillside "Bare hillside" nothing;
+
+global place = hillside;
+global score = 0;
+global turns = 1;
+
+[ Main;
+
+  print "^^^^^^^^^^^You wake up, shivering to see that Morgoth \
+         the Flatulent Devil is towering over you...^^";
+  Message();
+  print "^^...and he squashes you effortlessly.\
+         ^^   *** You have died ***^^^^^";
+
+  quit;
+];
+
+[ Message i; 
+
+  print "HELLO CRUEL WORLD^\
+         A Non-Interactive Demonstration^\
+         Copyright (c) 1993 by Graham Nelson. All rights reserved.^\
+         Release ", (0-->1) & $03ff, " / Serial number ";
+
+  for (i=18 : i<24 : i++) print char 0->i;  new_line;
+];
+

@@ -1,0 +1,150 @@
+Switches v5;
+
+Constant Story "LISTLESS";
+Constant Headline "^An Useless Utility for Programmers^\
+              by Robert M. Dickau. Type HELP to see the instructions.^";
+
+Global list_style = 0;
+
+Include "Parser";
+Include "VerbLib";
+
+Object Cell "Cell 22"
+  with description "This is Cell 22, your home for the last several years.",
+       cant_go "Oh, that would take too much effort.",
+   has light;
+   
+!
+!  The objects
+!
+
+Object hopechest "hope chest" Cell
+  with name "box" "toychest" "hopechest" "hope" "chest",
+       initial "Your hope chest is here.",
+       before [;
+        Examine, Search:
+         print "A sturdy wooden box in which you keep all your worldly belongings. \
+         Inside it ";
+         
+         writelistfrom(child(self), list_style); ! the important part
+
+         ".";
+
+        Take: "It's perfect just where it is."; ],
+   has open container;
+
+Object jar "glass jar" hopechest
+  with name "glass" "jar",
+   has transparent openable container;
+
+Object cricket "cricket" jar
+  with name "cricket" "bug",
+       description "It's been dead a long time, I fear.",
+       after [; Eat: "Not bad, for a bug."; ],
+   has edible;
+
+Object ghost "ghost" hopechest
+  with name "ghost",
+       description "The Inform game you never finished, come to haunt you.",
+   has concealed;
+
+Object book "The Joy of Lurking" hopechest
+  with name "joy" "of" "lurking" "book",
+
+       short_name [;
+         style underline; print "The Joy of Lurking"; style roman; ! cute trick
+         rtrue;
+         ],
+
+       before [;
+         Examine: "It's been a long time since you've read anything, and it \
+          seems you don't remember how."; ],
+   has proper;
+
+Object manual "~The Inform Designer's Manual~" hopechest
+  with name "inform" "designer^s" "manual",
+       description "The document that put you here, all those years ago.",
+   has proper;
+
+Object rock "chunk of plutonium" hopechest
+  with name "rock" "chunk" "of" "plutonium",
+       description "A heavy chunk of plutonium, with which you one day hope to \
+        conquer the world.^^At least you think it's plutonium.",
+   has light;
+
+Object rod "black rod" hopechest
+  with name "black" "rod" "star",
+       description "A thin black rod with a little star on top.",
+       before [;
+         Wave: "You imagine you see a trail of sparks follow the star as you \
+          wave the rod around."; ];
+
+[ Initialise;
+  location = Cell; list_style = ISARE_BIT + TERSE_BIT + ENGLISH_BIT;
+  print "^^^^^All this being cooped up is making you...^^";
+];
+
+Include "Grammar";
+
+Class style_class
+ with name "bit", number 0,
+      before [;
+        Set:
+        if (list_style & self.number == 0)
+           {list_style = list_style + self.number;
+            print_ret (The) noun, " is now set.";}
+          else print_ret (The) noun, " is already set.";
+
+        UnSet:
+        if (list_style & self.number ~= 0)
+           {list_style = list_style - self.number;
+            print_ret (The) noun, " is now unset.";}
+          else print_ret (The) noun, " is already unset."; ];
+
+[ StyleType i;
+    if (scope_stage==1) rfalse;
+    if (scope_stage==2) { objectloop(i in style_holder) PlaceInScope(i); rtrue; }
+    "That's not a bit I recognize.";
+    ];
+
+Object style_holder "Style holder";
+
+Nearby s1 "newline_bit" class style_class, with name "newline", number newline_bit;
+Nearby s2 "indent_bit" class style_class, with name "indent", number indent_bit;
+Nearby s3 "fullinv_bit" class style_class, with name "fullinv", number fullinv_bit;
+Nearby s4 "english_bit" class style_class, with name "english", number english_bit;
+Nearby s5 "recurse_bit" class style_class, with name "recurse", number recurse_bit;
+Nearby s6 "always_bit" class style_class, with name "always", number always_bit;
+Nearby s7 "terse_bit" class style_class, with name "terse", number terse_bit;
+Nearby s8 "partinv_bit" class style_class, with name "partinv", number partinv_bit;
+Nearby s9 "defart_bit" class style_class, with name "defart", number defart_bit;
+Nearby s11 "isare_bit" class style_class, with name "isare", number isare_bit;
+Nearby s12 "conceal_bit" class style_class, with name "conceal", number conceal_bit;
+Nearby s13 "noarticle_bit" class style_class, with name "noarticle", number noarticle_bit;
+
+Extend "set" first * scope=StyleType -> Set;
+
+[ UnSetSub; "That's not something you can unset."; ];
+
+Verb "unset" * scope=StyleType -> UnSet;
+
+[ ListSub i;
+  objectloop(i in style_holder) {
+   print (The) i, " is ";
+   if (list_style & i.number == 0) print "unset.^"; else print "set.^"; } ];
+
+Verb "list" "style" * -> List;
+
+[ HelpSub; Banner();
+  print "^    This demonstration shows the various effects that can be achieved \
+   by setting different style bits inside the WriteListFrom function. Type \
+   EXAMINE CHEST to see the type of list the current settings produce (the words \
+   ~Inside it~ and the final period are not provided by WriteListFrom).^^    ";
+  print "A bit can be set by typing, for example, SET NEWLINE to set the newline_bit; \
+   and a bit can be unset by typing UNSET NEWLINE. Typing LIST \
+   lists the available bits and whether each is set or unset.^^    ";
+  print "Notice that many of the effects will be unpleasant.^"; ];
+
+Verb "help" "hint" * -> Help;
+
+end;

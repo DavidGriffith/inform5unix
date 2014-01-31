@@ -1,0 +1,147 @@
+!--------------------------------------------------------------------------
+! Followable objects: how to allow the player to type "follow thief" when
+! the thief has left the room.
+! 
+! The "follow" verb needs a different scope definition.  You can try to
+! follow anything that's ordinarily in scope, or any object that's
+! followable and whose just_visited value equals your location.
+! 
+! The routine MoveNPC(object,destination,direction) is used to maintain the
+! just_visited and follow_direction properties.  When you try to follow
+! something, the action <Go f> is generated, where f is the
+! follow_direction property of the object.
+! 
+! Finally, we need to cancel the just_visited property whenever the player
+! moves from one location to another (I rule that you can only follow
+! things that you saw leave, and only if neither you nor they has done any
+! movement since).  The entry point NewRoom() is just right for this.
+! 
+! Gareth Rees, 29/11/94
+!--------------------------------------------------------------------------
+
+Constant Story "FOLLOW MY LEADER";
+Constant Headline "^An Interactive Skeleton^by Gareth Rees^";
+
+Include "parser";
+Include "verblib";
+
+! If you're running out of properties you can probably alias just_visited
+! and follow_direction as all the code checks that followable is set before
+! querying or changing them.
+
+Property just_visited;
+Property follow_direction;
+Attribute followable;
+
+[ Initialise;
+    location = RoomNW;
+    StartDaemon(Roadrunner);
+    print "^^^^^Now you see it, now you don't...^^";
+];
+
+[ NewRoom i;
+    for (i = selfobj + 1: i <= top_object: i++) {
+        if (i has followable) 
+            i.just_visited = 0;
+    }
+];
+
+[ FollowScope i;
+    if (scope_stage == 1) rfalse;
+    if (scope_stage == 2) {
+        for (i = selfobj + 1: i <= top_object: i++) {
+            if (i has followable && i.just_visited == location)
+                PlaceInScope(i);
+        }
+        rfalse;
+    }
+    "You've no idea where that is.";
+];
+
+[ FollowSub d;
+    if (noun in location || noun hasnt followable) "No need!";
+    if (noun.follow_direction == 0) {
+        print "You start after ", (the) noun, " but as far as you're \
+            concerned, ";
+        if (noun hasnt animate) print "it";
+        else { if (noun has female) print "she"; else print "he"; }
+        " has vanished into thin air.";
+    }
+    d = noun.follow_direction;
+    <Go d>;
+];
+
+[ NoFollowSub;
+    if (noun == player) "You can't follow yourself.";
+    print_ret (The) noun, " is right here.";    
+];
+
+Include "grammar";
+
+Verb "follow" "chase" "pursue" "trail"
+    * scope=FollowScope          -> Follow
+    * "after" scope=FollowScope  -> Follow
+    * noun                       -> NoFollow
+    * "after" noun               -> NoFollow;
+
+[ MoveNPC n dest dir i;
+    if (n has followable) {
+        for (i = n: parent(i) ~= 0: i = parent(i)) {}
+        n.just_visited = i;
+    }
+    n.follow_direction = dir;
+    if (dest == 0) remove n;
+    else move n to dest;
+];
+
+Class   FollowClass
+ has    followable,
+ with   just_visited 0,
+        follow_direction 0;
+
+Object  RoomNW "NW Room"
+ has    light
+ with   description "You can go east or south.",
+        e_to RoomNE,
+        s_to RoomSW;
+
+Object  RoomNE "NE Room"
+ has    light
+ with   description "You can go west or south.",
+        w_to RoomNW,
+        s_to RoomSE;
+
+Object  RoomSE "SE Room"
+ has    light
+ with   description "You can go west or north.",
+        n_to RoomNE,
+        w_to RoomSW;
+
+Object  RoomSW "SW Room"
+ has    light
+ with   description "You can go east or north.",
+        n_to RoomNW,
+        e_to RoomSE;
+
+Object  Roadrunner "roadrunner" RoomNW
+ class  FollowClass
+ has    animate
+ with   name "road" "runner" "roadrunner" "bird",
+        description "A small bird of the species G. californiensis.",
+        life [;
+            Ask, Answer, Order: "~Meep! Meep!~";
+        ],
+        daemon [ d;
+            if (self in RoomNW) d = e_obj;
+            if (self in RoomNE) d = s_obj;
+            if (self in RoomSE) d = w_obj;
+            if (self in RoomSW) d = n_obj;
+            if (self in location)
+                print "^The roadrunner sprints away to the ",
+                    (address) (d.&name)-->1, ".^";
+            MoveNPC(self, (parent(self)).(d.door_dir), d);
+            if (self in location)
+                print "^A roadrunner comes sprinting up to you.^";
+        ];
+
+End;

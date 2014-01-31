@@ -1,0 +1,1441 @@
+%
+%  TeX version of the Inform Technical Manual, last revised 18/1/95
+%
+\newif\iffiles
+%
+%  Manual macros
+%
+%  Page layout
+%
+\newif\ifshutup\shutupfalse
+\magnification=\magstep 1
+\hoffset=0.15 true in
+\voffset=2\baselineskip
+%
+%  General hacks
+%
+\def\PAR{\par}
+%
+%  Font loading
+%
+\font\medfont=cmr10 scaled \magstep2
+\font\bigfont=cmr10 scaled \magstep3
+%\def\sectfont{\bf}
+\font\sectfont=cmbx12
+\def\small{\sevenrm}
+\font\rhrm=cmr8
+\font\rhit=cmsl8
+%
+%  Titles
+%
+\newcount\subsectno    %  Subsection number
+\def\rhead{}           %  The running head will go here
+%
+\def\newsection#1#2{%     To begin a section...
+%\global\titletrue%        Declare this as a title page
+\xdef\rhead{{\rhrm #1}\quad #2}%       Initialise running head and ssn
+\subsectno=0%
+\iffiles
+\write\conts{\string\sli\string{#1\string}\string{#2\string}\string{\the\pageno\string}}%
+\fi
+}
+%
+\def\section#1#2{\vskip 1 true in\goodbreak\newsection{#1}{#2}
+\noindent{\sectfont #1\quad #2}\bigskip\noindent}
+%
+%  Headers and footers
+%
+\newif\iftitle
+\headline={\iftitle\hfil\global\titlefalse%
+           \else{\hfil{\rhit \rhead}}%
+           \fi}
+\footline={\ifnum\pageno<0\hfil{\tenbf\romannumeral -\pageno}%
+\else\hfil{\tenbf \number\pageno}\fi}
+%\footline={\ifnum\pageno=1\hfil\else\hfil{\tenbf \number\pageno}\fi}
+%
+%  (Old date-stamping version:)
+% \footline={\hfil{\rm \number\pageno}\hfil{\rm \number\day/\number\month}}
+%
+% If this works I'll be impressed
+%
+
+\font\ninerm=cmr9
+\font\ninei=cmmi9
+\font\ninesy=cmsy9
+\font\ninebf=cmbx9
+\font\eightbf=cmbx8
+\font\ninett=cmtt9
+\font\nineit=cmti9
+\font\ninesl=cmsl9
+\def\ninepoint{\def\rm{\fam0\ninerm}%
+  \textfont0=\ninerm
+  \textfont1=\ninei
+  \textfont2=\ninesy
+  \textfont3=\tenex
+  \textfont\itfam=\nineit \def\it{\fam\itfam\nineit}%
+  \textfont\slfam=\ninesl \def\sl{\fam\slfam\ninesl}%
+  \textfont\ttfam=\ninett \def\tt{\fam\ttfam\ninett}%
+  \textfont\bffam=\ninebf
+  \normalbaselineskip=11pt
+  \setbox\strutbox=\hbox{\vrule height8pt depth3pt width0pt}%
+  \normalbaselines\rm}
+
+\def\tenpoint{\def\rm{\fam0\tenrm}%
+  \textfont0=\tenrm
+  \textfont1=\teni
+  \textfont2=\tensy
+  \textfont3=\tenex
+  \textfont\itfam=\tenit \def\it{\fam\itfam\tenit}%
+  \textfont\slfam=\tensl \def\sl{\fam\slfam\tensl}%
+  \textfont\ttfam=\tentt \def\tt{\fam\ttfam\tentt}%
+  \textfont\bffam=\tenbf
+  \normalbaselineskip=12pt
+  \setbox\strutbox=\hbox{\vrule height8.5pt depth3.5pt width0pt}%
+  \normalbaselines\rm}
+
+\parindent=30pt
+\def\inpar{\hangindent40pt\hangafter1\qquad}
+\def\onpar{\par\hangindent40pt\hangafter0}
+
+\newskip\ttglue
+\ttglue=.5em plus.25em minus.15em
+
+\def\orsign{$\mid\mid$}
+
+\outer\def\begindisplay{\obeylines\startdisplay}
+{\obeylines\gdef\startdisplay#1
+  {\catcode`\^^M=5$$#1\halign\bgroup\indent##\hfil&&\qquad##\hfil\cr}}
+\outer\def\enddisplay{\crcr\egroup$$}
+
+\chardef\other=12
+
+\def\ttverbatim{\begingroup \catcode`\\=\other \catcode`\{=\other
+  \catcode`\}=\other \catcode`\$=\other \catcode`\&=\other 
+  \catcode`\#=\other \catcode`\%=\other \catcode`\~=\other 
+  \catcode`\_=\other \catcode`\^=\other
+  \obeyspaces \obeylines \tt}
+{\obeyspaces\gdef {\ }}
+
+\outer\def\beginstt{$$\let\par=\endgraf \ttverbatim\ninett \parskip=0pt
+  \catcode`\|=0 \rightskip=-5pc \ttfinish}
+\outer\def\begintt{$$\let\par=\endgraf \ttverbatim \parskip=0pt
+  \catcode`\|=0 \rightskip=-5pc \ttfinish}
+{\catcode`\|=0 |catcode`|\=\other
+  |obeylines
+  |gdef|ttfinish#1^^M#2\endtt{#1|vbox{#2}|endgroup$$}}
+
+\catcode`\|=\active
+{\obeylines\gdef|{\ttverbatim\spaceskip=\ttglue\let^^M=\ \let|=\endgroup}}
+
+\def\beginlines{\par\begingroup\nobreak\medskip\parindent=0pt
+  \nobreak\ninepoint \obeylines \everypar{\strut}}
+\def\endlines{\endgroup\medbreak\noindent}
+
+\def\<#1>{\leavevmode\hbox{$\langle$#1\/$\rangle$}}
+
+\def\dbend{{$\triangle$}}
+\def\d@nger{\medbreak\begingroup\clubpenalty=10000
+  \def\par{\endgraf\endgroup\medbreak} \noindent\hang\hangafter=-2
+  \hbox to0pt{\hskip-\hangindent\dbend\hfill}\ninepoint}
+\outer\def\danger{\d@nger}
+\def\dd@nger{\medskip\begingroup\clubpenalty=10000
+  \def\par{\endgraf\endgroup\medbreak} \noindent\hang\hangafter=-2
+  \hbox to0pt{\hskip-\hangindent\dbend\kern 1pt\dbend\hfill}\ninepoint}
+\outer\def\ddanger{\dd@nger}
+\def\enddanger{\endgraf\endsubgroup}
+
+\def\cstok#1{\leavevmode\thinspace\hbox{\vrule\vtop{\vbox{\hrule\kern1pt
+       \hbox{\vphantom{\tt/}\thinspace{\tt#1}\thinspace}}
+     \kern1pt\hrule}\vrule}\thinspace}
+
+\newcount\exno
+\exno=0
+
+\def\xd@nger{%
+  \begingroup\def\par{\endgraf\endgroup\medbreak}\ninepoint}
+
+\outer\def\warning{\medbreak
+  \noindent\llap{$\bullet$\rm\kern.15em}%
+  {\ninebf WARNING}\par\nobreak\noindent}
+\outer\def\exercise{\medbreak \global\advance\exno by 1
+  \noindent\llap{$\bullet$\rm\kern.15em}%
+  {\ninebf EXERCISE \bf\the\exno}\par\nobreak\noindent}
+\def\dexercise#1{\global\advance\exno by 1
+  \medbreak\noindent\llap{$\bullet$\rm\kern.15em}%
+  #1{\eightbf ~EXERCISE \bf\the\exno}\hfil\break}
+\outer\def\dangerexercise{\xd@nger \dexercise{\dbend}}
+\outer\def\ddangerexercise{\xd@nger \dexercise{\dbend\dbend}}
+
+
+\newwrite\ans%
+\newwrite\conts%
+\iffiles
+\immediate\openout\conts=$.games.infocom.ftp.toolkit.mandir.conts
+\fi
+
+\iffiles\else\outer\def\answer#1{\par\medbreak}\shutuptrue\fi
+
+\newwrite\inx
+\ifshutup\else
+\immediate\openout\inx=$.games.infocom.ftp.toolkit.mandir.inxdata
+\fi
+\def\marginstyle{\sevenrm %
+  \vrule height6pt depth2pt width0pt } %
+
+\newif\ifsilent
+\def\specialhat{\ifmmode\def\next{^}\else\let\next=\beginxref\fi\next}
+\def\beginxref{\futurelet\next\beginxrefswitch}
+\def\beginxrefswitch{\ifx\next\specialhat\let\next=\silentxref
+  \else\silentfalse\let\next=\xref\fi \next}
+\catcode`\^=\active \let ^=\specialhat
+\def\silentxref^{\silenttrue\xref}
+
+\newif\ifproofmode
+\proofmodetrue %
+
+\def\xref{\futurelet\next\xrefswitch}
+\def\xrefswitch{\begingroup\ifx\next|\aftergroup\vxref
+  \else\ifx\next\<\aftergroup\anglexref
+    \else\aftergroup\normalxref \fi\fi \endgroup}
+\def\vxref|{\catcode`\\=\active \futurelet\next\vxrefswitch}
+\def\vxrefswitch#1|{\catcode`\\=0
+  \ifx\next\empty\def\xreftype{2}%
+    \def\next{{\tt\text}}%
+  \else\def\xreftype{1}\def\next{{\tt\text}}\fi %
+  \edef\text{#1}\makexref}
+{\catcode`\|=0 \catcode`\\=\active |gdef\{}}
+\def\anglexref\<#1>{\def\xreftype{3}\def\text{#1}%
+  \def\next{\<\text>}\makexref} %
+\def\normalxref#1{\def\xreftype{0}\def\text{#1}\let\next=\text\makexref}
+
+\def\makexref{\ifproofmode%
+  \xdef\writeit{\write\inx{\text\space!\xreftype\space
+    \noexpand\number\pageno.}}\iffiles\writeit\fi
+  \else\ifhmode\kern0pt \fi\fi
+ \ifsilent\ignorespaces\else\next\fi}
+
+\newdimen\fullhsize
+\def\fullline{\hbox to\fullhsize}
+\let\lr=L \newbox\leftcolumn
+
+\def\doubleformat{\shipout\vbox{\makeheadline
+    \fullline{\box\leftcolumn\hfil\columnbox}
+    \makefootline}
+  \advancepageno}
+\def\tripleformat{\shipout\vbox{\makeheadline
+    \fullline{\box\leftcolumn\hfil\box\midcolumn\hfil\columnbox}
+    \makefootline}
+  \advancepageno}
+\def\columnbox{\leftline{\pagebody}}
+
+\newbox\leftcolumn
+\newbox\midcolumn
+\def\beginindex{
+\fullhsize=6.5true in \hsize=2.1true in
+ \global\def\makeheadline{\vbox to 0pt{\vskip-22.5pt
+      \fullline{\vbox to8.5pt{}\the\headline}\vss}\nointerlineskip}
+ \global\def\makefootline{\baselineskip=24pt \fullline{\the\footline}}
+ \output={\if L\lr
+   \global\setbox\leftcolumn=\columnbox \global\let\lr=M
+ \else\if M\lr
+   \global\setbox\midcolumn=\columnbox \global\let\lr=R
+ \else\tripleformat \global\let\lr=L\fi\fi
+ \ifnum\outputpenalty>-20000 \else\dosupereject\fi}
+\begingroup
+  \parindent=1em \maxdepth=\maxdimen
+  \def\par{\endgraf \futurelet\next\inxentry}
+  \obeylines \everypar={\hangindent 2\parindent}
+  \exhyphenpenalty=10000 \raggedright}
+\def\inxentry{\ifx\next\sub \let\next=\subentry
+  \else\ifx\next\endindex \let\next=\vfill
+  \else\let\next=\mainentry \fi\fi\next}
+\def\endindex{\mark{}\break\endgroup
+\supereject
+\if L\lr \else\null\vfill\eject\fi
+\if L\lr \else\null\vfill\eject\fi
+}
+\let\sub=\indent \newtoks\maintoks \newtoks\subtoks
+\def\mainentry#1,{\mark{}\noindent
+  \maintoks={#1}\mark{\the\maintoks}#1,}
+\def\subentry\sub#1,{\mark{\the\maintoks}\indent
+  \subtoks={#1}\mark{\the\maintoks\sub\the\subtoks}#1,}
+
+\def\subsection#1{\medbreak\par\noindent{\bf #1}\qquad}
+
+%  For contents
+
+\def\cl#1#2{\bigskip\par\noindent{\bf #1}\quad {\bf #2}}
+\def\li#1#2#3{\smallskip\par\noindent\hbox to 5 in{{\bf #1}\quad #2\dotfill #3}}
+\def\sli#1#2#3{\par\noindent\hbox to 5 in{\qquad\item{#1}\quad #2\dotfill #3}}
+\def\fcl#1#2{\bigskip\par\noindent\hbox to 5 in{\phantom{\bf 1}\quad {\bf #1}\dotfill #2}}
+
+% Epigrams
+
+\def\poem{\begingroup\narrower\narrower\narrower\obeylines\ninepoint}
+\def\widepoem{\begingroup\narrower\narrower\obeylines\ninepoint}
+\def\verywidepoem{\begingroup\narrower\obeylines\ninepoint}
+\def\quote{\medskip\begingroup\narrower\narrower\noindent\ninepoint}
+\def\poemby#1#2{\par\smallskip\qquad\qquad\qquad\qquad\qquad -- #1, {\it #2}
+\tenpoint\endgroup\bigskip}
+\def\widepoemby#1#2{\par\smallskip\qquad\qquad\qquad -- #1, {\it #2}
+\tenpoint\endgroup\bigskip}
+\def\quoteby#1{\par\smallskip\qquad\qquad\qquad\qquad\qquad
+ -- #1\tenpoint\endgroup\bigskip}
+\def\endquote{\par\tenpoint\endgroup\medskip}
+
+%
+%  End of macros
+\def\subtitle#1{\bigbreak\noindent{\bf #1}\medskip}
+
+\titletrue\tenpoint
+
+\centerline{\bigfont The Inform Technical Manual}
+\vskip 0.5in
+\centerline{\sl for revision 5.4, last updated 18/1/95}
+\vskip 0.5in 
+
+\sli{1}{Introduction}{2}
+\sli{2}{Recondite directives}{2}
+\sli{3}{Unusual constant forms}{4}
+\sli{4}{String indirection and low strings}{5}
+\sli{5}{Game control commands and keyboard reading}{5}
+\sli{6}{Obselete commands}{7}
+\sli{7}{The abbreviations optimiser}{8}
+\sli{8}{Dictionary and parsing table formats}{9}
+\sli{9}{Porter's notes}{12}
+\sli{10}{Geography and history of the source code}{14}
+\vfill\eject
+
+\section{1}{Introduction}
+
+This is a short collection of notes on low-level matters covering what
+is neither in {\sl The Inform Designer's Manual} nor the assembly-language
+documentation in {\sl The Specification of the Z-machine}.
+
+The Designer's Manual is, however, intended to be entirely self-contained
+for all practical purposes.  If this document contains nothing either
+interesting or useful, I feel I shall have achieved my purpose.
+
+It contains much of the commentary which used to be in the source code's
+header, such as its modification history, notes on porting the Inform
+compiler to new machines and documentation of obselete or internally-used
+features.  I anticipate revising this (though not necessarily the
+Designer's Manual) each time the source code is updated.
+
+\medskip
+\hbox to\hsize{\hfill\it Graham Nelson}
+\hbox to\hsize{\hfill\it Magdalen College, Oxford}
+\hbox to\hsize{\hfill\it September 1994}
+\medskip
+
+This is now updated to v1405 (still of release 5.4) and covers recent
+maintenance.
+\medskip
+\hbox to\hsize{\hfill\it January 1995}
+\ninepoint
+
+\section{2}{Recondite directives}
+
+These are the directives airily dismissed as `recondite' in \S A1 to the
+Designer's Manual.
+\beginstt
+Default <cname> <value>;
+\endtt
+If the constant has not yet been defined, define it with this value.
+(In |Verblib| this is used to give constants like |MAX_CARRIED| their
+default values if the main game source has not already set them;
+hence the name.)
+\beginstt
+Stub <rname> <n>;
+\endtt
+If the routine has not yet been defined, define one which has $n$ local
+variables and simply returns false.  (Setting the number of local variables
+prevents the game from calling a routine with more arguments than it has
+local variables to put them in; this should not do any harm to the
+interpreter, but neither does a little caution.)  This is how ``entry
+point'' routines are handled: the |Grammar| library file stubs out any
+undeclared entry points.
+\beginstt
+Dictionary <name> <text>;
+\endtt
+Enters |<text>| in dictionary, and makes a new constant for its address.
+This is not so much recondite as obselete; nowadays one would write
+something like
+\beginstt
+Constant frog_word 'frog';
+\endtt
+but in any case now that one can write simply |'frog'| the need has gone
+away.
+\beginstt
+System_file;
+\endtt
+Declares the present file to be a `system file'.  The only way in which
+these differ from other files is that if Inform has been told to |Replace|
+a given routine, it will ignore a definition of this routine in a `system
+file'.  Thus |Parser| and |Verblib| are system files, and conceivably
+other user-written library extensions (for magic, say) might want to be.
+\beginstt
+Lowstring <name> <string>;
+\endtt
+Puts |string| in the ``low strings" area of the Z-machine (an area in the
+lowest 64K of memory which holds static strings, usually to hold
+abbreviations), and creates a constant with the given |name| to hold its
+word address.  Any string which is to be used with the |@| string escape
+must be declared in this low strings area.  (But the use of the |@|
+string escape is clumsy and there are probably better ways to get the
+effect in Inform 5.)
+\beginstt
+Version <v>;
+\endtt
+sets the game file version (3 for Standard games, 5 for Advanced; 4 and 6
+are present for completeness).  This directive isn't so much recondite
+as redundant; the preferred way is to either set |-v3| or some such at
+the command line, or to include a |switches| directive, e.g.
+\beginstt
+Switches v3;
+\endtt
+\medskip
+The remaining directives are for debugging Inform only:
+\beginstt
+Listsymbols;
+Listdict;
+Listverbs;
+Listobjects;
+\endtt
+are fairly self-explanatory (be warned: they can produce a lot of output).
+In addition, a number of tracing modes can be turned on and off in
+mid-pass:
+\beginstt
+Trace    Btrace    Ltrace    Etrace
+NoTrace  NoBtrace  NoLtrace  NoEtrace
+\endtt
+|Trace| is an assembly-language style trace, with addresses and bytes
+as compiled; |Btrace| is the same, but produced on both passes, not just
+on pass 2; |Ltrace| traces each internal line of code; and |Etrace|, the
+highest-level of these, traces the expression evaluator at work by
+printing out the expression trees made and the assembly source these are
+reduced to.  (A more vehement, less legible version is |etrace full|,
+which shows the process in minute detail.)
+
+\section{3}{Unusual constant forms}
+
+There are more constant forms in Inform 5 than are dreamt of in the
+Designer's Manual.  Some are obselete, others obscure.  To begin with,
+Inform predefines a number of constants which are used by the library:
+\beginstt
+  adjectives_table   (byte address)
+  preactions_table   (byte address)
+  actions_table      (byte address)
+  code_offset        (packed address of code)
+  strings_offset     (packed address of strings)
+  version_number     (3 or 5 as appropriate)
+  largest_object     (the number of the largest created object + 255)
+  dict_par1
+  dict_par2
+  dict_par3      
+\endtt
+which can be read by something like
+\beginstt
+lookup = #adjectives_table;
+\endtt
+One does occasionally want to know the largest object number in
+high-level code, but the library provides a variable |top_object|
+such that the legal object numbers are
+$$ 1 \leq n \leq \hbox{|top_object|} $$
+and using this is preferable.
+
+The |dict_par| constants are byte offsets into a dictionary entry
+of the three bytes of data about the word, and are provided because
+these offsets are different between Standard and Advanced games;
+thus, the parser uses these constants to ensure portability between
+the two.
+\medskip
+
+A constant beginning |#a$| means ``the action number of this action
+routine''.  Thus, |#a$TakeSub| is equivalent to the more usual
+|##Take|.
+\medskip
+
+A constant beginning |#w$|, followed by a word of text, has as value the
+address of the given word in the dictionary (Inform will give an
+error at compile time if no such word is present).  Largely obselete.
+\medskip
+
+A constant beginning |#n$|, followed by a word of text, has as value the
+address of the given word in the dictionary (Inform adds it to the
+dictionary as a new word if it is not already there).  Thus,
+|#n$leopard| is equivalent to |'leopard'|.  However, this constant form
+is still useful to enter single-letter words into the dictionary
+(like |y|, which the parser defines as an abbreviation for ``yes'')
+since |'y'| would instead mean the ASCII value of the character `y'.
+\medskip
+
+A constant beginning |#r$|, followed by a routine name, gives the (packed)
+address of the given routine.  This is chiefly useful for changing the
+routine-valued properties of an object in mid-game, e.g.
+\beginstt
+lamp.before = #r$NewBeforeRoutine;
+\endtt
+where |NewBeforeRoutine| is defined as a global routine somewhere.
+
+\section{4}{String indirection and low strings}
+
+Inside a static string (in double-quotes), the string escape |@nn|,
+an |@| sign followed by a two digit number, means ``print the
+$n$-th string variable here''.  |nn| is a decimal number from |00|
+to |31|.  Now such a variable string can be set with the
+\beginstt
+String <number> <low-string-constant>;
+\endtt
+which means that any string to be used in this way has to have been
+defined as a ``low string'' (see above).  For example,
+\beginstt
+Lowstring L_Frog "little green frog";
+...
+String 0 #L_Frog;
+"You notice a @00!^";
+\endtt
+will result in the output
+\beginstt
+You notice a little green frog!
+\endtt
+Actually, since the first 32 entries of the ``synonyms table'' in the
+Z-machine are reserved for this purpose, the command |String n x|
+is in fact equivalent to
+\beginstt
+(0-->12)-->n=x;
+\endtt
+Due to a minor design infelicity of the Z-machine, the more
+friendly-looking usage
+\beginstt
+String 0 "illegal frog";
+\endtt
+will work in a Standard game but may unpredictably fail in an
+Advanced one exceeding 128K in length; hence the need to ensure
+all relevant strings are ``low'' (in the bottom 128K of memory).
+
+\section{5}{Game control commands and keyboard reading}
+
+\beginstt
+quit;
+\endtt
+(Actually an assembly language opcode.)  This quits the game
+(at once, with no confirmatory question to the user): all games must
+end this way, since it is illegal to return from the |Main| routine).
+\beginstt
+restart;
+\endtt
+(Similarly an opcode.)  Restarts the game exactly to its initial state,
+losing the previous state for good.
+\beginstt
+save <label>;
+restore <label>;
+verify <label>;
+\endtt
+Tries to save or load in a saved game file, or to verify that the
+existing story file is not corrupted (by calculating a checksum and
+comparing it against the one in the header).  In each case, |jump|
+to the given label if successful (otherwise run on into the next
+statement as usual).  |save| and |restore| are actually commands and
+not opcodes because the relevant opcodes function differently between
+Standard and Advanced games; this command ensures portability.
+
+\bigskip
+\beginstt
+Read <a> <b> [<routine>];
+\endtt
+This reads from the keyboard (printing no prompt: it is assumed this
+has already been done) into buffer |a| and tokenises it into buffer |b|.
+(|a| and |b| are expected to point to global string variables, defined
+by something like
+\beginstt
+Global a string 120;
+\endtt
+meaning that |a->0| contains the number 120, and that |a->1| to
+|a->120| are bytes of available read/write memory.)  In Standard games,
+this command automatically redisplays the status line.  In Advanced ones,
+if no routine is given then Inform compiles code to emulate the
+Standard game status line automatically; if a routine is given, this
+is called instead, and is expected to update the status line itself.
+See the Designer's Manual for an example of such a routine.
+
+\noindent After |read| has taken place:
+\item{$\bullet$} |a->1| holds the number of characters typed;
+\item{$\bullet$} the text, unterminated, is held in |a->2| to |a->(a->1 + 1)|;
+\item{$\bullet$} |b->1| holds the number of words typed (note that commas
+and full stops become separate words in their own right);
+\item{$\bullet$} from byte 2 onward, |b| contains 4-byte blocks, one for
+each word, in the form
+\itemitem{0,1} byte address of dictionary entry if word is known, 0 otherwise;
+\itemitem{2} number of letters in word
+\itemitem{3} first character of word in the |a| buffer.
+
+\noindent More flexible tokenising and keyboard-reading methods are available
+by resorting to assembly language; see the |aread| opcode and the
+`special effects' section of the Designer's Manual.
+
+\section{6}{Obselete commands}
+
+Inform 5 continues to provide a number of out-dated features from Inform 1
+to 4; `out-dated' in the sense that there are now much better ways to do
+the same things.  The old features have not been removed because the
+largest Inform program in existence (`Curses') still makes use of them;
+their further use is not encouraged.
+\medskip
+The |put| command takes the form:
+\beginstt
+put <addr> byte <index> <v>;
+put <addr> word <index> <v>;
+\endtt
+which are the old way to use arrays, now superceded by
+\beginstt
+addr->index=v;
+addr-->index=v;
+\endtt
+\medskip
+The |write| command can be used to write to many properties of an object
+at once:
+\beginstt
+write <object> <p1> <v1> [<p2> <v2>...];
+\endtt
+and was useful in the days when the only alternative was using the
+|@put_prop| assembly opcode, but is now superceded by lines like
+\beginstt
+lamp.time_left = 0;
+\endtt
+which are clearer and more consistent.
+\medskip
+Before Inform provided C-style |for| loops, it had BASIC-style ones:
+these were the so-called `old-style |for| loops',
+\beginstt
+for <var> <start> to <finish> { ...code... }
+\endtt
+which were restricted in having only simple finish values (i.e., not
+compound expressions) and in requiring braces around the code (even
+if it contained only a single statement).  The effect can be duplicated
+with
+\beginstt
+for (<var>=<start> : <var> <= <finish> : <var>++) ...code...
+\endtt
+one form of a much more general and flexible construct.
+
+\section{7}{The abbreviations optimiser}
+
+When the game becomes full, 8 to 10\% of its length can be saved by making
+use of text abbreviations: a method under which up to 64 commonly occurring
+phrases can be abbreviated whenever they occur.  This makes no difference
+to text as seen by the player.  Because checking for these causes a speed
+overhead (again, of about 10\%) and it isn't worthwhile unless a game is
+very large, Inform does not do so except in economy mode (compiling with
+the switch |-e| on).  Abbreviations must be declared explicitly, before
+any other text appears, by a directive such as:
+\beginstt
+Abbreviate "the ";
+\endtt
+This causes "the " to be stored internally as only 2 text chunks (5-bit
+segments), rather than 4, whenever it occurs: which is very often.
+Only 64 may be declared (the remaining 32 slots in the Z-machine's
+``synonyms table'' being kept for string indirection).
+
+To see how good your current choice of abbreviations is, try compiling with
+the |-f| (frequencies) option set, which will count the number of times each
+abbreviation is used, and work out how many bytes it saved.  For instance,
+|" the "| occurs some 2445 times in `Curses'.  Experiment soon reveals that
+parts of speech and words like |"there"| make big savings, but that almost
+any proper noun makes little difference.
+
+Infocom's own compiler does not seem to have chosen abbreviations very
+rigorously, since Infocom story files contain just such a naive list.  (This
+may have been wise from the point of view of printing speed in the days of
+much slower computers.)
+
+In any case, the |-u| option of Inform (if your computer is large enough and
+fast enough to make this feasible) will try to work out a nearly-optimal set
+of abbreviations.
+
+The algorithm for doing so is too complex to give here: see the source code.
+Briefly, it runs in two phases: building a table of cross-references, and
+then running a number of passes looking for good substrings and choosing
+good antichains from the partially ordered set resulting.  (The main problem
+being that abbreviations interfere with each other: taking both of
+|"the"| and |"the "| will not give the same saving as the individual savings
+added up.)  The result is not guaranteed to be optimal but seems pretty good.
+The output it finally produces is a list of legal Inform |Abbreviate|
+commands which can be pasted into source code.
+
+Since there are something like
+$$ 2^{300000} $$
+possible choices for a typical-sized game, this is bound to be an
+expensive job.  A 128K game takes about 45 seconds to compile on my machine,
+and slightly under two hours to optimise.  There are three passes, of which
+the first is by far the longest.
+
+Reasonable guesswork and experiment (resulting in the words suggested in
+earlier editions of this manual) actually doesn't perform too badly, but
+when I first optimised a 128K version of `Curses', the |-u| option saved
+1200 bytes over the best choices made by hand: here is the selection
+produced, in the form of |-f| output:
+\beginlines
+|    How frequently abbreviations were used, and roughly how many|
+|    bytes they saved:  ('_' denotes spaces)|
+|       you   668/  444         with   144/  190        which    92/  182   |
+|       urs    58/   38         tion   142/  188          ter   274/  182   |
+|       t_w   134/   88          t_s   117/   77          t_o   164/  108   |
+|       t_i   167/  110          ing   960/  639         ight   187/  248   |
+|       her   283/  188          e_w   146/   96          e_s   160/  106   |
+|       e_o   227/  150          e_i   245/  162          e_a   254/  168   |
+|       der    87/   57          d_s    61/   40          d_o   122/   80   |
+|       d_i    82/   54          d_a   122/   80          and   560/  372   |
+|       all   289/  192          You   297/  394         This    47/   92   |
+|       The   384/  510      Meldrew    28/  108        It_is    40/  104   |
+| Aunt_Jemima  15/  102           ._   680/  452           ,_  1444/  962   |
+|      's_~    42/  109        's_no    41/  106          _un   105/   69   |
+|       _to   708/  471        _the_  1328/ 2654          _th   578/  384   |
+|       _ro   110/   72          _pr    95/   62          _po    78/   51   |
+|       _no   246/  163          _ma   165/  109          _lo   119/   78   |
+|       _ho    87/   57          _hi    99/   65          _ha   309/  205   |
+|       _gr    67/   44          _ga    60/   39        _from    94/  186   |
+|      _for   185/  245          _fi   130/   86          _fa    97/   64   |
+|       _ex    89/   58          _ea    61/   40        _door    46/   90   |
+|       _di   110/   72         _con    88/  116         _com    72/   94   |
+|       _cl    81/   53         _can   164/  217          _ba   120/   79   |
+|       _a_   587/  390   |
+\endlines
+On a version of `Curses' taking up about 240K, using abbreviations saved
+about 23000 bytes and added 9 seconds to a 91-second compilation time.
+
+It's interesting how few words in common the naive and optimised lists
+have.  Only two proper nouns survived, and they provide the only longish
+words.  |"is "| as such turned out not to be worthwhile.  |" the "| was
+perhaps obvious in retrospect, but I didn't think of it.  The best strategy
+for abbreviating seems to be to choose three-character strings which make
+a fractional saving each (only one Z-character each time, for the most part)
+but which occur very often indeed.
+
+Note also that another 32 abbreviations (which could be accommodated, if the
+string indirections mechanism were dropped) would be little help, as
+the least worthwhile of these already saves only 38 bytes or so.
+
+\section{8}{Dictionary and parsing table formats}
+
+Some of the tables Inform writes into the Z-machine have formats which are
+not imposed by the Z-machine specification but by Inform's own conventions,
+and these are covered here.  These conventions are based on (but different
+to) those used in the middle-period Infocom games.
+\medskip
+
+{\ninebf Adjectives} are numbered downwards from |$ff| in order of their appearance in
+defined grammar.  The adjective table contains 4-byte entries:
+\beginstt
+<dictionary address of word>  00  <adjective number>
+----2 bytes-----------------  ----2 bytes----------- 
+\endtt
+To make life more interesting, these entries are stored in reverse
+order (i.e., lowest adjective number first).  The address of this table is
+rather difficult to deduce from the file header information, so the constant
+|#adjectives_table| is set up by Inform to refer to it.
+\medskip
+
+The {\ninebf grammar table} address is stored in word 7 (i.e. bytes 14 and 15)
+of the header.  The table consists of a list of two-byte addresses to
+the entries for each word.  This list is immediately followed by these
+entries, one after another.
+
+An entry consists of one byte giving the number of lines and then that
+many 8-byte lines.  These lines have the form
+\beginstt
+<objects>  <sequence of words>  <action number>
+--1 byte-  ----6 bytes--------  --1 byte-------
+\endtt
+|<objects>| is the number of objects which need to be supplied: eg, 0 for
+``inventory", 1 for ``take frog", 2 for ``tie rope to dog".  The sequence
+of words gives up to 6 tokens following the verb, to be matched in order.
+The token values are given by the table:
+\beginstt
+   noun             0  
+   held             1  
+   multi            2  
+   multiheld        3  
+   multiexcept      4  
+   multiinside      5  
+   creature         6  
+   special          7  
+   number           8
+   (noun=Routine)   16+parsing-routine-number
+   (Routine)        48+parsing-routine-number
+   (scope=Routine)  80+parsing-routine-number
+   (attribute)      128+attribute number
+   (adjective)      adjective number
+   ...reserved...   9-15, 112-127
+\endtt
+Parsing routines have addresses which are too large to store in a single
+byte.  Instead they are numbered from 0, and their (packed) addresses are
+stored in the {\ninebf preactions table} of the story file.  (This is called
+``preactions table" because of what the original Infocom parser used it
+for; the Inform library parser has no such concept as `preaction'.)
+
+The sequence is padded out to 6 bytes with zeros.  (This is a tiresome
+convention, as it means that the value 0 can only be understood by
+looking back at what has come before, but it's too late to change it now.)
+\medskip
+
+{\ninebf Actions} are numbered from 0 upwards in order of appearance in the
+grammar.  (Whereas fake actions are numbered from |$ff| down, but that's
+another story.)  The packed addresses of the corresponding action routines
+are stored in the {\ninebf actions table}.  Once again, Inform puts this table
+in its conventional place, but its address is difficult to work out and
+so the constant |#actions_table| is set up to hold it.
+\medskip
+
+{\ninebf Verbs} are numbered from |$ff| downwards in order of appearance,
+with synonyms getting the same number (thus, ``get'' and ``take'' have
+the same verb number); they are entered into the dictionary as they are
+defined in grammar.
+\medskip
+
+In the {\ninebf dictionary} header, Inform defines only three characters as
+`separators' which break up words in tokenisation: these are full stop,
+comma and open-double-quote.  (In theory the Z-machine allows any list
+here, but these three are conventional in old Infocom story files.)
+
+Inform writes dictionary entries consisting of the word itself, plus
+three data bytes.  (This makes them 7 bytes long in Standard games,
+9 in Advanced.)
+The entries are in alphabetical order, and look like:
+\beginstt
+<the text of the word>  <flags>  <verb number>  <adjective number>
+----4 or 6 bytes------  --1 b--  ----1 byte---  ----1 byte--------
+\endtt
+The text is stored in the usual text format, thus allowing up to 6 or 9
+characters.  These data bytes can be safely accessed (portably between
+either format of game) by, e.g.
+\beginstt
+address->#dict_par1
+\endtt
+which reads the flags byte of the word at |address|.
+
+The flags (chosen once again to conform loosely to Infocom conventions, not
+for any sensible reason) have the eight bits
+\beginstt
+7      6  5  4  3     2      1      0
+<noun> .. .. .. <adj> <spec> <meta> <verb>
+\endtt
+|<verb>|, |<noun>| and |<adj>| mean the word can be a verb, noun or adjective;
+the |<spec>| bit means the word was inserted by a |Dictionary| command in the
+program, except that |<verb>| words also have the |<spec>| bit set (ours not to
+wonder why).
+
+Verbs declared as |"meta"| have the |<meta>| bit set.  (These are such
+out-of-world experiences as ``save'' and ``score''.)
+
+Note that a word can be any combination of these at once.  It can even be
+simultaneously a verb, adjective and noun, and will be understood as such
+in different contexts.
+
+\vfill\eject
+\section{9}{Porter's notes}
+
+The following ports have (generally) successfully been made:
+\beginstt
+  the Commodore Amiga under SAS/C              Christopher A. Wichura
+  the Acorn Archimedes under Norcroft C        (the author)
+  the Atari ST                                 Charles Briscoe-Smith
+  Linux under gcc (essentially as per Unix)    Spedge, aka Dark Mage
+  the Apple Macintosh                          Robert Pelak
+  the Mac, under the Programmer's Workshop     Brad Jones
+  OS/2 32-bit mode under IBM's C Set++         John W. Kennedy
+  386+ IBM PCs, eg. Microsoft Visual C/C++     Toby Nelson
+  small IBM PCs under QuickC                   Bob Newell
+  Unix under gcc (or big IBM PCs under djgpp)  Dilip Sequeira
+  VAX mainframes under Digital's VAX C         (the author)
+\endtt
+(Apologies to anyone left out.)  Recent ports have been relative painless,
+and on many machines (particularly those with 32-bit integers and flat
+memory maps) the code has simply compiled and worked first-time without
+trouble.  Executables from most of the above ports may be found
+ready-compiled in the archive |ftp.gmd.de|.
+
+Porters are asked to name such executables, when they post them, with
+a filename which clearly indicates the machine and the revision number
+(e.g. by ending |.5.4|); and to email the author, if possible, with
+details of any modifications they needed to make, so that the main
+source can be improved.  In particular, |diff|s (that is, differences
+between the source code as last posted, and the source as compiled
+for the machine in question) would be a great help.
+
+See the |header.h| file for some make-files for different compilers.
+
+The code assumes that |long int| is at least 32 bits long, though
+plain |int| can be either 16 or 32.
+
+The general procedure is as follows: all code special to your port should
+appear inside |#IFDEF|s, with a constant for your port being defined
+at the head of the file.  A block of definitions should appear in the
+header file along with the others.  For instance, here is the block for
+Unix:
+\beginlines
+|#ifdef UNIX|
+|#define MACHINE_STRING   "Unix"|
+|#define Source_Prefix    ""|
+|#define Source_Extension ".inf"|
+|#define Include_Extension ".h"|
+|#define Code_Prefix      ""|
+|#define Code_Extension   ".z3"|
+|#define V5Code_Extension ".z5"|
+|#define Transcript_Name "game.txt"|
+|#define Debugging_Name  "game.dbg"|
+|extern char Temp1_Name[], Temp2_Name[];|
+|#define Temp1_Hdr "/tmp/InformTemp1"|
+|#define Temp2_Hdr "/tmp/InformTemp2"|
+|#define DEFAULT_MEMORY_SIZE LARGE_SIZE|
+|#define US_POINTERS|
+|#endif|
+\endlines
+Notice that since some abysmally poor C compilers (such as VAX C, which
+has the affrontery to call itself ANSI) require that all |#| directives
+begin on the first column of the source code, you should abide by this
+as well.
+
+|MACHINE_STRING| should name the machine.  The prefixes and extensions
+are defaults for filenaming conventions.  Under Unix, then, ``frog''
+will mean |frog.inf| it it's a source file, |frog.h| if an include
+file (such as a library file), |frog.z3| or |frog.z5| it it's to be
+written as a Standard or Advanced game respectively.  The
+|Transcript_Name| and |Debugging_Name|s hold names for the transcribed
+text and debugging information files (both optionally produced).
+Arrangements for naming temporary files (used for temporary storage
+space during compilation) are more vexed on some machines; under Unix,
+they are given unique names depending on the current process, for
+instance.  Code to work out these names is defined in |files.c|,
+conditionally compiled when |UNIX| is defined.  If there is no such
+multi-tasking issue, or you can't be bothered, you can just write
+something like
+\beginlines
+|#define Temp1_Name "Inftmp1.tmp"|
+|#define Temp2_Name "Inftmp2.tmp"|
+\endlines
+
+Set the |DEFAULT_MEMORY_SIZE| to |LARGE_SIZE| if you can; but if this is
+too consumptive for a small model of your machine, choose |SMALL_SIZE|.
+(In any case this default can be over-ridden on the command line.)
+
+There are a few options:
+
+|TEMPORARY_FILES| means `use temporary files for scratch workspace'.
+The alternative is to use a good deal of extra RAM, say 256K or so,
+and possibly to have trouble allocating it since it will need to
+have large contiguous chunks.
+
+|US_POINTERS| uses unsigned rather than signed |char *| pointers when
+calculating things like checksums; you may need this if your compiler
+signs |char| by default.
+
+|TIME_UNAVAILABLE| indicates that the ANSI what's-the-date-today routines
+can't be used.  (The serial number of a game will then be 940000 unless
+otherwise set by a |Serial| directive in it.)
+
+|PROMPT_INPUT| indicates that the usual ANSI command-line arguments
+system cannot be used, which makes Inform ask questions instead.  This
+is tiresome, so if you can find an alternative, take it.
+
+|GRAHAM| indicates that you are Graham Nelson (not to be recommended).
+
+\medskip
+All claims of memory are routed through |my_malloc| and |my_calloc|
+in |files.c|.  The Quick C port shows what can be done in the case when
+your compiler will not allow you to allocate more than 64K contiguously
+without great trouble.
+
+\medskip
+If two copies of Inform on different machines are given
+{\sl identical} source code (and have identical version numbers, and
+identical ideas about what today's date is) then they should produce
+{\sl identical} game files.  If your port can pass this test for the
+`Advent' example game, it's probably in good shape.  A quicker test
+is to try typing ``verify'' into a game produced by your port; often
+accidents of porting are shown up by wrong checksums in this way.
+
+Don't worry if you can't get some of the more unusual switches to work,
+such as the gargantuan |-u|, but please cope with the user asking for
+it by giving some suitable error message.
+
+\section{10}{Geography and history of the source code}
+
+The Inform source code is written in ever stricter and more pragmatic ANSI
+C.  It consists of a header file |header.h| and eight files of code:
+\beginstt
+asm.c  express.c  files.c  inform.c  inputs.c  tables.c  zcode.c  symbols.c
+\endtt
+(see the attached map).
+\midinsert
+\hrule\smallskip
+\centerline{\sl A tourist's map of the Inform archipelago}
+\medskip
+$$\vbox{%
+\settabs\+\indent&\qquad&\qquad&\qquad&reallyreallyquitealongsampleword&\cr%
+\+ Main (top level) &&&&& |inform.c|\cr
+\+ & Initialisation\cr
+\+ & Command line switches\cr
+\+ & Top level line parser\cr
+\+ & & Compiler\cr
+\smallskip
+\+ & & & Assignments and conditions && |express.c|\cr
+\+ & & & Expression evaluator\cr
+\smallskip
+\+ & & Assembler directives &&& |asm.c|\cr
+\+ & & Line assembler\cr
+\+ & & & Constant evaluator\cr
+\+ & & & Make attributes/properties\cr
+\smallskip
+\+ & & & Make objects and classes && |tables.c|\cr
+\+ & & & Make globals\cr
+\+ & & & Make verbs\cr
+\+ & & & Make dictionary\cr
+\+ & & & Make actions\cr
+\+ & & & Print diagnostics\cr
+\+ & Construct output file\cr
+\smallskip
+\+ & & & Text translation && |zcode.c|\cr
+\+ & & & Z-code database\cr
+\+ & & & Reserved words table\cr
+\+ & Abbreviations optimiser\cr
+\smallskip
+\+ & & & Symbols table maker && |symbols.c|\cr
+\smallskip
+\+ & & & Preprocessor stack && |inputs.c|\cr
+\+ & & & Character-level parsing\cr
+\+ & & & Error reporting\cr
+\smallskip
+\+ & & & File handling && |files.c|\cr
+\+ & & & Fatal errors\cr
+\+ & & & Debugging information file\cr
+\+ & & & Memory management\cr
+\smallskip
+\+ & & & & Comments & |header.h|\cr
+\+ & & & & |#define|s\cr
+\+ & & & & Integer types\cr
+\+ & & & & Structures\cr
+\+ & & & & Extern declarations\cr}$$
+\smallskip\hrule
+\endinsert
+Inform runs in two passes, like an assembler.  Mostly it does the same
+things on pass 2 as pass 1 (but is able to sort out forward references);
+but there are exceptions (the dictionary is insertion-sorted and hashed
+on pass 1, then strung together in the right order on pass 2, for instance).
+
+It tokenises one line at a time (and does not make elaborate parse trees,
+which is why it is not good at hanging elses).  Lines are divided
+up between directives, assembler opcodes and statements.  Statements
+are normally converted back into sequences of assembler lines, which
+are held on the `preprocessor stack' to be processed next (before
+the next statement from the source).  Some complex statements even
+compile to simpler ones and so on down.  In this way the original
+source becomes a stream of assembly language.
+
+Objects and classes are stored in a compressed format similar to their
+final format, to save on memory.
+
+Only one error is allowed through per original source statement (which
+prevents assembly-language errors caused by poor error recovery in
+some cases).
+
+The modification history of Inform 1 to 5 is as follows.  Note that some of
+the earlier remarks are archaic and out-of-date, representing features now
+superceded.  Apologies to those whose corrections went in without their
+names being recorded!
+\smallskip
+\hrule
+\medskip
+\noindent{\bf Inform 1}
+\beginlines
+|     The first archive release (0.5) was on April 30th 1993.               |
+\endlines
+\medskip
+\noindent{\bf Inform 2}
+\beginlines
+|     The second archive release (0.6) had the following improvements:      |
+|                                                                           |
+|     One #ifdef ARCHIMEDES altered to correct a bug in non-Archimedes      |
+|     version                                                               |
+|     Checking on the MAX_ACTIONS limit put in ("Curses" exceeded 100!)     |
+|     Checking on MAX_STATIC_STRINGS put in; -m information extended        |
+|     -x (hash printing) option introduced                                  |
+|     -a (list assembly lines only) option, and ATRACE/NOATRACE introduced  |
+|     Void prototypes explicitly declared (void)                            |
+|     Defunct Inform directives "STRING" and "SET" removed                  |
+|     Opcode data now made static, and faster opcode-parsing routine put in |
+|     Preprocessor stack rewritten, and now checking for overflow           |
+|     Showdict produces more useful output                                  |
+|     Filename extension #defines added                                     |
+|     Command line parsing improved                                         |
+|     Some ASCII assumptions removed                                        |
+|     Typedefs added to force integers to be 32-bits long                   |
+|     Memory management heavily reformed, at the expense of a certain charm |
+|                                                                           |
+|     USE_TEMPORARY_FILES version: if this is #defined, scratch files       |
+|       amounting to at most about 100K and 50K respectively are used to    |
+|       hold the code and static strings areas; this saves about another    |
+|       150K.                                                               |
+|       (At worst three files are simultaneously open under this regime.)   |
+|       The temporary file names are #define'd below.  They are             |
+|         automatically deleted.                                            |
+\endlines
+\medskip
+\noindent{\bf Inform 3}
+\beginlines
+|   The third release (1.0) is generally tidied and reorganised: most       |
+|   of the sillier variable and routine names have been made more           |
+|   comprehensible.                                                         |
+|   It is also 3 to 6 times faster; thanks due to Dilip Sequeira for        |
+|   profiling output, and also David Moore for his... comments.             |
+|       (November 1993)                                                     |
+|                                                                           |
+|   Program improvements in the third release:                              |
+|                                                                           |
+|     @xx string indirection via the synonyms table added                   |
+|     Objects allowed to have multiple internal names                       |
+|     New constant form #n$word... added                                    |
+|     And #r$routine...                                                     |
+|     New high-level commands "write" and "give" for easier object amending |
+|     Fatal errors fractionally more informative                            |
+|     Non-fatal errors quite a lot more informative, and better worded      |
+|     Grievous bug in stack long slot routines fixed                        |
+|     The checksum and length words are now properly set (though few        |
+|       interpreters need them)                                             |
+|     Error checking on exceeding MAX_VERBS                                 |
+|     -e (economy mode) added: causes abbreviations to be worked out,       |
+|       slowly (this is why it is only an option)                           |
+|     #SWITCHES directive added                                             |
+|     -i (ignore switches) and -o (print offsets) added                     |
+|     Checking added on whether routines have too many local variables (the |
+|       Z-machine crashes in a very strange way if so!)                     |
+|     Minor bug in printing object tree fixed                               |
+|     Two unused bytes spare at end of property defaults table are now      |
+|       zeroed                                                              |
+|     Temporary files now deleted after use                                 |
+|     Checking on excessively long variable names added                     |
+|     STATUSLINE directive added (for games with hours/minutes on the       |
+|       status line)                                                        |
+|     The former SMALL_MEMORY compilation option is now mandatory.          |
+|       (Previously, Inform could be compiled so that it read source files  |
+|       into an enormous buffer, rather than reading them twice through a   |
+|       bit at a time.  This could only be useful on machines with huge     |
+|       memory and very slow filing systems, of which there are few, and it |
+|       complicated the code.)                                              |
+|     The way input file names are processed has been reformed: they are    |
+|       now not altered if they contain a '.' or a '/'                      |
+|     INCLUDE directive added, so that Inform #includes files like C        |
+|     Old -p (both passes) directive renamed -b, and new -p (percentage     |
+|       breakdown)                                                          |
+|     Warnings added: variables not used; checking that Main behaves        |
+|       properly; small bug in line counting fixed; checking on number of   |
+|       function arguments                                                  |
+|     Meta-verbs added                                                      |
+|     -f (frequencies) and -t (assembly trace) switches added               |
+|     Small bug to do with stubbed routines removed                         |
+|     Possibly unused bytes (due to word alignment) in data, now zeroed     |
+|       (so that different machines will not produce different game files)  |
+|     -f now calculates bytes yielded by abbreviations                      |
+|     New SERIAL directive for machines without access to today's date      |
+|     Now handles more complicated multiple expressions within the same     |
+|       command                                                             |
+|     New STRING command added for writing to the synonyms table            |
+|     New FONT command for proportional fonts control                       |
+|     New DEFAULT and STUB directives, for stubbing undeclared CONSTANTs    |
+|       and code                                                            |
+|     Checking on no. of attributes and properties added, and               |
+|       property-counting                                                   |
+|                                                                           |
+|   Speed improvements in the third release:                                |
+|                                                                           |
+|     The following have been rewritten in the interests of speed and       |
+|       not being O(n^2) for the sake of it: the line reader and tokeniser, |
+|       management of local variables, the dictionary builder, the text     |
+|       translator, the line parser and the symbols table (courtesy of hash |
+|       coding by Dilip).                                                   |
+|                         Curses    Dejavu       (compiling times (seconds) |
+|                                                 on my machine)            |
+|        Release 2...        300        45       (including 1-2 seconds for |
+|        Tokeniser & locals  205        26        printing statistics)      |
+|        Dictionary           89        19                                  |
+|        Symbols hashing      74        17                                  |
+|        Tokeniser II         69        16                                  |
+|        Abbreviations        55        16                                  |
+|        Hashing reserveds    49        14                                  |
+|                                                                           |
+|   Compatibility improvements in the third release:                        |
+|                                                                           |
+|     The sort_number routine has been rewritten at the suggestion of Jon   |
+|       Drukman in order to defend against compilers determined to sign     |
+|       chars; and so have some structure definitions and variable types    |
+|     Subtraction of pointers is now done by an easily altered macro (the   |
+|       point being that you can't always subtract by casting to int, if    |
+|       int is 16 bit or if you have a dire MSDOS-like memory map)          |
+|     File naming improved slightly                                         |
+|     The two points where ASCII is used now go through translate_to_ascii  |
+|     Some stupid alterations made for VAX C compatibility                  |
+|       (in the idiot world of VAX C, # commands must start on column 1,    |
+|       x=-1 is read as x-=1, typedef isn't ANSI, the word "signed" is      |
+|       rejected, values like MAX_INT are wrongly set and string consts     |
+|       don't concatenate)                                                  |
+|     A general rewrite has been made to sort out 16-bit from 32-bit        |
+|       integers: Inform now properly works when int is 16 bit by default.  |
+|     VAX version now working (so presumably Inform does not rely on the    |
+|       order of bytes in a word)                                           |
+|     Long constants explicitly declared so (to keep Borland C++ happy)     |
+|     Because some C compilers (especially PC ones) don't like large static |
+|       arrays there's now an ALLOCATE_BIG_ARRAYS option (#define PC forces |
+|       it) which uses calloc to allocate memory from the heap for them.    |
+|     Altogether Inform is going to need about 200K of workspace, and       |
+|       that's that: in a big flat memory machine, this will split about    |
+|       equally between static arrays and dynamic allocation.  With         |
+|       ALLOCATE_BIG_ARRAYS set it will be almost entirely dynamically      |
+|       allocated.                                                          |
+|     If PROMPT_INPUTS is defined (and the VAX and PC versions force this), |
+|       Inform gets file names and options by prompting for keyboard input, |
+|       rather than using a Unix-style command line.                        |
+|     If TIME_UNAVAILABLE is defined, Inform doesn't try to use strftime    |
+|       and doesn't enter today's date for the serial number: the           |
+|       programmer will have to use a SERIAL directive in Inform, instead.  |
+|                                                                           |
+|     Improvements made for Release 3a:  (Dec 7th 1993)                     |
+|                                                                           |
+|      The AMIGA port option added (following Christopher Wichura)          |
+|      #define US_POINTERS option added                                     |
+|      A few constants (eg. MAX_BANK_SIZE) slightly increased, as "Curses"  |
+|        needed it when very close indeed to maximum possible size          |
+|     A few void routines which weren't explicitly called (void) now are    |
+|     The use of local text buffers by routines has been reformed, so that  |
+|       although there's now about 6K more of array allocation, the stack   |
+|       needed during runs of Inform is very much smaller (previously       |
+|       machines with less than 32K stack couldn't manage).                 |
+|     The tokeniser now recognises tab characters (outside string literals) |
+|       as spaces (Inform previously gave errors when it found these).      |
+|     The begin_pass routines are now more legible                          |
+\endlines
+\medskip
+\noindent{\bf Inform 4}
+\beginlines
+|     Miscellaneous improvements made for Release 4:  (January 20th 1994)   |
+|                                                                           |
+|     Checking on file I/O errors (previously Inform only checked errors    |
+|     which occurred on opening files, so never noticed disc space          |
+|     running out)                                                          |
+|     Lamentable wrong-verify-code bug in R3a (caused by misplaced #endif)  |
+|       fixed, and checksum calculation rewritten in a truly paranoid way   |
+|       for better portability to machines signing char's                   |
+|     "p[syns]=0x80" made to work when char's are signed (-128 to 127); a   |
+|       few redundant initialisations of variables removed                  |
+|     Minor tracing bug in R3a (only) fixed                                 |
+|     Source code reformatted to 79 columns wide for troglodyte monitors    |
+|     New typedef of "zip" (for char / unsigned char) to simplify the       |
+|       the US_POINTERS option                                              |
+|     Heavy reorganisation and division into seven separately-compiled      |
+|       files; variables sorted into extern and static throughout           |
+|     Optimisation on void-context function calls (saving about 300 bytes   |
+|       on a v-3 file of size 128K!)                                        |
+|     Conditional compilation added: #IFDEF, #IFNDEF, #IFNOT, #ENDIF        |
+|     Slow and memory-intensive abbreviations optimiser added: -u switch    |
+|     Text transcription (-r) added                                         |
+|     Property and attribute "alias" introduced (using code suggested by    |
+|       Art Dyer)                                                           |
+|     Properties and attributes formally separated as types, and a warning  |
+|       introduced for the common accident of missing out a comma in a      |
+|       property list                                                       |
+|     Warning put in for over-long property data (in Version 3 files)       |
+|     Property operators ".", ".&", ".#" added                              |
+|     Direct array and property assignments (eg., a->2=3;) added            |
+|     Expression evaluator tracing improved (and "etrace full" added)       |
+|     Expressions generally reformed, and complicated conditions added      |
+|     Braces made optional for simple if clauses                            |
+|     Negative constants now tokenised correctly and allowed                |
+|     Unary minus, ++ and -- added; x+-1 optimised to x-1                   |
+|     "Children" and other in-lined object functions added                  |
+|     Recondite bug in expressions with nested function calls fixed         |
+|     Preprocessor stack fully rewritten in a cleverer way (and it worked   |
+|       first time!)                                                        |
+|     New-style "for", "objectloop" added (they didn't, though); bug in the |
+|       old "do...until" code fixed                                         |
+|     Assignments can now take the form of a comma-separated-list           |
+|     Braces made optional for arbitrary (nested) new-style constructs      |
+|     Fixed miscellaneous bugs and finally rewrote the expression evaluator |
+|       in a tokenised way, losing about 50 calls to strcmp per operator -  |
+|       which made no noticeable difference to run time but I feel better   |
+|     my_malloc and my_calloc given the correct int type - size_t           |
+|     Rare bug with large constant initial values for global variables when |
+|       int is 2-byte, fixed                                                |
+|     Microsoft Visual C/C++ port added (following Toby Nelson)             |
+|     Line tracing format made more legible (at long last)                  |
+|     strcmp no longer used with possibly null strings (which is allowed    |
+|       by ANSI to crash the machine, and does under Unix)                  |
+|                                                                           |
+|   New Version-5 features in Release 4:                                    |
+|                                                                           |
+|     -v3 and -v5 switches, and VERSION directive, added to switch between  |
+|       producing version 3 (Standard) and version 5 (Advanced) games       |
+|     Rewritten statistics routines; changes to some array limits           |
+|     New Advanced opcodes added                                            |
+|     Optimisation of calls in v-5 code to make use of variant opcodes      |
+|     STYLE command for bold-face, underlining, reverse video               |
+|     READ command replaces the old v-3 opcode of the same name, and        |
+|       emulates it (with an optional status-line-routine) in version 5     |
+|     Dictionary routines rewritten for either 6- or 9-character accuracy   |
+|     New constants #dict_par1, -2, -3 and #version_number                  |
+|     SAVE, RESTORE commands replace the old v-3 opcodes, so as to emulate  |
+|       them in v-5                                                         |
+|     #IFV3 and #IFV5 directives added                                      |
+|     Different file extensions/prefixes for version 5 files                |
+|     BOX command added                                                     |
+|                                                                           |
+\endlines
+\medskip
+\noindent{\bf Inform 5}
+\beginlines
+|     Many minor improvements and bug fixes; object classes; inheritance;   |
+|     embedded routines in object definitions; cosmetic improvements        |
+|                                                                           |
+|     June 1st 1994; revised June 12th (5.1), and again June 19th (5.2)     |
+|                                                                           |
+|     A few corrections by Christopher Wichura for the AMIGA option,        |
+|       and Amiga makefile commented above - 25/1                           |
+|     Variable name in grow_branch() changed on advice of David Ingram      |
+|       (it was called opcode, which was also a typedef'd name) - 14/2      |
+|     Check on exceeding MAX_ROUTINES put in (finally!) - 26/2              |
+|     Minor bug to do with property data exceeding 10 bytes fixed - 13/3    |
+|     Assembler slightly rewritten, and the new opcode naming system        |
+|       introduced: a few minor changes, numerous (unuseful) additions - "  |
+|     Versions 4 and 6 (-v4, -v6) added for completeness - 16/3             |
+|     Some minor tidying up of code suggested by Bob Newell, and the        |
+|       USE_TEMPORARY_FILES option finally made to work on PCs - 17/3       |
+|     Bob's Quick C port added - 17/3                                       |
+|     Nasty (but extremely unlikely) bug to do with data area fixed, and    |
+|       memory allocation for this made more flexible - 30/3                |
+|     Really miserable, vile bug in the expression evaluator to do with     |
+|       exactly the case  function(a-1,b)  fixed - 14/4                     |
+|     Errors added for duplicated and misplaced "else"s - rather important  |
+|       since Inform handles hanging elses slightly naively - 15/4          |
+|     Charles Briscoe-Smith's Atari ST port added - 20/4                    |
+|     John Kennedy's OS/2 port added                                        |
+|     Robin Watts' Archimedes throwback code added                          |
+|     Bob Newell's fix for the } brace underflow bug added (about time too) |
+|     Robert Pelak's Macintosh port added - 26/4                            |
+|     Testing on size of quoted strings added (previously Inform could      |
+|       crash if they were more than 2K long) - 27/4                        |
+|     -j (list objects as made) switch added - 27/4                         |
+|     Better reporting of output file opening errors - 27/4                 |
+|     Code generator fixed to produce only safe calls to get_prop_len       |
+|       (calls with non-existent properties crash some interpreters) - 1/5  |
+|     Code for drawing quotation boxes made smaller and better - 1/5        |
+|     Updated the gcc makefile on Dilip's advice - 2/5                      |
+|     Put error check in for misplaced "switches" directive, after such a   |
+|       mistake confused me for ages - 17/5                                 |
+|     Embedded routines in object declarations added - 18/5                 |
+|     ##Action form added - 18/5                                            |
+|     Forward references to constants now understood (a thorny problem      |
+|       because of the long/short storage dilemma) - 18/5                   |
+|     Classes and inheritance, embedded routines, fake actions added        |
+|     Dictionary routines fixed to allow e.g. "y2" and "pipe-dream" - 19/5  |
+|     -n (print property/attribute numbers as allocated) added              |
+|     <Action ...> added; dictionary address constants reformed - 20/5      |
+|     "Nearby" declarations, and object locations defaulted to "nothing"    |
+|     Bare strings understood as print_ret                                  |
+|     <<Action...>> added - 21/5                                            |
+|     Additive properties; "name" made additive; more logical punctuation   |
+|       of object definitions - 26/5                                        |
+|                                                                           |
+|     At this point the code sat in the incoming directory at ftp.gmd.de    |
+|       for a while and was discovered and looted, after which the          |
+|       following improvements were made, producing Inform 5.2:             |
+|                                                                           |
+|     Old "inform.c" file divided about equally into two, making new file   |
+|       "express.c" for the expression evaluator - a long overdue change    |
+|     Minor bug (to do with 32 properties being exceeded in V5) fixed       |
+|     Memory allocation tracing (-m) and freeing improved                   |
+|     The old ALLOCATE_BIG_ARRAYS option is now mandatory                   |
+|     Memory $ commands (on the command line) added: memory consumption     |
+|       reduced: symbols table memory allocation reformed                   |
+|     Two minor, convoluted bugs in line counting for error reports fixed   |
+|     Temporary files not left lying around after errors have occurred      |
+|     Grammar table extensions added                                        |
+|                                                                           |
+|     Revision 5.3 (as appeared in Acorn User magazine's cover disc)        |
+|                                                                           |
+|     Bob Newell's Quick C port revised, and his compatibility improvements |
+|       incorporated (with the result that some ints are now int32s, and    |
+|       array typing is more careful with double indirection: this explains |
+|       why several apparent char *'s come from int32 ** structures)        |
+|     The #inclusions of the header now written in more orthodox C form     |
+|     Bug in reporting the missing-comma-after-] error, noticed by          |
+|       Teo Kwang Liak, fixed                                               |
+|     Header for Amiga version corrected by Christopher Wichura             |
+|                                                                           |
+|     Revision 5.4                                                          |
+|                                                                           |
+|     Archimedes temporary-file prefixing added                             |
+|     Three memory settings moved int -> int32, one cast in symbols fixed,  |
+|       the huge printf divided into two, some %d's made %ld (at suggestion |
+|       of Robert Pelak and Bob Newell)                                     |
+|     Tab characters ignored when quoted strings split across lines         |
+|       (this overlooked case pointed out by Andrew McMurry)                |
+|     tracing_mode now set to 0 (as it should have been before)             |
+|     @@decimal-number syntax added to text translation, so that untypeable |
+|       chars (e.g. accented letters, graphic chars) can be put in text     |
+|     Error added for spurious code after #include line                     |
+|     Opcode names standardised by agreement with Mark Howell; with         |
+|       the very last transuranic opcode added                              |
+|     -n (property number) tracing improved, in the course of...            |
+|     ...fixing an unfortunate bug in additivity of property inheritance    |
+|       which resulted in some copies of Advent crashing                    |
+|     The * syntax for "-g debug on this routine only" added                |
+|     Really foolish bug in tokeniser (first token buffer 1 byte too short  |
+|       with lines beginning with long-named function calls) fixed          |
+|     Extensive support for the Infix debugger added                        |
+|     String literals longer than 509 chars, the ANSI safe limit, divided   |
+|       (at request of Brad Jones)                                          |
+|     Constant form 'word' now allowed in object/class property defns       |
+|     'scope=' token support added, and 'name=' consequently renumbered     |
+|     Bug in input routines which didn't allow '"' fixed                    |
+|     Error messages generally revised and clarified                        |
+|     Bug to do with crashing on a long initial token which isn't a string  |
+|       removed, and error messages protected against excessive length      |
+|                                                                           |
+|     Slight updates in releasing 5.4 (Oct 1994):                           |
+|     Minor variable definition mishap fixed                                |
+|     More ANSI printing of hex addresses which overflow 16-bit ints        |
+|     Bug to do with default property values on 16-bit-int machines fixed   |
+|     The Sibelius Bug fixed (this caused some if statements not to put     |
+|       braces properly around single statements, when the first character  |
+|       of the corresponding source line was a TAB).  (This bug is so known |
+|       because Bob Newell had a sudden flash of inspiration and fixed it   |
+|       on his laptop while killing time in a hotel in Minot, North Dakota, |
+|       where he was staying to record a radio programme of Scandinavian    |
+|       music, including Sibelius' Concerto for Violin and Orchestra in D   |
+|       minor.  The opening cadenza is reminiscent of tab stops...)         |
+|     More of Bob's int32/int corrections made                              |
+|                                                                           |
+|     Maintenance, Dec 94 and Jan 95:                                       |
+|     The empty string "" now causes an error (rather than going wrong)     |
+|     Extend "first" grammar comes out in the right order now, and doesn't  |
+|       waste a grammar line (as it used to)                                |
+|     Inheritance of attributes numbered 32 and over from classes used to   |
+|       have regrettable side-effects (unexpected extra attributes sometimes|
+|       appeared), but hopefully no longer                                  |
+|     Expression evaluator mended.  Arithmetic like a-b-c now implicitly    |
+|       brackets as (a-b)-c, not a-(b-c).  This is obviously preferable.    |
+|       Similarly a->b->c now means (a->b)->c, which I think is the right   |
+|       thing to do but just might be a dangerous change for code already   |
+|       in existence: well, I'll take the risk                              |
+|     Boring expression tracing bug fixed                                   |
+|     MAX_ROUTINES checking was out by one: now mended                      |
+|     Opcode same_parent now renamed jin (since it turns out to jump if in) |
+|       and the "in" condition correspondingly more efficiently coded to    |
+|       use this opcode, saving compilation time and code space (slightly). |
+|     Games with large quantities of extra grammar could crash Inform in    |
+|       v1404 and before, owing to a verb name table overflowing without    |
+|       being checked.  This table space is expanded (as it's cheap on      |
+|       memory anyway), and its size is a new memory setting, MAX_VERBSPACE.|
+|     The display of memory settings has been alphabetically sorted         |
+\endlines
+\hrule
+\smallskip
+\end

@@ -1,0 +1,101 @@
+!--------------------------------------------------------------------------
+! A drinks machine: see p. 54 in the Designer's Manual.
+! 
+! Two fine points - the button rejects a plain word like "coffee" to refer
+! to the coffee button if the player is currently holding a cup of coffee:
+! this prevents "drink coffee" being misinterpreted.
+! 
+! Also, the "itobj" is reset so that "it" refers to the just-served cup.
+! 
+! Graham A Nelson, 26/10/94
+!--------------------------------------------------------------------------
+
+Constant Story "INFORMA COLA";
+Constant Headline "^An Additive-Free Interactive Example^by Graham Nelson^";
+
+Include "parser";
+Include "verblib";
+Include "grammar";
+
+[ Initialise;
+    location = Cafe;
+    print "^^^^^Enjoy...^^";
+];
+
+Object  Cafe "Cafe Inform"
+ has    light
+ with   description "A highly fashionable but desperately ill-equipped \
+            cafe, locked up after closing time.",
+        cant_go "The Cafe is closed up.";
+
+Nearby  drinksmat "drinks machine",
+ has    static
+ with   initial "The drinks machine here has three buttons: Cola, Coffee, \
+            Tea.",
+        name "drinks" "machine";
+
+Nearby  thebutton "drinks machine button"
+ has    scenery
+ with   parse_name [ i flag w type;
+            for (: flag == 0: i++) {
+                flag = 1;
+                w = NextWord();
+                if (w == 'button' or 'for') flag = 0;
+                if (w == 'coffee' && type == 0) { flag = 0; type = 1; }
+                if (w == 'tea' && type == 0)    { flag = 0; type = 2; }
+                if (w == 'cola' && type == 0)   { flag = 0; type = 3; }
+            }
+            i--;
+            if (type==drink.number && i==1 && type~=0 && drink in player)
+                return 0;
+            self.number=type;
+            return i;
+        ],
+        number 0,
+        before [;
+         Push, SwitchOn:
+            if (self.number == 0)
+                "You'll have to say which button to press.";
+            if (parent(drink) ~= 0) "The machine's broken down.";
+            drink.number = self.number;
+            move drink to player;
+            itobj = drink;
+            print_ret "Whirr!  The machine puts ", (a) drink, " into your \
+                glad hands.";
+         Attack:
+            "The machine shudders and squirts cola at you.";
+         Drink:
+            "You can't drink until you've worked the machine.";
+        ];
+
+Object  drink "drink"
+  with  parse_name [ i flag w type;
+            for (: flag == 0: i++) {
+                flag = 1;
+                w = NextWord();
+                if (w == 'drink' or 'cup' or 'of') flag = 0;
+                if (w == 'coffee' && type == 0)  { flag = 0; type = 1; }
+                if (w == 'tea' && type == 0)     { flag = 0; type = 2; }
+                if (w == 'cola' && type == 0)    { flag = 0; type = 3; }
+            }
+            i --;
+            if (i == 0 || (type ~= 0 && type ~= self.number)) return 0;
+            return i;
+        ],
+        short_name [;
+            switch (self.number) {
+             1: print "cup of coffee";
+             2: print "cup of tea";
+             3: print "cup of cola";
+            }
+            rtrue;
+        ],
+        number 0,
+        before [;
+         Drink:
+            remove self;
+            "Ugh, that was awful.  You crumple the cup and responsibly \
+            dispose of it.";
+        ];
+
+End;

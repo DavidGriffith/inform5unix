@@ -1,0 +1,55 @@
+
+                    The Inform demonstration games
+                    ==============================
+
+  The Inform compiler comes with a selection of demonstration games, in
+source code form.  For the most part these haven't been altered in 18
+months, but I promised I'd update them (to a more modern style of coding)
+last October when the new Designer's Manual came out: finally, here they
+are.  A few bugs have also been fixed (except in "Balances", where an
+enormous number of bugs have been fixed).
+
+  The example games are...
+
+      Advent.   The first to look at; an Inform translation of the classic
+                mainframe adventure by Crowther and Woods, also known as
+                "Colossal Cave".
+
+      Toyshop.  A small, not very coherent "game" containing interesting or
+                unusual object definitions ("Advent" needs little clever
+                coding, being an old-fashioned game, so this fills the
+                gap.)
+
+      Balances. A short story of no great interest except that it was
+                designed to contain as many nasty parsing puzzles as I
+                could think of at the time; writing names on things,
+                flexible verb names, numbered lottery tickets, groups
+                of tricky plural objects and so on.  Some people like
+                it as a game, too.
+
+      Museum of Inform.  This is a brand new "game"; not really a game
+                at all, but a museum packed with dozens of exercises
+                from the Designer's Manual and other interesting exotic
+                objects.  The Museum code may be useful for cutting out
+                the good bits and pasting into your own games.
+
+There is also "Adventureland", a port of the primitive Scott Adams classic,
+but it's not particularly intended as an example game and I haven't meddled
+with it.
+
+  To compile these games in their new forms, you need to have Inform 5.5
+together with library 5/12 or later.
+
+
+  The games are at present to be found at ftp.gmd.de, as source and compiled
+code, in the directory incoming/if-archive: after a few days they should end
+up in
+
+  if-archive/infocom/compilers/inform/examples.
+
+Source code files end in ".inf" (download in ASCII mode); compiled games
+end in ".z5" (download in BINARY).
+
+
+       Graham Nelson
+       December 21st, 1995

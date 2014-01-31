@@ -1,0 +1,296 @@
+!--------------------------------------------------------------------------
+! A GOOD EAR: a Sony Discman in Inform by Sam Hulick 
+! <shulick@apricot.ucs.indiana.edu>
+! 
+! This is a Discman (a small portable CD-player, just in case this is
+! unclear to Brits).  This is a pretty in-depth CD player: it does just
+! about everything except search forward and back.  It opens, closes,
+! plays, stops, pauses, and skips to previous/next tracks.
+! 
+! This program is free.  You can copy it directly from here and use it in
+! your game for all I care.  Just enjoy it.  But if you use it, please
+! e-mail me if you can.
+! 
+! Altered a bit by Gareth Rees (9/95) to use Inform 5/5 and be a bit more
+! object-oriented.  All the code for operating the CD is contained in one
+! object definition, and the buttons each pass messages to the CD player to
+! cause things to happen.  A couple of global variables have become
+! properties.  This all allows you to have several CD players in the same
+! game, if necessary (it should be easy to turn the Discman object into a
+! class).
+!--------------------------------------------------------------------------
+
+Constant Story "A GOOD EAR";
+Constant Headline "^A Byproduct of Boredom, by Sam Hulick^Freely \
+    distributable.^";
+
+Include "parser";
+Include "verblib";
+Include "grammar";
+
+[ Initialise;
+    location = YourRoom;
+    "^^^^^You really have nothing better to do today than to play with \
+    your new CD-player.^^";
+];
+
+Fake_Action WhichCD;   ! Describes open/closed status of CD player
+Fake_Action DoStartCD; ! CD starts playing
+Fake_Action DoStopCD;  ! CD stops playing
+Fake_Action PlayCD;    ! User presses PLAY button
+Fake_Action StopCD;    ! User presses STOP button
+Fake_Action PauseCD;   ! User presses PAUSE button
+Fake_Action NextCD;    ! User presses NEXT button
+Fake_Action PrevCD;    ! User presses PREV button
+
+Property cd_track;     ! The track the CD player is playing
+Property cd_pos;       ! The position within that track
+Attribute is_disc;     ! Distinguishes CDs from other objects
+Property tracks;       ! List of track information for CD
+Property push_action;  ! What action to take when a button is pushed
+
+Object  YourRoom "Your Room"
+ has    light
+ with   name "paper" "piles" "papers" "dirt" "spots" "junk" "food"
+            "junkfood" "greasy" "boxes" "speaker" "speakers" "hi-fi",
+        description "A complete mess, with piles of papers in the corner, \
+            dirt spots on the walls, and various junkfood lying around in \
+            greasy boxes.";
+
+!--------------------------------------------------------------------------
+! A CD is represented by an object whose `tracks' property is a list of
+! arrays containing track information.  Each array is a list of strings
+! which should be printed (one per turn) while the CD is playing.
+!--------------------------------------------------------------------------
+
+Array OboeTrack table [;
+    "A single oboe fades in, holding a single wavering note.";
+    "A flute joins in, creating a beautiful counterpoint as the oboe \
+    descends and the flute takes over the oboe's wavering manner.";
+    "The two instruments slow their tempos and finish with a soft \
+    ending."
+];
+
+Array PianoTrack table [;
+    "The piano piece begins with a few simple - yet beautiful - chords.";
+    "A tempo builds, slowly, and the motif developed thus far begins to \
+    embellish.";
+    "Suddenly the tempo quickens, and the notes sound off in a flurry, up \
+    and down the scales like some musical roller coaster.";
+    "The piece ends suddenly with a conclusive chord.";
+];
+
+Nearby  TranquilCD "Tranquil Sounds CD"
+ has    is_disc
+ with   name "cd" "sounds" "tranquil",
+        article "your",
+        description "A CD with just a couple pieces on it.",
+        tracks OboeTrack PianoTrack;
+
+Array HumptyTrack table [;
+    "~Humpty Dumpty sat on a wall,~";
+    "~Humpty Dumpty had a great fall.~";
+    "~And all the king's horses and all the king's men,~";
+    "~Couldn't put Humpty together again.~";
+];
+
+Array MaryTrack table [;
+    "~Mary had a little lamb,~";
+    "~Little lamb,~";
+    "~Little lamb,~";
+    "~Mary had a little lamb, whose fleece was white as snow.~";
+];
+
+Array MacdonaldTrack table [;
+    "~Old MacDonald had a dungeon, E-I-E-I-O...~ Wait, something is a bit \
+    wrong here.";
+    "~And in that dungeon he had a grue, E-I-E-I-O,~";
+    "~With a 'gnash gnash' here and a 'claw claw' there,~";
+    "~Here a 'gnash' there a 'claw' everywhere a 'claw claw',~";
+    "~Old MacDonald had a dungeon, E-I-E-I-O.~";
+];
+
+Nearby  KidsCD "Kids' Tunes CD"
+ has    is_disc
+ with   name "cd" "kid" "kids" "tunes",
+        description "It's a CD with a few kids' tunes on it.",
+        tracks HumptyTrack MaryTrack MacdonaldTrack;
+
+Nearby  Discman "Sony(TM) Discman"
+ has    static container openable
+ with   name "player" "discman" "sony" "cd-player",
+        cd_track 0,
+        cd_pos 1,
+        number 0,   ! 0 if CD is stopped
+                    ! 1 if it is playing
+                    ! 2 if it is paused
+        daemon [ c;
+            c = child(self);
+            if (self.cd_pos > ((c.&tracks)-->(self.cd_track))-->0) {
+                self.cd_track = self.cd_track + 1;
+                self.cd_pos = 1;
+                if (self.cd_track >= c.#tracks / 2) {
+                    <DoStopCD self>;
+                    "The end of the CD is reached, and the Discman \
+                    stops.";
+                }
+                "There is a pause between tracks...";
+            }
+            print "^", (string)
+                ((c.&tracks)-->(self.cd_track))-->(self.cd_pos);
+            self.cd_pos = self.cd_pos + 1;
+            new_line;
+        ],
+        description [;
+            print "Brand spankin' new from the department store down \
+                town. It has several buttons on it, labelled: PLAY, \
+                PAUSE, STOP, OPEN, PREV, NEXT. The CD player is hooked up \
+                to your huge speakers. There is also a LCD display on the \
+                Discman. The player is currently ";
+            <WhichCD self>;
+            ".";
+        ],
+        describe [;
+            print "^Your new Sony(TM) Discman is here. It's ";
+            <WhichCD self>;
+            ".";
+        ],
+        before [;
+         DoStopCD:
+            self.number = 0;
+            self.cd_track = 0;
+            self.cd_pos = 1;
+            StopDaemon(self);
+         DoStartCD:
+            self.number = 1;
+            StartDaemon(self);
+         WhichCD:
+            if (self hasnt open)
+                print "closed";
+            else {
+                print "open, ";
+                if (children(self) ~= 0)
+                    print "revealing ", (the) child(self);
+                else
+                    print "but empty";
+            }
+         Take: "It's all wired to your speakers, leave it be.";
+         Open:
+            if (self has open)
+                "The CD-player is already open.";
+            give self open;
+            ResetVagueWords(self);
+            if (self.number > 0) {
+                <DoStopCD self>;
+                print_ret "You interrupted the playing by opening the \
+                    Discman. You watch ", (the) child(self), " spin and \
+                    spin until it finally stops.";
+            }
+            print "The CD-player is now "; 
+            <WhichCD self>;
+            ".";
+         PlayCD:
+            if (self has open)
+                "Try closing the Discman first.";
+            if (children(self) == 0) 
+                "The display on the Discman reads ~Error~ for a moment.";
+            if (self.number == 1) 
+                "It's already playing.";
+            if (self.number == 2) 
+                "Press PAUSE to unpause.";
+            <DoStartCD self>;
+            "You press the PLAY button.";
+         StopCD:
+            if (self has open || self.number == 0)
+                "Nothing happens.";
+            <DoStopCD self>;
+            "The CD stops playing.";
+         PauseCD:
+            if (self.number == 2) {
+                <DoStartCD self>;
+                "You unpause the CD-player.";
+            }
+            if (self.number ~= 1)
+                "Nothing happens.";
+            self.number = 2;
+            StopDaemon(self);
+            "You pause the CD-player.";
+         PrevCD:
+            if (self has open || children(self) == 0)
+                "Nothing happens.";
+            self.cd_track = (self.cd_track + (child(self).#tracks / 2)
+                - 1) % (child(self).#tracks / 2);
+            self.cd_pos = 1;
+            print_ret "The track number on the display changes to ",
+                self.cd_track + 1, ".";
+         NextCD:
+            if (self has open || children(self) == 0)
+                "Nothing happens.";
+            self.cd_track = (self.cd_track + 1) % (child(self).#tracks / 2);
+            self.cd_pos = 1;
+            print_ret "The track number on the display changes to ",
+                self.cd_track + 1, ".";
+         Receive: 
+            if (noun hasnt is_disc) 
+                "Didn't mommy ever tell you to not put things where they \
+                don't belong?";
+            if (children(self) ~= 0) 
+                "Only one CD will fit at a time.";
+        ],
+        after [;
+         Close:
+            <DoStopCD self>;
+        ],
+        add_to_scope OpenButton PlayButton StopButton PauseButton
+            PrevButton NextButton LCD;
+
+Nearby  Pencil "pencil"
+ with   name "pencil",
+        description "It's just a number two pencil.";
+
+Class   ButtonClass
+ has    static
+ with   name "button",
+        before [;
+         Take: "The button is part of your Discman.";
+         Push: <<(self.push_action) Discman>>;
+         Examine:
+            print_ret "It's the ", (name) self, ".";
+        ];
+
+Object  LCD "liquid crystal display"
+ with   name "lcd" "display" "liquid" "crystal",
+        description [;
+            if (Discman has open)
+                "The display is blank.";
+            print_ret "Track ", Discman.cd_track + 1, ".";
+        ],
+        before [;
+         Take: "That's part of the CD-player.";
+        ];
+
+Object  OpenButton "OPEN button"
+ class  ButtonClass
+ with   name "open", push_action Open;
+
+Object  PlayButton "PLAY button"
+ class  ButtonClass
+ with   name "play", push_action PlayCD;
+
+Object  StopButton "STOP button"
+ class  ButtonClass
+ with   name "stop", push_action StopCD;
+
+Object  PauseButton "PAUSE button"
+ class  ButtonClass
+ with   name "pause", push_action PauseCD;
+
+Object  PrevButton "PREV button"
+ class  ButtonClass
+ with   name "prev", push_action PrevCD;
+
+Object  NextButton "NEXT button"
+ class  ButtonClass
+ with   name "next", push_action NextCD;
+
+End;

@@ -1,0 +1,235 @@
+!------------------------------------------------------------------------------
+! demonstration of 'scenery description' implementation
+!
+! change log
+!
+! 950118  r1  first version
+! 960215  r2  second version;  after examining a scenery object, `it' now
+!             appears to refer to the object;  also the `that's just
+!             scenery' message (RDB_SCENERY_PE) has the same priority as
+!             `that's not something you need to refer to ...' (SCENERY_PE)
+!             when complaining.
+!------------------------------------------------------------------------------
+
+Switches dexv5;
+
+Constant Story "A SCENIC VIEW";
+Constant Headline "^A demo of object-less `scenery descriptions'^\
+             by Richard Barnett.^";
+Release 2;
+
+Global  specWord;
+
+Replace CantSee;
+Constant RDB_SCENERY_PE 100;    ! to indicate reference to a scenery non-obj
+
+#include "Parser";
+#include "VerbLib";
+
+Property  sceneDesc $ffff;
+
+!==============================================================================
+! action routines
+!==============================================================================
+
+Object  ScDescDummyObj "scDescDummy",
+  with  description 
+        [;  ! print description of the scenery
+            print (string) self.number; new_line; rtrue;
+        ],
+        short_name
+        [;  ! print correct name for the rare cases (pronouns, (taking the
+            ! ... first)) when we need the short name
+            if (self.n_to ~= 0) { print (address) self.n_to; rtrue; }
+        ],
+        before
+        [;  ! allow Examine actions to pass, but stop all other actions &
+            ! print an appropriate message
+            Examine: rfalse;
+            default: "That's just scenery.";
+        ],
+        n_to 0,     ! stores addr of dict word naming scenery last examined
+        number 0,   ! stores addr of string describing scenery last examined
+        found_in
+        [; rtrue; ],    ! found everywhere so always in scope (if it's light)
+   has  concealed;
+
+[ GetScDescAddr loc spWord addr len i;
+    addr = loc.&sceneDesc;
+    len = loc.#sceneDesc;
+    if (addr-->0 == $ffff)
+        ! no sceneDesc property, so return 0
+        return 0;
+    for (i = 0 : i < (len / 2) : i = i + 2)
+        if (spWord == addr-->i)
+            ! found spWord, so return addr of its description string
+            return addr-->(i + 1);
+    ! not found;  return 0
+    return 0;
+];
+
+[ AnyWord w;
+    w = NextWord();
+    if (w ~= -1)
+    {
+        specWord = w;
+        return 0;
+    }
+    return -1;
+];
+
+[ SceneDescSub addr;
+    addr = GetScDescAddr(location, specWord);
+    if (addr == 0)
+    {
+      if ((location has visited)
+             && Refers(location, specWord)==1)
+        "That's not something you need to refer to in the course of \
+         this game.";
+      "You can't see any such thing.";
+    }
+    ! set itobj so that `x it' or `get it' etc now work
+    itobj = ScDescDummyObj;
+    ! store addrs of dict word naming scenery & string describing it in
+    ! ScDescDummyObj 
+    itobj.number = addr;
+    itobj.n_to = specWord;
+    ! print the description
+    print (string) addr;
+    new_line;
+    return 0;
+];
+
+[ CantSee  i w e;
+    saved_oops=oops_from;
+
+    if (scope_token~=0) { scope_error = scope_token; return ASKSCOPE_PE; }
+
+    wn--; w=NextWord();
+    e=CANTSEE_PE;
+    if (w==vague_word) e=ITGONE_PE;
+    i=parent(actor);
+    if (i has visited && Refers(i,w)==1) e=SCENERY_PE;
+    ! is it an attempt to refer to a scenery non-obj?
+    if (GetScDescAddr(i,w) ~= 0) e=RDB_SCENERY_PE;
+    if (etype>e) return etype;
+    ! RDB_SCENERY_PE should have the same priority as SCENERY_PE; since
+    ! it's numerically greater, use this test.
+    if ((e == RDB_SCENERY_PE) && (etype > SCENERY_PE)) return etype;
+    return e;
+];
+
+[ ParserError eType;
+    if (eType == RDB_SCENERY_PE)
+      "That's just scenery.";
+    return 0;
+];
+
+!==============================================================================
+! objects
+!==============================================================================
+
+Object  outerSwamp "Swamp"
+  with  description "Swathes of rushes grow at the edge of the swamp;  behind \
+                     them rise the tall trees which form the verdant canopy \
+                     over the marsh's mud.",
+        name "swamp" "bog" "marsh",
+        found_in sRockOutcrop nRockOutcrop,
+   has  scenery;
+
+!==============================================================================
+
+Object  sRockOutcrop "South end of rock outcrop"
+  with  description "You stand at the lower end of a bare rock outcrop \
+                     situated where a dismal region of swamp meets the sea;  \
+                     it rises to a flat peak to the northeast.  The stone \
+                     underfoot is pale and unweathered, supporting no plant \
+                     life, but there's a dark shape some way up the slope.  \
+                     The ocean and a small beach are to the south, while the \
+                     swamp thins a bit at the north end of the crag.",
+        n_to nRockOutcrop,
+        s_to rockBeach,
+        ne_to caveMouth,
+        u_to caveMouth,
+        sceneDesc 'tree'    "Straight-trunked and inaccessible."
+                  'mud'     "It's slimy, dark and malodorous."
+                  'rushes'  "They're home to insects and swamp birds.",
+        name "peak",
+   has  light;
+
+!==============================================================================
+
+Object  rockBeach "Rock beach"
+  with  description "The ridge to the north forms a rock beach here as it \
+                     slopes gently down into the peaceful ocean.",
+        n_to sRockOutcrop,
+        sceneDesc 'ocean' "Currently calm, it reflects the overcast sky."
+                  'water' "It's clear, except where the gentle waves stir up \
+                           some silt.",
+   has  light;
+
+!==============================================================================
+
+Object  nRockOutcrop "North end of rock outcrop"
+  with  description "The rock ridge thrusts out of the vaporous swamp, with \
+                     sheer drops of several meters down to the semi-solid \
+                     surface.  To the northwest, the swamp is somewhat \
+                     thinner and there appears to be some solid ground:  a \
+                     path winds into the trees, and you could climb down to \
+                     it without much difficulty.  You can still see the dark \
+                     shape upslope and to the southeast, and wonder whether \
+                     it's a cave.",
+        s_to sRockOutcrop,
+        se_to caveMouth,
+        u_to caveMouth,
+        nw_to "The humidity and heat in the swamp would play havoc with your \
+	       chest condition.",
+        d_to "The humidity and heat in the swamp would play havoc with your \
+	       chest condition.",
+   has  light;
+
+!==============================================================================
+
+Object  caveMouth "Near a cave mouth"
+  with  description "The ridge rises another ten metres or so above you, but \
+                     there are no obvious foot- or handholds for the first \
+                     five;  you can't really get much higher.  Nevertheless, \
+                     the view is expansive if not very impressive:  a dark \
+                     spire pokes out of the swamp to the north;  a wide river \
+                     flows through the swamps and joins the sea to the east, \
+                     and there are a few rocky islands to be seen in the \
+                     ocean.  The dark shape you saw earlier is, as has been \
+                     evident for some time, a small cave mouth.  The best \
+                     routes back down are to the north- and southwest.",
+        nw_to nRockOutcrop,
+        d_to nRockOutcrop,
+        sw_to sRockOutcrop,
+        in_to "Claustrophobia is a cruel affliction;  perhaps someday a cure \
+	       will come to light.",
+	sceneDesc 'spire' "Tall and slender; at its tip is something which \
+			   catches the sunlight."
+		  'river' "Its waters are a bilious yellow."
+		  'ocean' "The yellow taint of the river's flow extends out \
+			   towards one of the islands:  evidence of a strong \
+			   current."
+		  'islands' "Wind and wave have carved them into uncanny \
+			     configurations.",
+   has  light;
+
+!==============================================================================
+
+[ Initialise;
+    location = sRockOutcrop;
+    print "^^You awaken, and find yourself somewhere scenic...^^";
+];
+
+!==============================================================================
+
+#include "Grammar";
+
+Extend "examine" last
+                 * AnyWord                 -> SceneDesc;
+Extend "look" last
+              * "at" AnyWord               -> SceneDesc;
+
+end;

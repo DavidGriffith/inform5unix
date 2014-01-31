@@ -1,0 +1,130 @@
+! ----------------------------------------------------------------------------
+!  A short demonstration of the new "add_to_scope" (new in library 5/6):
+!  a global object (one's nose) sneakily provided in scope whenever the player
+!    is (which is to say, always!);
+!  and a single object (the steriliser), which is both supporter and container
+!    at the same time as having internal parts (well, one, anyway)
+! ----------------------------------------------------------------------------
+
+Switches dv5; Release 1;
+
+Constant Story "A NASAL TWINGE";
+Constant Headline "^An Interactive Aroma^\
+             Copyright (c) 1994 by Graham Nelson.^";
+
+Include "Parser";
+Include "VerbLib";
+Include "Grammar";
+
+Object newplay "yourself"
+  with description "As good-looking as ever.", number thedark,
+       add_to_scope nose,
+       capacity 5,
+       before
+       [;  Inv: if (nose has general) print "You're holding your nose.  ";
+           Smell: if (nose has general)
+                      "You can't smell a thing with your nose held.";
+       ],
+  has  concealed animate proper transparent;
+
+Object nose "nose"
+  with name "nose", article "your",
+       before [; Take: if (self has general)
+                           "You're already holding your nose.";
+                       if (children(player) > 1) "You haven't a free hand.";
+                       give self general; player.capacity=1;
+                       "You hold your nose with your spare hand.";
+                 Drop: if (self hasnt general) "But you weren't holding it!";
+                       give self ~general; player.capacity=5;
+                       print "You release your nose and inhale again.  ";
+                       <<Smell>>;
+              ],
+  has  scenery;
+
+Verb "pinch" "tweak"
+       * noun                                        -> Take;
+Verb "release" "let"
+       * noun                                        -> Drop
+       * "go" "of" noun                              -> Drop;
+
+Object lab "Chemical Laboratory"
+  with description
+          "A crowded laboratory, packed with fuming flasks and retort \
+           stands, gas taps and ventilated cupboards.  Noxious-looking \
+           air seeps in from the north.",
+       cant_go "The only exit is to a northern annexe, but the air looks
+                cloudy there.",
+       n_to corridor
+  has  light;
+
+Nearby conic "conical flask"
+  with name "conical" "cone" "flask";
+Nearby beaker "Pyrex beaker"
+  with name "beaker" "pyrex";
+Nearby mat "asbestos mat"
+  with name "asbestos" "heatproof" "mat";
+
+Nearby washing "sterilising machine"
+  with name "washing" "sterilising" "machine",
+       add_to_scope  top_of_wm  go_button,
+       before [; PushDir: AllowPushDir(); rtrue;
+                 Receive:
+                     if (receive_action==##PutOn)
+                         <<PutOn noun top_of_wm>>;
+                 SwitchOn: <<Push go_button>>; ],
+       after
+       [; PushDir: "It's hard work, but the steriliser does roll.";
+       ],
+       initial
+       [;  print "There is a sterilising machine on casters here (a kind of \
+               chemist's washing machine) with a ~go~ button.  ";
+           if (children(top_of_wm)~=0)
+           {   print "On top";
+               WriteListFrom(child(top_of_wm), ISARE_BIT + ENGLISH_BIT);
+               print ".  ";
+           }
+           if (children(self)~=0)
+           {   print "Inside";
+               WriteListFrom(child(self), ISARE_BIT + ENGLISH_BIT);
+               print ".  ";
+           }
+       ],
+  has  static container open openable;
+
+Object top_of_wm "top of the sterilising machine",
+  with article "the",
+  has  static supporter;
+
+Object go_button "~go~ button"
+  with name "go" "button",
+       before [; Push, SwitchOn: "The power is off."; ],
+  has  static;
+
+Object box "box" top_of_wm
+  with name "box",
+  has  container openable;
+Object paper "strip of litmus paper" box
+  with name "strip" "of" "litmus" "paper";
+
+Object corridor "Fumy Corridor"
+  with description "A fumy corridor, where your eyes stream.",
+           s_to lab, n_to safety,
+       each_turn [; if (nose hasnt general)
+                    { deadflag=1; "The fumes overcome you!"; }
+                 ],
+       before
+       [;  Smell: "A horrid scent of ammonia!";
+       ],
+  has  light;
+
+Object safety "Safety!"
+  with description "Safe at last from the foul air, you find yourself in the \
+                    foyer.", s_to corridor
+  has  light;
+
+[ Initialise;
+  location = lab; move newplay to lab; ChangePlayer(newplay);
+  print "^^^^^Oh no, you've developed...^^";
+];
+
+end;

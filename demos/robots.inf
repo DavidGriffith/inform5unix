@@ -1,0 +1,732 @@
+! --------------------------------------------------------------------------
+!  "ROBOTS":  Another abuse of the Z-machine, Copied Right in 1995
+!
+!  I got the idea of writing this when seeing Andrew Plotkin's much more
+!  interesting game "Freefall". I used his code for reference about some
+!  technical details.
+!
+!  I don't know who originally came up with this game idea. I have seen it
+!  under the name "DALEKS", but that version was a bit different. This one
+!  uses (almost) both the layout and the key configuration of the version
+!  which can, at least usually, be found in /usr/games on Unix systems.
+!
+!  To compile this program, you need to use Inform 5.5 or later.
+!
+!  This program was written by Torbj|rn Andersson, d91tan@Minsk.DoCS.UU.SE
+!
+!  Feel free to do whatever you want with this code, but if you find any
+!  bug, please try to find some way of telling me. If you like it, don't
+!  forget to smile. If you think you can make money from it, you are more
+!  optimistic than I thought.
+!
+!  Release 2 makes some slight optimizations (I hope) to the code which
+!  detects collisions between robots, and makes a few cosmetic changes.
+!
+!  Release 3 cleans up some of the code a bit, makes some further
+!  optimizations to the collision-detection and allows the user to keep
+!  playing even when the maximum number of robots have been reached. (It
+!  just won't increase the number of robots any further.) For this reason,
+!  I've lowered the maximum number of robots from 500 to 300, which should
+!  still be more than enough.
+!
+!  Release 4 changes @read_char 1 0 0 key; to @read_char 1 key; since I
+!  have been informed (no pun intended) that the former is considered
+!  illegal by some intepreters. Of course, I then felt obliged to test the
+!  limits of portability again by changing it to use @@156 for the non-
+!  standard character in my name. To make the new release a bit more worth-
+!  while, I've cleaned up MoveRobots() a bit (I hope), and added a variable
+!  to keep track of bonus earned while waiting.
+!
+!  Release 5; I was told that @beep without argument crashed an
+!  interpreter (I don't know which one), so I changed it to use
+!  @sound_effect 1 instead, to comply with the most recent version of the
+!  Z-machine specification.
+! --------------------------------------------------------------------------
+
+Switches xv5s;
+
+Release 5;
+
+! Game constants
+
+Constant PrefLines	24;		! This is the screen size for which
+Constant PrefCols	80;		! the game is designed.
+
+Constant FieldRows	22;		! Size of the playing field.
+Constant FieldColumns	59;
+Constant FieldSize	1298;		! FieldRows * FieldColumns
+
+Constant RobotScore	10;		! Points for killing one robot
+Constant BonusScore	11;		! Ditto while 'W'aiting.
+Constant Robot		'+';		! Symbols used on the game field
+Constant Player		'@';
+Constant JunkHeap	'*';
+Constant Empty		0;
+
+Constant IncRobots	10;		! Robots added for each level
+Constant MaxRobots	300;		! Max number of robots
+
+! Global variables
+
+Global sw__var		= 0;		! Needed for switch() and such
+
+Global score		= 0;		! Current score
+Global high_score	= 0;		! Highest score this session
+Global waiting		= 0;		! Set when 'W'aiting
+Global wait_bonus	= 0;		! Bonus while waiting
+Global beep_flag	= 1;		! Sound on/off
+Global player_x		= 0;		! Player's current position
+Global player_y		= 0;		!          -  "  -
+Global num_robots	= IncRobots;	! Number of robots on level
+Global active_robots	= IncRobots;	! Number of live robots on level
+
+! The PlayingField contains information about robots and junkheaps (though not
+! about the player). It is used for fast lookup when moving the player or a
+! robot. An alternative solution would be to keep an array of the junkheaps,
+! similar to RobotList, which would save memory but which would also be much
+! less efficient.
+
+Global PlayingField ->  FieldSize;
+
+! The RobotList encodes the individual robots' positions in words (two bytes),
+! and is used to speed up the operations which work on all robots. It would be
+! possible to search PlayingField, but that would be impractical. It is assumed
+! that no player will survive long enough for the array to overflow.
+
+Global RobotList    --> MaxRobots;
+
+! --------------------------------------------------------------------------
+!   MAIN FUNCTION
+!
+!   The earliest-defined routine is not allowed to have local variables, so
+!   I have put all that needs local variables in separate functions.
+! --------------------------------------------------------------------------
+
+[ Main;
+    TestScreenSize();
+
+    print "^^";
+
+    Banner();
+
+    print "^~You can't miss it,~ they said. ~A white house in a clearing \
+	   with a small mailbox outside; just open the kitchen window and \
+	   the entrance to the Great Underground Empire isn't far away.~^^";
+    print "You found the house and the window all right, and a trapdoor \
+	   leading down. But as the trapdoor crashed shut behind you, you \
+	   realized that something was very wrong. Surely the GUE shouldn't \
+	   look like a large square room with bare walls, and what about \
+	   those menacing shapes advancing towards you ...?^^";
+    print "[Press any key to continue.]^";
+
+    ReadKeyPress();
+
+    while (PlayGame() ~= 0);
+
+    ! These magic incantation should restore the screen to something more
+    ! normal (for a text adventure). Actually, I'm not 100% sure how much of
+    ! this is really needed.
+    @set_cursor 1 1;
+    @split_window 0;
+    @erase_window $ffff;
+    @set_window 0;
+
+    print "^^The idea of writing something like this came from seeing Andrew \
+	   Plotkin's much more interesting game 'Freefall'. It's really \
+	   quite amusing to see what the Z-machine can do with a little \
+	   persuasion.^^";
+    print "Torbj@@156rn Andersson, 1995^^";
+    print "[Press any key to exit.]^";
+
+    ReadKeyPress();
+    quit;
+];
+
+[ Banner i;
+    style bold; print "ROBOTS"; style roman;
+    print " - Another abuse of the Z-Machine^";
+    print "A nostalgic diversion by Torbj@@156rn Andersson^";
+    print "Release ", (0-->1) & $03ff, " / Serial number ";
+
+    for (i = 18 : i < 24 : i++)
+	print (char) 0->i;
+
+    print " / Inform v";
+    inversion;
+
+    new_line;
+];
+
+! --------------------------------------------------------------------------
+!   THE ACTUAL GAME
+! --------------------------------------------------------------------------
+
+! This function plays a game of "robots"
+
+[ PlayGame x y n key got_keypress meta old_score;
+    ! Clear the screen, initialize the game board and draw it on screen.
+    y = FieldRows + 2;
+
+    @erase_window $ffff;
+    @split_window y;
+    @set_window   1;
+
+    score         = 0;
+    num_robots    = IncRobots;
+    active_robots = IncRobots;
+
+    InitPlayingField();
+    DrawPlayingField();
+
+    ! "Infinite" loop (there are 'return' statements to terminate it) which
+    ! waits for keypresses and moves the robots. The 'meta' variable is used
+    ! to keep track of whether or not anything game-related really happened.
+    for (::) {
+	meta = 0;
+
+	! Remember the player's old position.
+	x = player_x;
+	y = player_y;
+
+	! Wait for a valid keypress. If the player is 'W'aiting, it is the
+	! same as if he or she is constantly pressing the '.' key, except the
+	! robots will actually be allowed to walk into the player.
+	for (got_keypress = 0 : got_keypress == 0:) {
+	    got_keypress = 1;
+
+	    if (waiting == 0)
+		key = ReadKeyPress();
+	    else
+		key = '.';
+
+	    if (wait_bonus == -1) {
+		wait_bonus = 0;
+		n = FieldColumns + 4;
+		@set_cursor 24 n;
+		spaces(10);
+	    }
+
+	    switch (key) {
+		'.':
+		'Y': player_x--; player_y--;
+		'K': player_y--;
+		'U': player_x++, player_y--;
+		'H': player_x--;
+		'L': player_x++;
+		'B': player_x--; player_y++;
+		'J': player_y++;
+		'N': player_x++; player_y++;
+		'T':
+		    GetNewPlayerPos();
+		'W':
+		    old_score  = score;
+		    wait_bonus = 0;
+		    waiting    = 1;
+		'Q':
+		    return AnotherGame();
+		'R':
+		    DrawPlayingField();
+		    meta = 1;
+		'S':
+		    if (beep_flag == 0)
+			beep_flag = 1;
+		    else
+			beep_flag = 0;
+
+		    meta = 1;
+		default:
+		    got_keypress = 0;
+		    DoBeep();
+	    }
+	}
+
+	! If the command was a movement command, check if the player is moving
+	! to a safe spot or not. (Exception: Teleports are inherently risky,
+	! but will always put you in an empty spot on the game board, so don't
+	! warn about that.
+        !
+        ! If the player has moved, redraw that part of the game board.
+        !
+        ! If the move is not accepted, make sure the player remains at the
+	! original location, warn him or her, and make sure the robots don't
+	! move.
+	if (meta == 0) {
+	    if (key == 'T' ||
+		(InsideField(player_x, player_y) ~= 0 &&
+		SafeSpot(player_x, player_y) ~= 0)) {
+		    if (x ~= player_x || y ~= player_y) {
+			DrawObject(x, y, ' ');
+			DrawObject(player_x, player_y, Player);
+		    }
+	    } else {
+		if (waiting == 0) {
+		    player_x = x;
+		    player_y = y;
+		    DoBeep();
+		    meta = 1;
+		}
+	    }
+
+	    ! If the player made a valid move, move the robots.
+	    if (meta == 0)
+		MoveRobots();
+
+            ! The robots have moved and dead robots have been handled by
+	    ! MoveRobots(). Now it's time to see if the player survived, and
+	    ! maybe even won the game.
+	    if (GetPiece(player_x, player_y) == Empty) {
+		if (active_robots == 0) {
+		    waiting = 0;
+
+		    UpdateScore(0);
+
+		    num_robots = num_robots + IncRobots;
+
+		    if (num_robots > MaxRobots)
+			num_robots = MaxRobots;
+
+		    InitPlayingField();
+		    DrawPlayingField();
+		} else
+		    DrawObject(player_x, player_y, 0);
+	    } else {
+		DrawObject(player_x, player_y, 0);
+		print "AARRrrgghhhh....";
+
+		if (waiting ~= 0) {
+		    score = old_score;
+		    waiting = 0;
+		}
+
+		UpdateScore(0);
+		return AnotherGame();
+	    }
+	}
+    }
+];
+
+! This function moves the robots and handles collisions between robots and
+! other robots or junkheaps.
+
+[ MoveRobots i j robot_x robot_y hit;
+    ! Traverse the list of active robots. At this point there should be no
+    ! 'dead' robots in the list.
+    for (i = 0, hit = 0 : i < active_robots : i++) {
+	robot_x = RobotX(i);
+	robot_y = RobotY(i);
+
+	! Remove the robot from the playing field and the game board (though
+	! not from the robot list.
+	DrawObject(robot_x, robot_y, ' ');
+	PutPiece(robot_x, robot_y, Empty);
+
+	! The robot will always try to move towards the player, regardless of
+	! obstacles.
+	if (robot_x ~= player_x) {
+	    if (robot_x < player_x)
+		robot_x++;
+	    else
+		robot_x--;
+	}
+
+	if (robot_y ~= player_y) {
+	    if (robot_y < player_y)
+		robot_y++;
+	    else
+		robot_y--;
+	}
+
+	! Any robot moving onto a junk heap is destroyed. Otherwise, the robot
+	! is inserted on the playing field at its new location.
+	if (GetPiece(robot_x, robot_y) == JunkHeap) {
+	    hit = 1;
+	    RobotList-->i = -1;
+	    UpdateScore(1);
+	} else {
+	    ! Draw the robot on screen to reduce the flicker. The final
+	    ! drawing is done in the next loop, as some robots may have
+	    ! been erased by other moving robots.
+	    DrawObject(robot_x, robot_y, Robot);
+	    PutRobot(robot_x, robot_y, i);
+	}
+    }
+
+    ! If a robot was removed, clean up the robot list.
+    if (hit ~= 0)
+	CleanRobotList();
+
+    ! To make sure that no robot is accidentally 'removed' from the board
+    ! (which could happen if a robot onto another robot before the other
+    ! robot moves, since the other robot will 'blank' its old position on
+    ! the board) we draw all the robots again.
+    for (i = 0, hit = 0 : i < active_robots : i++) {
+	robot_x = RobotX(i);
+	robot_y = RobotY(i);
+
+	! If two robots ended up in the same position, there was a
+	! collision. I don't know if it's a good idea or not, but I
+	! don't want to do the robot-removal yet, so just set a flag
+	! that there are collisions to detect.
+	if (GetPiece(robot_x, robot_y) == Robot)
+	    hit = 1;
+
+	DrawObject(robot_x, robot_y, Robot);
+	PutPiece(robot_x, robot_y, Robot);
+    }
+
+    ! If no robots collided, all is done.
+    if (hit == 0)
+	rtrue;
+
+    CleanRobotList();
+
+    ! At least one collision occured. It's time to find out which robots
+    ! collided. This code is the game's major cause of slowdown.
+    for (i = 0, hit = 0 : i < active_robots - 1 : i++) {
+	for (j = i + 1 : j < active_robots : j++) {
+	    if (RobotList-->i ~= -1 && RobotList-->i == RobotList-->j) {
+		robot_x = RobotX(i);
+		robot_y = RobotY(i);
+
+		PutPiece(robot_x, robot_y, JunkHeap);
+		DrawObject(robot_x, robot_y, JunkHeap);
+
+		RobotList-->i = -1;
+		RobotList-->j = -1;
+
+		! Don't give the player any points for robots killing him/her
+		if (robot_x ~= player_x || robot_y ~= player_y)
+		    UpdateScore(2);
+
+		! Since RobotList-->i now is -1, we won't find any other
+		! robots on the same position, so terminate the inner loop.
+		! I don't know if it'd be better to save the position of
+		! robot i, and follow the loop to its very end.
+                break;
+	    }
+	}
+    }
+
+    ! I know at least one collision occured, and therefore I know that robots
+    ! have been removed.
+    CleanRobotList();
+
+    ! And even now we are not done: What if three robots went to the same
+    ! square? In that case, there should be a robot sitting on a junkheap
+    ! now. This can only happen if the previous loop detected a collision
+    ! between two robots.
+    for (i = 0, hit = 0 : i < active_robots : i++) {
+	robot_x = RobotX(i);
+	robot_y = RobotY(i);
+
+	if (GetPiece(robot_x, robot_y) == JunkHeap) {
+	    hit = 1;
+	    RobotList-->i = -1;
+
+	    if (robot_x ~= player_x || robot_y ~= player_y)
+		UpdateScore(1);
+	}
+    }
+
+    if (hit ~= 0)
+	CleanRobotList();
+];
+
+! --------------------------------------------------------------------------
+!   THE GAME BOARD
+! --------------------------------------------------------------------------
+
+! These two functions are used for printing the game board. This is done both
+! when starting on a level and when using the 'R'edraw command.
+
+[ DrawPlayingField i x y;
+    @erase_window 1;
+
+    ! Draw the border around the game board.
+    DrawHorizontalLine(1);
+    DrawHorizontalLine(FieldRows + 2);
+
+    x = FieldColumns + 2;
+
+    for (i = 2 : i <= FieldRows + 1 : i++) {
+	@set_cursor i 1;  print (char) '|';
+	@set_cursor i x;  print (char) '|';
+    }
+
+    ! Draw the robots on the game board.
+    for (i = 0 : i < active_robots : i++)
+	DrawObject(RobotX(i), RobotY(i), Robot);
+
+    ! If some robots have died, we have to traverse the entire PlayingField
+    ! looking for junkheaps. Fortunately, this only happens when 'R'edrawing
+    ! the screen, which shouldn't be very often.
+    if (active_robots < num_robots) {
+	for (x = 0 : x < FieldColumns : x++) {
+	    for (y = 0 : y < FieldRows : y++) {
+		if (GetPiece(x, y) == JunkHeap) {
+		    DrawObject(x, y, JunkHeap);
+		}
+	    }
+	}
+    }
+
+    ! Put some help text to the right of the game board.
+    x = FieldColumns + 4;
+
+    @set_cursor 1  x;  print "Directions:";
+
+    @set_cursor 3  x;  print "y k u";
+    @set_cursor 4  x;  print " @@92|/ ";
+    @set_cursor 5  x;  print "h-.-l";
+    @set_cursor 6  x;  print " /|@@92 ";
+    @set_cursor 7  x;  print "b j n";
+
+    @set_cursor 9  x;  print "Commands:";
+
+    @set_cursor 11 x;  print "w:  wait for end";
+    @set_cursor 12 x;  print "t:  teleport";
+    @set_cursor 13 x;  print "q:  quit";
+    @set_cursor 14 x;  print "r:  redraw screen";
+
+    @set_cursor 16 x;  print "Legend:";
+
+    @set_cursor 18 x;  print (char) Robot,    ":  robot";
+    @set_cursor 19 x;  print (char) JunkHeap, ":  junk heap";
+    @set_cursor 20 x;  print (char) Player,   ":  you";
+
+    if (wait_bonus > 0) {
+	@set_cursor 24 x;	print "Bonus: ", wait_bonus;
+	wait_bonus = -1;
+    }
+
+    @set_cursor 22 x;  print "Score: ", score;
+    @set_cursor 23 x;  print "High:  ", high_score;
+
+    ! Finally, draw the player on the game board.
+    DrawObject(player_x, player_y, Player);
+    DrawObject(player_x, player_y, 0);
+];
+
+[ DrawHorizontalLine row i;
+    @set_cursor row 1;
+
+    print (char) '+';
+
+    for (i = 0 : i < FieldColumns : i++)
+	print (char) '-';
+
+    print (char) '+';
+];
+
+! --------------------------------------------------------------------------
+!   HELP FUNCTIONS
+! --------------------------------------------------------------------------
+
+! Test the screen size. The game will look very odd, and maybe not run at all,
+! if the screen is too small.
+
+[ TestScreenSize screen_height screen_width;
+    screen_height = 0->32;
+    screen_width  = 0->33;
+
+    if (screen_height < PrefLines || screen_width < PrefCols)
+	print "^^[The interpreter thinks your screen is ", screen_width,
+	      (char) 'x', screen_height, ". It is recommended that you \
+	      use at least ", PrefCols, (char) 'x', PrefLines, ".]";
+];
+
+! Test is a coordinate is safe to move it, ie that
+!
+!   a) There is no junkheap on it
+!   b) There are no robots on any adjacent coordinate
+
+[ SafeSpot xpos ypos x y;
+    if (GetPiece(xpos, ypos) == JunkHeap)
+	rfalse;
+
+    for (x = xpos - 1 : x <= xpos + 1 : x++) {
+	for (y = ypos - 1 : y <= ypos + 1 : y++) {
+	    if (InsideField(x, y) ~= 0 && GetPiece(x, y) == Robot)
+		rfalse;
+	}
+    }
+
+    rtrue;
+];
+
+! Update the score after killing 'n' robots. If 'n' is 0 it will simply
+! redraw the score. If we are 'W'aiting, the score is not written since it
+! is not known whether or not the player will actually get points until he
+! or she has survived the entire level.
+
+[ UpdateScore n x;
+    if (n ~= 0) {
+	if (waiting ~= 0) {
+	    wait_bonus = wait_bonus + n * (BonusScore - RobotScore);
+	    score = score + (n * BonusScore);
+	} else
+	    score = score + (n * RobotScore);
+    }
+
+    if (waiting == 0) {
+	x = FieldColumns + 11;
+
+	@set_cursor 22 x;  print score;
+
+	if (score > high_score) {
+	    high_score = score;
+	    @set_cursor 23 x;  print high_score;
+	}
+    }
+];
+
+! Ask the user if he or she wants to play another game
+
+[ AnotherGame x;
+    x = FieldColumns + 4;
+    @set_cursor 24 x;
+    print "Another game? ";
+
+    for (::) {
+	switch (ReadKeyPress()) {
+	    'Y': rtrue;
+	    'N': rfalse;
+	}
+    }
+];
+
+! Get a new position for the player. This is used both when 'T'eleporting and
+! when starting on a new level, and ensures that the player will not land on
+! any robot or junkpile. The player may, however, land right next to a robot,
+! which is fatal when 'T'eleporting, and uncomfortable when starting on a new
+! level.
+			
+[ GetNewPlayerPos;
+    for (::) {
+	player_x = random(FieldColumns) - 1;
+	player_y = random(FieldRows) - 1;
+
+	if (GetPiece(player_x, player_y) == Empty)
+	    break;
+    }
+];
+
+! The code which checks for robots colliding is horrendously inefficient, so
+! in order to speed it up as the game proceeds, remove 'dead' robots from the
+! list and keep a counter of 'active' robots.
+
+[ CleanRobotList i j;
+    for (i = 0, j = 0 : i < active_robots : i++) {
+	if (RobotList-->i ~= -1) {
+	    RobotList-->j = RobotList-->i;
+	    j++;
+	}	    
+    }
+
+    active_robots = j;
+];
+
+! --------------------------------------------------------------------------
+!   INITIALIZATION
+! --------------------------------------------------------------------------
+
+! Initialize the PlayingField and RobotList
+
+[ InitPlayingField i x y;
+    active_robots = num_robots;
+
+    for (i = 0 : i < FieldSize : i++)
+	PlayingField->i = Empty;
+
+    for (i = 0 : i < num_robots : i++) {
+	for (::) {
+	    x = random(FieldColumns) - 1;
+	    y = random(FieldRows) - 1;
+
+	    if (GetPiece(x, y) == Empty) {
+		PutPiece(x, y, Robot);
+		PutRobot(x, y, i);
+		break;
+	    }
+	}
+    }
+
+    GetNewPlayerPos();
+];
+
+! --------------------------------------------------------------------------
+!   PRIMITIVES
+! --------------------------------------------------------------------------
+
+! Produce an annoying 'beep', if the sound is turned on. The sound is toggled
+! with 'S', which, since it isn't properly documented, must surely be a bug
+! rather than a feature. :-)
+
+[ DoBeep;
+    if (beep_flag ~= 0)
+	@sound_effect 1;
+];
+
+! Read a single character from stream 1 (the keyboard) and return it. If the
+! character is lower-case, it is translated to upper-case first.
+
+[ ReadKeyPress x;
+    @read_char 1 x;
+
+    if (x >= 'a' && x <= 'z')
+	x = x - ('a' - 'A');
+
+    return x;
+];
+
+! These two primitives are used for reading the PlayingField and inserting new
+! values in it respectively.
+
+[ GetPiece x y;
+    return PlayingField->(y * FieldColumns + x);
+];
+
+[ PutPiece x y type;
+    PlayingField->(y * FieldColumns + x) = type;
+];
+
+! These three primitives are used for getting and setting the coordinates of
+! a robot respectively. A dead robot is marked as -1 in RobotList, and it is
+! up to the calling functions to test this if necessary.
+
+[ RobotX n;
+    return (RobotList-->n) / 256;
+];
+
+[ RobotY n;
+    return (RobotList-->n) % 256;
+];
+
+[ PutRobot x y n;
+    RobotList-->n = x * 256 + y;
+];
+
+! Print a character on the game board. Note that it is up to the calling
+! function to make sure that this bears any resemblance to what is actually
+! stored in the PlayingField.
+
+[ DrawObject x y c;
+    x = x + 2;
+    y = y + 2;
+
+    @set_cursor y x;
+
+    if (c ~= 0)
+	print (char) c;
+];
+
+! Primitive for testing if a coordinate is inside the game board.
+
+[ InsideField x y;
+    if (x >= 0 && y >= 0 && x < FieldColumns && y < FieldRows)
+	rtrue;
+
+    rfalse;
+];
+
+end;

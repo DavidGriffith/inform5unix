@@ -1,0 +1,3600 @@
+The Inform Tutorial
+===================
+
+Release 0.01
+
+by JJF
+
+(c) James J. Farmer 1995, 1996.  Copying, transmission or reproduction of
+this document, unauthorised or not, is enthusiastically encouraged.
+
+IMPORTANT NOTE : In this tutorial we will be creating a game.  There are
+two ways to get hold of the source code :
+  (1) It's probably available from wherever you got this tutorial from.
+  (2) You can type it as we go through the tutorial.
+
+  I suggest that you adopt the first option for the first three parts of this
+  tutorial, and then move onto the second; however, the choice, as they say,
+  is yours...
+
+
+Status
+------
+
+This tutorial is unfinished.  I had intended it to cover all of the major
+aspects of Inform, but sadly the pressures of work have meant that I have
+been unable to find the time.  I have released the tutorial in unfinished
+form in the hope that someone somewhere might find it useful.
+
+If you want to write further parts of this tutorial yourself, then please
+feel free, so long as you drop me a quick Email to say what you are doing.
+
+If you have any comments, or want to contact me for any reason, then try one
+of the following Email addresses :
+
+  jaieff@spuddy.mew.co.uk            (preferred)
+  J.J.Farmer-CSSE94@cs.bham.ac.uk    (term time only, invalid after mid-1997)
+
+
+Introduction
+------------
+
+     "The best way to begin reading this manual is
+         to look first at the second chapter,"
+          (Graham Nelson, The Inform Manual, Acorn User Edition)
+
+(okay, okay, so that's cruel.  We all know that the designers manual has
+improved a lot since then.  But I just couldn't resist it.  Sorry, Graham.)
+
+Hello and a big big welcome to The Inform Tutorial.  I'm JJF and I am going
+to be your guide on this wonderful journey upon which we are about to embark;
+a journey which will take you, the reader, the tutee, the subject, from the
+gentle slops of the clueless newbie to the awe-inspiring peaks of the really
+quite knowledgable author.  And all for less than the price of a pint - who
+said value for money retired with the Beatles?
+
+Ah yes, but the Beatles haven't retired yet, have they...
+
+But enough of this frivelous nonsense.  They'll be plenty of time for that
+later.  Down to business:
+
+Inform, as I'm sure we all know, is a programming language designed especially
+for the creation of interactive fictions (or adventure games). In my
+admittedly narrow experience (spanning only three adventure game programming
+languages), Inform is peerless.  The bee's knees.  The antelope's horns. 
+Truly, it is a giant amoungst a field of insects.
+
+The only problem I have found with it is the manual.  Now, the first Inform
+manual I saw, a couple of years and a dozen or so miles away from where I sit
+now, was not too hot, being one half reference manual, one third designer's
+manual, and the rest of it containing what was, for the purpose of programming
+Inform, irrelevancies.  That said, it did have some good points, including a
+small tutorial (even if it was half way through the manual!). The melding of
+technical reference material with a designer's manual was, however, largely
+unsuccessful (especially since the latter was positioned AFTER the former!).
+
+Later versions of the manual have done away with this triple-barrelled
+approach; banishing the technical stuff and the irrelevant stuff to separate,
+more appropriate, documents, and allowing the design stuff to expand.  And
+undoubtedly this approach has led to the almost infinitely superior manual we
+all enjoy today.  But... it a work of reference for those already experienced
+in Inform; for this task it is irreplacable.  A tutorial, though, it ain't.
+
+This document has been written for all of the newbies left confused and
+desparate by the designer's manual.  I hope that you find it useful.
+
+
+The Aim of this Tutorial
+------------------------
+
+The aim of this document is to teach the reader how to program Inform; please
+note that it will NOT teach you how to write adventure games/interactive
+fictions.  Although we will be creating a game, it isn't a game that will be
+very good, and anyway I would not presume to be qualified to give lectures on
+writing good games.  Sorry about this; just grit your teeth and bare it.
+
+Note that this tutorial is also not intended to supplant the designer's
+manual, but rather to offer a gentle introduction to the basics, and guiding
+the reader until she/he/it has attained enough experience and knowledge to
+program Inform (more or less) on her/his/its own, referring to the designers
+manual for anything that she/he/it needs to know.
+
+
+What You Should Already Know
+----------------------------
+
+I am going to assume that you have a copy of Inform (version 5.5 or later)
+and the three main library files (release 5/12 or better), and have placed
+all of them in the relevant places on your system.  I am also going to assume
+that you have managed to successfully compile and run the two example games
+"Hello Cruel World" and "Toyshop".  If you can do this, then you have
+everything set up correctly and can proceed.  If you don't have these example
+games, then they can be FTPd from ftp.gmd.de (they're in the directory
+if-archive/programming/inform/examples/, filenames hellow.inf and
+toyshop.inf).
+
+(I am not going to go into detail about how to compile Inform games, because
+it varies from system to system.  In most systems, going to the command line,
+changing current directory to the one containing Inform, and typing "Inform"
+(or whatever it's filename is) will print some help text.  If you really
+can't work out how to get things working, then post to the newsgroup
+"rec.arts.int-fiction", and somebody'll probably sort it out.)
+
+
+Syntax
+------
+
+Since a lot of our time will be concerned with modifying bits of code, note
+that a + symbol at the start of a line denotes something new or something
+modified.  This is just a marker for you - do NOT type it in!
+
+
+
+Part 1 - Room with a View
+=========================
+
+     "'Tis distance lend enchantment to the view,
+      And robes the mountain in its azure hue."
+
+          - Thomas Campbell (1777-1844), Pleasures of Hopes
+
+
+1.1 Comments
+------------
+
+Most inform games are developed from a very small piece of code called the
+Shell.  Whilst there is absolutely nothing wrong with doing this, for the
+purposes of this tutorial we shall not be using the Shell.
+
+Therefore, we need a blank canvas upon which to start.  Load up your favourite
+text editor and create an empty file called "game.inf" (or, for those users
+whose systems don't allow periods (full stops) in the filenames, "game/inf").
+This file shall hold the source code, the Inform instructions that will
+describe our "masterpiece" (or, as will probably turn out, our not very 
+good demonstration game).
+
+Now's as good a time as any to start to create this masterpiece; enter into
+the window the following lines of code:
+
++    ! Demonstration Game
++    ! for "The Complete Inform Tutorial"
++    ! by JJF.
+
+Don't try to compile this; we haven't actually written any code yet!  So,
+what does this do?  Well, in short, nothing!  That's right, absolutely
+nothing!
+
+Well, actually, it isn't quite right.  These are "comments"; the exclaimation
+marks tell Inform to ignore everything that follows them on that line, so we
+can put anything we like after them.  They have no bearing on the finished
+product, but they are useful as reminders to us.  The comments we've put in
+so far merely remind us what this game is (trust me; when, in five year's
+time, you come across a file named "game.inf", you'll need reminding what it
+is!), who wrote it (me!), and so on.  Later on, we'll be using comments to
+remind us what different bits of code do, and, maybe, how they do it.
+
+It used to be a macho thing to say that you wrote programs without using
+comments at all.  In the days when the most popular computers in the world
+only had 32k, this was perhaps justifiable for large programs, but those days
+are thankfully now long past.  It is considered good practice to use comments
+fairly liberally, both as an exercise in making sure you know what you're
+doing, and as reminders.  (Don't believe they're necessary?  Well, a few
+years back I wrote a program called PD Publisher on a BBC Micro (British
+computer; 32k of memory).  When I looked at it last year (because somebody
+had found a bug and wanted it fixing), I couldn't remember how on Earth it
+worked.  Of course, there were no comments.)
+
+
+1.2 Constants
+-------------
+
+Now it's time to enter out first Inform commands!  Tap return a few times
+(to separate the comments from the code) and type in the following:
+
++    Constant Story "DEMONSTRATION GAME";
++    Constant Headline "^Created for ~The Complete Inform Tutorial~^\
++                       (c) 1995, 1996 by JJF.^";
++
++    Constant DEBUG;
+
+Now then, I can predict the question that will be on your lips at this very
+moment : "So what does this code do?"
+
+There's quite a lot of things to explain in these lines, so I'll start
+somewhere simple.  The semicolon at the end of each line signifies the end of
+that command (and is all that signifies the end of that command).  This means
+that we could split a command over two lines, e.g. :
+
+     Constant Story
+     "DEMONSTRATION GAME";
+
+In fact, we have done that with the "Constant Headline <blah blah blah>"
+command.  We also can (if we want) have two commands on one line, e.g.:
+
+      Constant Story "DEMONSTRATION GAME";  Constant DEBUG;
+
+So, onto what these commands actually do.  They are declaring constants. Now,
+for those of you who are not experienced programmers in other languages, a
+constant can be thought of as a glass box with a label and superglue along
+it's lid.  The command "Constant" creates one of these boxes.
+
+What comes after the word "Constant" specified the details of that box. The
+first word is the name of the box, so, for example,
+
+     Constant Story "DEMONSTRATION GAME";
+
+creates a glass box called "Story".  Into this box, we put the text that
+is in inverted commas (a.k.a. speech marks), NOT INCLUDING these inverted
+commas.  So, in the example above, we are creating a glass box called Story
+and putting the words 'DEMONSTRATION GAME' into it.  The semicolon can be
+though of as an instruction to close the superglued lid.
+
+This is the important bit.  Once the lid is closed, although we can see
+what is inside the box (because it has transparent sides), we cannot open
+the box to either take something out or put something in.
+
+In other words, once a constant is defined (ie the box is created), we cannot
+modify what is inside it.
+
+In programmer-speak, we are DEFINING the constant 'Story' and ASSIGNING it to
+'Demonstration Game'.
+
+Now, I hope I haven't lost anyone, because the next line is REALLY
+interesting...
+
+     Constant Headline "^Created for ~The Complete Inform Tutorial~^\
+                        (c) 1995, 1996 by JJF.^";
+
+As I hope you can see, this line is creating another constant, this time
+called 'Headline', and assigning it to some more text (putting the text
+into the glass box with the superglue).  This should (with any luck) not
+be a problem for you now.  What interests us now is the stuff between the
+inverted commas, because some of those symbols have special meanings...
+
+Firstly, the backslash \.  You will note that the text is split over two
+lines, and that the lower line has been indented (with spaces) so that it
+aligns with the start of the text on the upper line.  This is for
+appearance's sake only, but is usual practice, because it helps you to see
+which bit of text goes with each command.  This may be obvious now, but just
+you wait until our program is a couple of thousands of lines longer (gleeful
+rubbing of hands by sadistic tutorial-writer).
+
+Anyway, the backslash is an instruction to the compiler to ignore that
+indentation (otherwise the Headine would be assigned to '^Created for ~The
+Complete Inform Tutorial~^                   (c) 1995, 1996 by JJF.^', which
+would not be what we want).  You might also like to note that the fact that
+the text is split over two lines has no effect on what Headline is assigned
+to - Inform automatically ignores line breaks (the name given to the end of a
+line).  It is the indentation that would cause the problem.
+
+So, how would you cause some text to start on a new line when it is
+displayed? Well, that is what the ^ character does.  More specifically,
+whenever an ^ character is encountered, whatever comes after it is displayed
+on the next line; note that the ^ character itself is NOT displayed.
+
+Finally, we come to the tilde, ~.  Since the text must be enclosed in speech
+marks, we obviously can't use any speech marks in the text!  Instead, however,
+if we put a tilde when we want a speech mark, then whenever the text is
+displayed a speech mark is displayed instead of the tilde.  So, the
+
+     Constant Headline "^Created for ~The Complete Inform Tutorial~^\
+                        (c) 1995, 1996 by JJF.^";
+
+statement actually assigns the constant Headline to :
+
+     Created for "The Complete Inform Tutorial"
+     (c) 1995, 1996 by JJF.
+
+The final of the three commands, Constant DEBUG; creates the constant DEBUG
+but does not assign it to anything (in the metaphor of our glass box with
+superglue, we are shutting the box while it is still empty).
+
+
+1.3 Why are these Constants here?
+---------------------------------
+
+I am sure that it will not surprise you to learn that there is a reason
+for defining these three constants.  They all have a special meaning in
+Inform.
+
+The first one, Story, should be assigned to the name of the game (by
+convention, the name should be in capital letters).  This is so that Inform
+knows what the game is called, knowledge that is used both to print the title
+when the game is loaded, and in several automatic messages, such as :
+
+     TOYSHOP is now in its "verbose" mode, which always gives long
+     descriptions of locations (even if you've been there before).
+
+The second one, Headline, should be assigned to some details of the game,
+such as the author, maybe a subtitle (e.g. "An Interactive Fiction"), etc.
+ This is printed below the title at the start of the game.
+
+Your games must always define the constants Story and Headline; if it
+doesn't, then it won't compile.  The third constant we have defined, DEBUG,
+is optional. In fact, you should NEVER distribute a game that has been
+compiled with the constant DEBUG defined.  So, why have we put it in?
+
+Well, if you define the constant DEBUG before you include the library (of
+which more in a minute), then you will be able to use a number of special
+debugging commands.  These can make writing and testing the game a lot
+easier, however, they effectively lay a game's structure bare before the
+player, who could use them to cheat if he had access to them.  Therefore,
+ALWAYS remove the 'Constant DEBUG' statement before compiling a game for
+distribution or beta-testing.  The 'special debugging comands' shall be
+explained later.
+
+
+1.4 The Library
+---------------
+
+The Library is the name given to a LARGE piece of Inform code, usually held
+in the files "Parser.h", "VerbLib.h" and "Grammar.h" (on some computers where
+periods are not allowed in filenames. they are stored without the .h).  These
+files contain the code to handle many of the advanced features of Inform,
+such as light, possessions, etc.  In practice, though, you don't need to know
+which features are provided by Inform and which are provided by the Inform
+library (unless you want to do something VERY weird).
+
+We must "include" the library files in our code before we can truly start to
+create our game.  To do this, type in the following a couple of lines below
+the constants :
+
++    #include "Parser";
++    #include "VerbLib";
++    #include "Grammar";
+
+These "include" statements (the hash is optional, but is usually put in to
+make C programmers feel more at home) take effect at compilation.  When
+Inform encounters one, it goes away and compiles the specified file, then
+returns to this file and continues as if it had never been away.  To put it
+another way, the "include" statement includes the code from the specified
+file in this file, as if we had typed it in from the keyboard.
+
+So, for example, if you had a file called "Hello", which contained the
+following:
+
+     ! Hello World
+     Constant Hello "Hello World";
+
+and another one, "World", which looked like this:
+
+     ! Zebedee Zebra's Big Adventure
+     Constant World "Whatever";
+
+     #include "Hello";
+
+     Constant DEBUG;
+
+then it would compile exactly the same as one that looked like this:
+
+     ! Zebedee Zebra's Big Adventure
+     Constant World "Whatever";
+
+     ! Hello World
+     Constant Hello "Hello World";
+
+     Constant DEBUG;
+
+You can load the library files into your text editor to look at them if you
+want (though whatever you do, DON'T modify them!).  Don't bother trying to
+understand them, though - you don't need to understand the library to use it
+(just as you don't need to understand how the internal combustion engine
+works in order to drive a car from A to B).
+
+As an aside, the majority of the time that Inform spends compiling your game
+is spent in the library.  This is fine if you've got a fast computer, but my
+poor Acorn A3010 (British RISC computer, 32-bit, 6 mips, etc) takes well over
+a minute to compile even the shortest of games that use the library.  <Sob>
+
+
+1.5 Objects object everywhere...
+--------------------------------
+
+And now, finally, we get to create a room!  In Inform, everything is objects.
+You, your dog, your bedroom, your computer - all are objects.  Which, when
+you think about it, makes perfect sense.
+
+So, without further ado, let us create out first object.  Put a few lines
+after the "#include"s and type:
+
++    Object Starting_Room "Room with view";
+
+What this does is create (or declare) an object called "Room with view",
+which is labelled "Starting_Room".  If you will allow me to, I will now
+spend a few moments describing the distinction between these two names.
+
+Starting_Room is the name by which Inform knows this object.  It has no real
+effect on the game - I could have called it Freds_Bedroom for all it matters
+(although obviously I could not later refer to it as Starting_Room). "Room
+with view" is the name by which the player will know this object. It will be
+the name printed above the room description, or, if this were something the
+player could carry, then "Room with view" would be the name it was given when
+the player typed "Inventory".
+
+Clear?
+
+
+1.6 Routines
+------------
+
+We will very soon have something which we can compile and play!  Firstly,
+however, put some blank lines after the object declaration, and type:
+
++    [ Initialise;
++       location = Starting_Room;
++       "^^^^^~You must travel through the Magic Realm and retrieve from the \
++        King of Avalon the mystic Sword of Ages, then seek out the terrible \
++        monster Nessie and slay Her with the Sword before the dread Duke \
++        Kevin can awaken Her and use Her to crush our fair Kingdom!~^^\
++        His great speech having been made, the War-Mage Zachariah waves \
++        his six-fingered hands in a complex and undescribable pattern. Your \
++        surroundings fade into a whitish mist, which then rises to reveal \
++        your first sight of the Magic Realm...^^";
++    ];
+
+You will note that what we have here is essentially a piece of code enclosed
+in square brackets : we call this a Routine.  In other languages, it might be
+called a Function or a Procedure, but here it is a Routine.
+
+The first word after the opening square bracket is the name of the routine;
+in this case 'Initialise'.  This routine is automatically executed when the
+game is run; your games should always have an 'Initialise' routine.
+
+More on the syntax of routines will come later.  Now, though, let us move
+onto the code itself.
+
+The first command, location = Starting_Room, tells the compiler in which room
+the player should start the game.  "location" is a variable (see below) which
+points to the current location of the player; i.e. which room (or, more
+specifically, which object) he/she/it is in.
+
+Ah, did I mention a word I hadn't explained?  So I did!  A variable is a bit
+like a constant you can modify (ie a glass box without superglue on it's
+lid).  If isn't exactly the same, but it's near enough to be described as
+that.
+
+There are two kinds of variable, global and local.  Global variables can
+be referred to from anywhere in your code, whilst local variables can only
+be used inside a specified routine - more on local variables later.  location
+is a global variable.
+
+I said earlier that location "points to" the current location of the player,
+so I'd better explain this too.  After this command has been executed, the
+location variable's "box" (going back to the "glass box without superglue on
+the lid" analogy) does not contain the object Starting_Room.  Rather, it
+contains information on where to find Starting_Room (to use another real-life
+analogy, it's like an address book.  Let us suppose you want to visit your
+old friend Fred Bloggs.  So, you look up where to find him in your address
+book, then go and visit him at that address.  The address book does NOT
+contain Fred Bloggs, merely information on where to find him).  Because a lot
+of Inform programmers have also programmed C, variables are often referred to
+as "pointing to" objects.
+
+Anyway, the 'location=Starting_Room;' statement specifies where the player
+will start the game.  Onto the second command!
+
+Yes, the eight lines of text between the speech marks is all one command;
+we know this because there isn't a semicolon outside the speech marks until
+the eighth line.  This command basically prints the text on the screen,
+all word-wrapped and nicely formatted.
+
+This text is printed before the starting location is described, before even
+the title of the game is printed, and by convention contains the introduction
+to the game.  By the way, if you don't think much of my "introduction", then
+I agree with you; it's pretty pathetic.  My excuse is that, well, this is
+only an example, it isn't like it's a REAL game...
+
+
+1.7 Let's Compile!
+------------------
+
+After the Initialise routine, put a few blank lines and then the following
+command:
+
++    end;
+
+This just tells the compiler that it has reached the end of the program,
+and can now safely regurgitate the story file to an appropriate place.
+
+There's just one thing left to do now.  Go back up to near the top of the
+code, between the comments at the start and the declarations of the
+constants, and type in the following:
+
++    Switches dsxv5;
+
+These are an instruction to the compiler; they set the default command line
+switches.  These are flags that have minor effects at compilation; they are
+usually set at the command line, e.g.
+
+     Inform -dsxv5 toyshop
+
+However, to save having to type them in each time you compile your game, you
+can put them after a 'Switches' command at the very start of your code. There
+is no harm in doing this; you can always override them by putting the
+switches into the command line if you want.
+
+The full list of what all the switches do is in the Designer's Manual;
+however, for completeness, I will briefly describe the ones I have used: the
+'d' makes all double spaces after a full stop into a single space (because it
+looks nicer), the 's' prints a page of statistics after compilation, the 'x'
+prints a # for every 100 lines compiled (which can, if you have a slow
+computer, reassure you that Inform hasn't crashed and started to format your
+hard disc), and the 'v5' ensures that we produce a version-5 story file.
+
+(For those of you that don't know, Inform can produce six different types
+of story file.  You should always use v5 unless you are writing a game for
+a very small (in memory terms) computer, in which case use v3, or you have
+written a very very large game, when you should use v8.)
+
+Now you can compile the game.  Make it so!  (always wanted to say that...)
+
+If you have done everything correctly, then the compiler should output
+something similar to the following:
+
+     Unix Inform 5.5 (v1502/a)
+     1:#############################################################
+     2:#############################################################
+     Input 6158 lines (17319 statements, 209586 chars) from 4 files
+     Version 5 (Advanced) story file
+       16 objects (maximum 511)      308 dictionary entries (maximum 1300)
+       27 attributes (maximum 48)     28 properties (maximum 62)
+       23 adjectives (maximum 240)   100 verbs (maximum 140)
+      118 actions (maximum 150)        0 abbreviations (maximum 64)
+      125 globals (maximum 240)     1859 variable space (maximum 4000)
+     3374 symbols (maximum 6400)     254 routines (maximum 500)
+        0 classes (maximum 32)         9 fake actions (unlimited)
+     12949 characters of text (compressed to 10534 bytes, rate 0.813)
+     Output story file is  43K long (maximum 256K)
+     Essential size 43924 bytes: 218220 remaining
+     Completed in 6 seconds.
+
+(This output was produced when I compiled the game on a seriously powerful
+computer we have at my University.  On the PCs, Acorns and things you are
+likely to have at home, it might take rather longer...)
+
+If you get errors, then you must have typed something incorrectly.  Look back
+at what you've written, and remember that the error messages given by Inform,
+whilst an indicator of what has gone wrong, are not foolproof. At this stage,
+many errors are caused by missing semi-colons.
+
+(for example : when I first compiled the game to test this tutorial, I got
+four errors claiming that the constant "Story" had not been defined. 
+However, when I looked back at my code, it quite obviouly had.  The problem? 
+I had missed a semicolon from the "Switches" statement.)
+
+Using your favourite interpreter, load and run the story file we have just
+created.  Although what you get will vary between interpreters, you should
+see something like:
+
+     "You must travel through the Magic Realm and retrieve from the King
+     of Avalon the mystic Sword of Ages, then seek out the terrible monster
+     Nessie and slay Her with the Sword before the dread Duke Kevin can
+     awaken Her and use Her to crush our fair Kingdom!"
+
+     His great speech having been made, the War-Mage Zachariah waves his
+     six-fingered hands in a complex and undescribable pattern. Your
+     surroundings fade into a whitish mist, which then rises to reveal
+     your first sight of the Magic Realm...
+
+
+     DEMONSTRATION GAME
+     Created for "The Complete Inform Tutorial"
+     (c) 1995, 1996 by JJF.
+     Release 1 / Serial number 951207 / Inform v1502 Library 5/12 D
+
+     Darkness
+     It is pitch dark, and you can't see a thing.
+
+     >
+
+One of the encouraging things is how many of the "game-management" commands
+work straight away; for example:
+
+     >objects
+     Objects you have handled:
+
+     None.
+
+     >score
+     You have so far scored 0 out of a possible 0, in 1 turn.
+
+     >verbose
+     DEMONSTRATION GAME is now in its "verbose" mode, which always
+     gives long descriptions of locations (even if you've been there
+     before).
+
+     >i
+     You are carrying nothing.
+
+     >save
+     Enter a file name.
+     (Default is "game.sav"): game.sav
+     Ok.
+
+     >
+
+However, once you have grown tired of changing into verbose mode then back
+to brief, checking your score, loading and saving the game, you soon find
+that you can actually do very little :
+
+     >n
+     You can't go that way.
+
+     >se
+     You can't go that way.
+
+     >d
+     You can't go that way. 
+
+     >wait
+     Time passes.
+     
+     >jump
+     You jump on the spot, fruitlessly.
+
+     >help
+     That's not a verb I recognise.
+
+     >quit
+     Are you sure you want to quit? 
+
+The game so far is, erm not very fun, is it?  You can't even see where you
+are...
+
+
+1.8 Let there be light...
+-------------------------
+
+I will now perform a little telepathy through your computer screen.  The
+question on your lips is...   yes, the mists are clearing, and I can see...
+
+"Why is the room dark?"
+
+This is the wrong question to ask.  Everywhere is dark by nature (why do you
+think the void between the stars is black?); likewise, objects in Inform are,
+by nature, dark.  As soon as you grasp this point, your question will change
+to:
+
+"Why isn't the room lit?"
+
+Well, simply, because we haven't said that it's lit.  We'll change that now:
+modify the object Starting_Room so that it looks like:
+
+     Object Starting_Room "Room with view"
++      has light;
+
+Compile and run the game again.  This time, instead of describing your
+surroundings as "Darkness", you should get:
+
+     Room with view
+     ** Room undescribed! **
+
+     >
+
+Ah, yes.  I think things always look better once you shed a little light on
+the subject...
+
+"How does this work?" I hear you cry.  Well, surprising as it may seem, it
+actually has something to do with that "has light" line.
+
+"light" is what is known as an attribute,  and attributes are indicator that
+an object has a certain ability.  There are about thirty other attributes,
+covering such diverse things as whether you can put things into the object,
+whether the object is alive, and whether the object is being worn by the
+player (of course, the object could have all three)!  An object either has an
+attribute or it hasn't - there is no middle path (so you can't say "This
+object has light only when the sun is up", although you can give an attribute
+to an object, and indeed take it away again).  Ah, the certainty of it...
+
+You declare that an object has certain attributes by putting the statement
+"has <attribute list>" between the object's name (in our case, "Room with
+view") and the semicolon that signifies the end of that object's definition
+(where <attribute list> is a list of the attributes you want this object to
+exhibit, e.g. "has door openable lockable open", where "door", "openable",
+"lockable", and "open" are all attributes).
+
+I shall be introducing other attributes as and when I need to; for now,
+I will just tell you about the attribute "light".  This signifies that the
+object in question is emmitting enough light to see by.  So, in our example,
+the Starting_Room is emmitting light.
+
+
+1.9 But what do we see?
+-----------------------
+
+Precious little.  You may have noticed when you ran the game that the message
+"** Room undescribed! **" appeared below the room's name; well, you may have
+been expecting this, since we haven't entered a descripition of our room yet,
+have we!  Let's put that right immediately...
+
+     Object Starting_Room "Room with view"
++      with description "This is a plain room, the walls of which \
++                        have been painted a pleasant shade of peach. \
++                        A doorway leads east into darkness."
+       has light;
+
+If you compile and run the code again, you will find that the "** Room
+undescribed **" message has been replaced by the text we have just written. 
+But how does this happen?
+
+The line 'with description "This is a plain room, <blah blah blah>"' is,
+unsurprisingly, the one that does it.  This sets the room's description
+to the text in the speech marks - which is a very useful thing to do!
+
+'description' is actually what is called a "property".  You might describe
+a property as an attribute with data; this isn't exactly correct, but it's
+a good starting point.
+
+Unlike with attributes, just having a property will have no effect on an
+object; it is the dara associated with the property that causes the effect
+(in our Starting_Room object, the word (or 'property name') "description"
+does nothing by itself; it is the text AFTER the property name that does
+something).  
+
+The "with" statement does for properties something similar to what the "has"
+statement does for attributes; it signifies the start of a list of properies
+(all with their associated data).  The only real difference is that the
+individual properties (with their data) must be separated by commas.
+
+If you don't understand properties yet, then don't worry; you'll soon pick it
+up, since a lot of the examples coming up will be using properties. You're
+going to have plenty of chances to see what's happening.
+
+Anyways, what is happening in our Starting_Room object is that we are giving
+it a 'description' property, and assigning "This is a plain room, <blah blah
+blah>" to that property.  But how does this text get displayed in the room
+description?
+
+Well, simply, Inform does it.  Whenever your current room has a 'description'
+property, Inform (or rather, your Z-code interpreter) will display the text
+associated with that property whenever that room is described.  Simple, eh?
+
+
+1.10 The Object Tree
+--------------------
+
+First there was the Oak Tree.  Then came the Family Tree.  And now... The
+Object Tree!
+
+Don't worry, I haven't accidentally pasted in the text from a movie advert.
+The objects in Inform are stored in a kind of 'tree'.  At the very top level
+are the rooms, at the next level down are objects contained in those rooms
+(e.g. a piano, the player, etc).  Below those are any objects contained in
+the objects contained in the rooms (e.g. a glove pupped hidden inside the
+piano), and so on.
+
+For example, the object tree for an early part of the game "Cold" (which I
+started writing a few years ago but never finished) looked something like
+this :
+
+      Bathroom                      Hallway                 Bedroom
+         |                            |                        |
+  -------------------          ---------------                 |
+  |       |         |         |              |                 |
+Mirror  Basin      Bath    Front Door   'Welcome' Mat       Wardrobe
+                    |                        |                 |
+         ------------                        |           --------------
+         |          |                        |           |            |
+    Dirty Water   Player                  Envelope    Coat Hanger    Suit
+   
+                                             |
+                                             |
+                                             |
+                                        Warning Note
+
+You'll never actually have to draw an object tree, but it might help you to
+understand what I am going to say next.
+
+Objects can contain other objects!
+
+We can see from the tree that, in Cold, the Bathroom contained the Mirror,
+the Basin, and the Bath; whilst the Bath contained some Dirty Water and the
+Player.  Even in our demonstration game, one object is inside another; the
+player object being inside the Starting_Room object.
+
+Run the demonstration game again (you shouldn't have to recompile it), and
+type "tree".  "tree" is one of those special debugging commands I mentioned
+earlier; it is only available in a game that has been compiled with the
+constant DEBUG declared.  "tree" displays the current state of the object
+tree; at this stage, the output should look like this:
+
+     >tree
+     Room with view (16) 
+       yourself
+
+From this, we see that, indeed, "yourself" (the name the interpreter gives
+to the player object) is inside "Room with view".  By the way, don't worry
+about the number after the "Room with view"; we'll come to that later.
+
+
+1.11 An object to play with...
+------------------------------
+
+At present, our game is still a bit boring.  There's nothing to do, nowhere
+to go; no objects to play with.  Let's remendy that straight away; type in
+the following after the end of Starting_Room's definition:
+
++    Object Torch "torch" Starting_Room
++      with name "torch";
+
+"'Oo 'eck" says you, "what's 'ee up to here, then ,eh?"  Yes, in case you
+were wondering, I haven't explained everything in this object definition
+yet.  Don't worry, though, I remendy that immediately.
+
+Firstly, it should come as no surprise for you to learn that this creates
+an object called Torch with the name "torch".  Now onto the new bit: the
+presence of the name "Starting_Room" on the first line signifies that this
+object will start out inside Starting_Room.
+
+On the second line, we are giving Torch the property "name".  This property
+is very important : it contains a list of the words which the player is
+allowed to use to refer to this object.  Our other object, Starting_Room,
+does not have this property because the player will never need to refer
+to it.  But the Torch can be taken, dropped, thrown about - all of which
+will need the player to refer to it!
+
+Here, we are allowing the player to refer to the Torch by only one word:
+"torch".  (Note that the parser is very intelligent, and if the player types
+something that could refer to more than one object, it asks for compensation.
+For example, if we had: (don't type this in):
+
+     Object Black_Torch "black torch" Starting_Room
+       with name "black" "torch";
+      
+     Object Golden_Torch "golden torch" Starting_Room
+       with name "golden" "torch";
+
+and the player typed "get torch", then he would be asked whether he wanted
+to get the black torch or the golden torch.)
+
+Compile the game and run it.  You should find that there is now a torch lying
+around in the "Room with view".  You can get it, drop it, throw it, try to
+smash it - whatever you want.  Fun, eh?
+
+(as an aside, please note that typing "light torch" will generate the
+all-purpose reply "This dangerous act would achieve little.", rather than
+actually lighting the torch.  This is because we have not yet written the
+code to handle lighting the torch - but never fear, we will get round to it
+eventually.)
+
+
+1.12 Nearby
+-----------
+
+It is usual in Inform to put object definitions immediately after the
+definition of the room they start in.  With this in mind, it can be tiresome
+and unnecessary to have to type in the starting room for every object. 
+Thankfully, Inform provides another instruction, Nearby, to save you that
+little extra bit of typing.
+
+If you declare an object using "Nearby" instead of "Object", you don't need
+to specify a starting room and the object will start out inside the last
+object whose declaration started with "Object".
+
+So, we can change out Torch definition to :
+
++    Nearby Torch "torch"
+       with name "torch";
+
+Compile and run the game to convince yourself that there is no change in the
+gameplay.
+
+
+1.13 Examining things
+---------------------
+
+You may have noticed that if the player types "examine torch", the response
+is "You see nothing special about the torch." - if this is what we want, then
+fine, but I think we should add a little more detail to our first takeable
+object.
+
+Therefore, we shall add some text to be displayed when the player tries to
+examine the torch.  But surely this is difficult, requiring large sections of
+code and fifty properties we haven't even covered yet?
+
+Actually, no.
+
+Remember the 'description' property?  The one that held a room's description?
+Well, we use that.
+
+You see, for an object that isn't a room (ie that isn't at the topmost level
+of the object tree), this property holds the text to display when the player
+examines that object.  Clear?
+
+So, let us change our Torch object's definition to:
+
+     Nearby Torch "torch"
+       with name "torch",
++           description "A black cylinder with a lens at one end.";
+
+Compile and run the game.  You should now find that examining the torch gives
+the appropriate description - Yippee!
+
+
+1.14 Initial descriptions
+-------------------------
+
+Our "Room with view" is now described as something like :
+
+     Room with view
+     This is a plain room, the walls of which have been painted a
+     pleasant shade of peach. A doorway leads east into darkness.
+
+     You can see a torch here.
+
+     >
+
+"You can see a torch here."  Hardly inspiring, is it?  Wouldn't it be better
+if it said "A long-discarded torch lies on the floor."?  Well, I think it
+would and what it's my game, so I think we'll make that happen.
+
+"But wait!" I hear you cry.  "Wouldn't this involve lots of serious
+programming of a staggering complexity for which we are unprepared?"  Well,
+it wouldn't, because it is another of the things that Inform can do
+automatically.
+
+If an object has the property "initial", then Inform will display the text
+associated with that property instead of "You can see a torch here." whenever
+it needs to, BEFORE that object is first taken by the player.
+
+Don't understand this?  Well, I'll illustrate it by example.  Change the
+Torch object definition so that it looks like the following:
+
+     Nearby Torch "torch"
+       with name "torch",
++           initial "A long-discarded torch lies on the floor.",
+            description "A black cylinder with a lens at one end.";
+
+(note that there is no significance in the order in which you put the
+properties; I'm just putting them in the order that (I think) is the
+clearest).
+
+Compile and run the game again.  The effect of the "initial" property is
+illustrated by the following transcript:
+
+     Room with view
+     This is a plain room, the walls of which have been painted a
+     pleasant shade of peach. A doorway leads east into darkness.
+
+     A long-discarded torch lies on the floor.
+
+     >get torch
+     Taken.
+
+     >drop torch
+     Dropped.
+
+     >look
+
+     Room with view
+     This is a plain room, the walls of which have been painted a
+     pleasant shade of peach. A doorway leads east into darkness. 
+
+     You can see a torch here.
+
+     >
+
+I hope that you can see from this that the "initial" property only has an
+effect until the torch is taken by the player.  After this, if the torch is
+dropped again, the game reverts to "You can see a torch here.".
+
+
+1.15 What about the view...
+---------------------------
+
+Have you been wondering why we call our object "Room with view"?  Well,
+wonder no longer!  I shall now reveal all (well, I shall at least reveal
+why we call it "Room with view").
+
+Roll the drums...  Sound the fanfare...  We call it "Room with view"
+because... because...  because...  because there's a window in it!
+
+But there isn't a window in it, is there?  Well, we'll have to change that,
+so type in the following (below the definition of the Torch) :
+
++    Nearby Starting_Room_Window "window"
++      with name "window" "view" "hills" "fields",
++           initial "A window in the northern wall looks out over some \
++                    idyllic rolling hills, covered with a patchwork of \
++                    fields all proudly displaying the colours of their \
++                    crops.",
++           description "This is no time to admire the view - you've got \
++                        a job to do, remember?"
++      has static;
+
+The only new thing here is the attribute "static".  This has a very simple
+effect - any object possessing it cannot be taken by the player.  Yes, it's
+as simple as that.
+
+There's just one problem with this.  If you compile and run the game, then
+the description of our room looks like this :
+
+     Room with view
+     This is a plain room, the walls of which have been painted a
+     pleasant shade of peach. A doorway leads east into darkness.
+
+     A long-discarded torch lies on the floor.
+
+     A window in the northern wall looks out over some idyllic
+     rolling hills, covered with a patchwork of fields all proudly
+     displaying the colours of their crops.
+
+Can you see what's wrong?
+
+Yes, you've got it.  The window is described AFTER the torch, but surely
+it should be described before it?  After all, the window is just a piece
+of scenery, and the torch is something that can be carried around.
+
+In general, it is bad practice to describe an object that is purely scenery
+using it's "initial" property.  A much better solution must be found : modify
+the Starting_Room and Starting_Room_Window objects so that they look like
+this:
+
+     Object Starting_Room "Room with view"
++      with description "This is a plain room, the walls of which \
++                        have been painted a pleasant shade of peach. \
++                        A doorway leads east into darkness.^^\
++                        A window in the northern wall looks out over \
++                        some idyllic rolling hills, covered with a \
++                        patchwork of fields all proudly displaying the \
++                        colours of their crops."
+       has light;
+
+     Nearby Starting_Room_Window "window"
+       with name "window" "view" "hills" "fields",
+            description "This is no time to admire the view - you've got \
+                         a job to do, remember?"
++      has scenery;
+
+You will note here that we have moved the description of the window into the
+room's description (which, if you think about it, is where it should be), and
+replaced the Starting_Room_Window's "static" attribute with "scenery". So
+what does this do?
+
+Well, an object with the "scenery" attribute cannot be taken by the player
+(as with the static attribute), and also is not described in the room
+descriptions (so there is no "You can see a window here." message).  Simple,
+yes?
+
+Compile and run the game; our problem has now been solved:
+
+     Room with view
+     This is a plain room, the walls of which have been painted a
+     pleasant shade of peach. A doorway leads east into darkness.
+
+     A window in the northern wall looks out over some idyllic
+     rolling hills, covered with a  patchwork of fields all proudly
+     displaying the colours of their crops.
+
+     A long-discarded torch lies on the floor.
+
+And that's it.  We've finished our Room with a View!
+
+Or have we?
+
+
+
+Part 2 - Adding a Little Interest
+=================================
+
+     "The only obligation to which in advance we may hold a novel,
+      without incurring the accusation of being arbitrary, is that
+      it be interesting."
+
+          - Henry James (1843-1916), The Art of Fiction
+
+
+2.1 And yonder to the east...
+-----------------------------
+
+Despite all of our efforts in part 1, our little game is still very boring.
+Okay, so we've got a room, we've got a window, we've even got a torch that
+we can manipulate, but it won't hold the player's interest for more than a
+couple of minutes.  And even that is only accomplished  if we have a player
+who rejoices in tedium.
+
+It's time for something else.  It's time for a second room.
+
+Creating a new room should hold few surprises for you; put the following
+somewhere below the Starting_Room_Window definition:
+
++    Object Dim_Room "Dimly-lit room"
++      with description "Only just enough light to see by shines through \
++                        the western doorway, but it is sufficient to \
++                        illuminate a room that would be featureless \
++                        were it not for a ladder that descends through \
++                        a hole in the floor."
++      has light; 
+
+This creates our new room, but it doesn't connect it to the Starting_Room!
+So, how do we do this?
+
+Well, it shouldn't take you long to realise that nothing we have covered so
+far will allow us to accomplish this task.  In order to do it, I'm going to
+have to explain twelve (yes!  TWELVE!) new properties...
+
+Don't worry, don't worry, it's actually very simple.  These 12 properties
+are:
+
+     n_to
+     ne_to
+     e_to
+     se_to
+     s_to
+     sw_to
+     w_to
+     nw_to
+     u_to
+     d_to
+     in_to
+     out_to
+
+Looking at that list might give you the tiniest idea of what these properties
+do.  To put the rest of you out of your collective miseries, they point to
+the object to which a movement in a certain direction will take you. If a
+room doesn't have a property for one direction, then the player is unable to
+go that way.  Simple, eh?
+
+So, n_to points to the room (object) to which moving north will take you,
+d_to points to the room you will go to if you move down, etc.  in_to and
+out_to do something similar with the "directions" in and out.
+
+Thus we can modify the Starting_Room and the Dim_Room so that they connect
+merely by making the following additions:
+
+     Object Starting_Room "Room with view"
+       with description "This is a plain room, the walls of which \
+                         have been painted a pleasant shade of peach. \
+                         A doorway leads east into darkness.^^\
+                         A window in the northern wall looks out over \
+                         some idyllic rolling hills, covered with a \
+                         patchwork of fields all proudly displaying the \
++                        colours of their crops.",
++           e_to Dim_Room
+       has light;
+
+     Object Dim_Room "Dimly-lit room"
+       with description "Only just enough light to see by comes through \
+                         the western doorway, but it is sufficient to \
+                         illuminate a room that would be featureless \
+                         were it not for a ladder that descends through \
++                        a hole in the floor.",
++           w_to Starting_Room
+       has light;
+
+If you compile and run the game, you will find that you can now move east
+from the "Room with view" to the "Dimly-lit room", and that west from there
+takes you back to the "Room with view"!
+
+(Note: connections between rooms are not necessarily two-way (e.g. so that
+moving west from a room that you got to by going east will not necessarily
+take you back to where you started) - if you want them two-way (as you
+usually will), then you have to put the relevant property in each object/room
+(ie e_to in the first, w_to in the second), just as I have here.)
+
+
+2.2 Irrelevancies
+-----------------
+
+When writing the text for an adventure game, you must be fully aware of
+everything you write.  A phrase that you included in an almost offhand manner
+could cause months or even years of frustration for the player.  Take that
+ladder I mention in the description of the Dim_Room.  It is really just
+scenery, providing a reason for the prescence of an exit down (which we shall
+put in later on).
+
+However, suppose much later in the game there is a tree that is too smooth to
+climb.  The player's going to come back here and try to take the ladder, and
+then find that he can't.  If he's got a saw, he'll try to saw it down. If
+he's got a cigarette lighter, he'll try to burn through whatever's holding it
+up.  He'll try anything and everything to get at that ladder.  It'll drive
+him mad.
+
+We could, of course, create a ladder object, and describe it in a way that
+would (hopefully) discourage the player from taking any further interest
+in it.  But doing this with each and every possible piece of scenery that
+the player might take an interest in will, unless you have extraordinary
+patience, soon drive you to throw your computer out of the window and take
+up a more interesting hobby.  Like watching grass grow.
+
+And a precise description of the object is not what is needed here.  All
+we need is a message saying something like "That's not something you need
+to refer to in the course of this game." to appear whenever the player tries
+to manipulate that item in any way.  But surely that would be incredibly
+difficult to code?
+
+Well, actually, no, because Inform already has this feature (though,
+strangely, it doesn't seem to be documented in the designer's manual). 
+Remember the "name" property of an object?  The one that specified the words
+the player could use to refer to that object?  And now the reveation: a room
+can also have a "name" property.
+
+But a room's "name" property isn't used in the same way as another object's
+"name" property, because the player isn't allowed to examine, search, or
+otherwise manipulate a room.
+
+(As an aside, some older games written in other languages did allow the
+player to refer to a room.  If you wanted to simulate this, you would have
+to put a "dummy" object inside the room you wanted to refer to, make it
+static and concealed (concealed is an attribute we haven't covered yet),
+and write all the code you want to use on the room in this object.  By the
+way, if you don't understand this paragraph, then don't worry - we'll come
+to it properly later.)
+
+Anyway, if the player attempts to refer to any words in a room's "name"
+property whilst in that room, then the message "That's not something you
+need to refer to in the course of this game." will appear.  So, we put all
+of the irrelevant items in a room's "name" property.
+
+This makes our Dim_Room look like:
+
+     Object Dim_Room "Dimly-lit room"
++      with name "ladder" "hole",
+            description "Only just enough light to see by shines through \
+                         the western doorway, but it is sufficient to \
+                         illuminate a room that would be featureless \
+                         were it not for a ladder that descends through \
+                         a hole in the floor.",
+            w_to Starting_Room
+       has light;
+
+If you compile and run the game now, then you should find that the game knows
+that "ladder" and "hole" are things that are not relevant to the game, e.g.:
+
+   Dimly-lit room
+   Only just enough light to see by shines through the western doorway,
+   but it is sufficient to illuminate a room that would be featureless
+   were it not for a ladder that descends through a hole in the floor.
+
+   >x ladder
+   That's not something you need to refer to in the course of this game.
+
+   >get hole
+   That's not something you need to refer to in the course of this game.
+
+   >push ladder
+   That's not something you need to refer to in the course of this game.
+
+   >pull ladder
+   That's not something you need to refer to in the course of this game.
+
+   >turn hole
+   That's not something you need to refer to in the course of this game.
+
+For completeness, we shall do something similar to our Starting_Room:
+
+     Object Starting_Room "Room with view"
++      with name "hills" "fields" "crops" "doorway",
+            description "This is a plain room, the walls of which \
+                         have been painted a pleasant shade of peach. \
+                         A doorway leads east into darkness.^^\
+                         A window in the northern wall looks out over \
+                         some idyllic rolling hills, covered with a \
+                         patchwork of fields all proudly displaying the \
+                         colours of their crops.",
+           e_to Dim_Room
+       has light;
+
+
+2.3 You Can't Go That Way.
+-------------------------- 
+
+Consider, if you will, the following transcript:
+
+     Room with view
+     This is a plain room, the walls of which have been painted a
+     pleasant shade of peach. A doorway leads east into darkness.
+
+     A window in the northern wall looks out over some idyllic
+     rolling hills, covered with a patchwork of fields all proudly
+     displaying the colours of their crops.
+
+     A long-discarded torch lies on the floor.
+
+     >n
+     You can't go that way.
+
+     >w
+     You can't go that way.
+
+"You can't go that way" is brief and to the point, and often it is just what
+you need.  However, there's much to be said for varying it occaisionally for
+the sake of variety - in this occaision, wouldn't "The only exit is east
+through th doorway." be more appropriate?
+
+Well, I think it would, and, since this is my tutorial, what I think goes!
+(Author is becoming more power-mad by the sentence - he'll be dressing up as
+a traffic warden next.)  Fortunately, Inform provides a property to do just
+this for us, "cant_go".  If you want different text to be printed whenever
+the player tries to move in a direction he can't from a room, include that
+text in a cant_go property for that room.  So:
+
+     Object Starting_Room "Room with view"
+       with name "hills" "fields" "crops" "doorway",
+            description "This is a plain room, the walls of which \
+                         have been painted a pleasant shade of peach. \
+                         A doorway leads east into darkness.^^\
+                         A window in the northern wall looks out over \
+                         some idyllic rolling hills, covered with a \
+                         patchwork of fields all proudly displaying the \
+                         colours of their crops.",
+            e_to Dim_Room,
++           cant_go "The only exit is east through the doorway."
+       has light;
+
+So now we have:
+
+     Room with view
+     This is a plain room, the walls of which have been painted a
+     pleasant shade of peach. A doorway leads east into darkness.
+
+     A window in the northern wall looks out over some idyllic
+     rolling hills, covered with a patchwork of fields all proudly
+     displaying the colours of their crops.
+
+     A long-discarded torch lies on the floor.
+
+     >n
+     The only exit is east through the doorway.
+
+     >w
+     The only exit is east through the doorway.
+
+But wait a minute, anyone trying to move North is actually trying to go
+through the window, so wouldn't a message like "You have a look at how far
+below the window the ground is and decide it might be better not to jump
+for it." be more appropriate for that situation?
+
+Well, we're going to put it in anyway.  But how?  We could use the "cant_go"
+property, but this would print a message about the window even if the player
+tried to go west, which is obviously not what we want.  So does this mean
+that we'll have to do some serious coding (at last)?
+
+No, because the solution is exceedingly simple.  The "direction" properties
+(n_to, u_to, etc) can be followed by some text instead of an object name if
+you want.  If they do have text, then any attempt to move in that direction
+will result in the specified text being displayed (and no movement taking
+place).  Simpllicity itself!
+
+Applying this to our Starting_Room gives us:
+
+     Object Starting_Room "Room with view"
+       with name "hills" "fields" "crops" "doorway",
+            description "This is a plain room, the walls of which \
+                         have been painted a pleasant shade of peach. \
+                         A doorway leads east into darkness.^^\
+                         A window in the northern wall looks out over \
+                         some idyllic rolling hills, covered with a \
+                         patchwork of fields all proudly displaying the \
+                         colours of their crops.",
++           n_to "You have a look at how far below the window the ground \
++                 is and decide it might be better not to jump for it.",
+            e_to Dim_Room,
+            cant_go "The only exit is east through the doorway."
+       has light;
+
+So now our transcript looks like:
+
+     Room with view
+     This is a plain room, the walls of which have been painted a
+     pleasant shade of peach. A doorway leads east into darkness.
+
+     A window in the northern wall looks out over some idyllic
+     rolling hills, covered with a patchwork of fields all proudly
+     displaying the colours of their crops.
+
+     A long-discarded torch lies on the floor.
+
+     >n
+     You have a look at how far below the window the ground is and
+     decide it might be better not to jump for it.
+
+     >w
+     The only exit is east through the doorway.
+
+Of course, if you wanted the player to be able to jump through the window
+and die with a very messy "Splat!" when he hit the ground, then I'll be
+explaining how to code something similar later on... :-)
+
+We've almost finished with our Starting_Room now; there's just a few more
+refinements left to make.  But they are the start of a topic so important
+that it deserves a whole part of this tutorial for itself...
+
+
+
+Part 3 - Action and Reaction
+============================
+
+     "This is very true: for my words are my own and my actions
+      are my ministers'"
+
+          - Charles II (of England & Scotland) (1630-1685)
+
+
+3.1 Manipulating the window
+---------------------------
+
+Consider the following transcript:
+
+     Room with view
+     This is a plain room, the walls of which have been painted a
+     pleasant shade of peach. A doorway leads east into darkness.
+
+     A window in the northern wall looks out over some idyllic
+     rolling hills, covered with a patchwork of fields all proudly
+     displaying the colours of their crops.
+
+     A long-discarded torch lies on the floor.
+
+     >open window
+     That's not something you can open.
+
+     >enter window
+     That's not something you can enter.
+
+     >smash window
+     Violence isn't the answer to this one.
+
+     >close window
+     That's not something you can close.
+
+Now, we don't want the player to be able to open the window, and he can't.
+But why can't he?  The message just says "That's not something you can open."
+- this begs the question "Why isn't it something that I can open?". Likewise
+for enter - why can't the player enter it?  Why can't she smash it?  It
+surely must be something you can close.  Musn't it?
+
+What we need to do is to stop Inform from displaying these default messages
+and replace them with some of our own.  But surely this can't be done knowing
+only what I have explained so far?  Surely this is a task that requires
+Real Live Programming?
+
+Well, actually, yes.  (you thought i was going to say no then, didn't you!)
+
+There is a special property, "before", that can help us here.  However,
+instead of some text or an object, "before" must be followed by a routine.
+Remember the "Initialise" routine from part one?  Well, the "before" routine
+will be similar to that one, except that it doesn't need a name after the
+opening square bracket.
+
+If you give an object a "before" routine, then that routine is executed
+before any actions take place on that object; if a room has a "before"
+routine, then it is executed before ANY actions take place in that room.
+
+So, let us give our Starting_Room_window a "before" routine:
+
+     Nearby Starting_Room_Window "window"
+       with name "window" "view" "hills" "fields",
+            description "This is no time to admire the view - you've got \
+                         a job to do, remember?",
++           before [;
++           ],
+       has scenery;
+
+(Note the comma after the closing square bracket: this is necessary!)
+
+Note that this routine doesn't actually do anything yet!  Now, we could
+put some code within the square brackets, and this code would be executed
+whenever the player tried to do anything with the window, but there is a
+better way to do things.  Within a "before" routine, if we prefix some code
+with an action name and a colon, then any code between the colon and the
+next action name and colon (or the closing square bracket) is only executed
+when that action is the one being applied (it's a little like the "switch"
+construct in C or C++).
+
+Whoa!  Did I mention "actions" there without explaining what they were?
+So I did, so I did; I'd better put that right immediately.  Whenever you
+type something in, Inform processes it and makes it into an action (or,
+if it can't, it tells you that it didn't understand it), then executes that
+action, if necessary calling the before routines of the room and any object
+the action is applied to.  So, when the player types "take torch", Inform
+applies the action "Take" to the object whose name is "Torch".  "get torch"
+or "pick up torch" will generate identical "Take" actions.  (We shall, much
+later, see how to create new actions).
+
+Anyway, let us apply some of this new knowledge to our Starting_Room_Window
+object:
+
+     Nearby Starting_Room_Window "window"
+       with name "window" "view" "hills" "fields",
+            description "This is no time to admire the view - you've got \
+                         a job to do, remember?",
+            before [;
++            Open: "The window is nailed shut.";
++            Close: "The window isn't open.";
++            Attack: "You pound on the window with your fists, but it \
++                     withstands the onslaught.";
+            ],
+       has scenery;
+
+('Attack' is the action generated by typing "smash window".)
+
+Now, and this is very important, the bit with the speech marks after the
+action and the colon is NOT associating that text with that action.  It
+is a COMMAND.  Actually :
+
+     "<some text>";
+
+is a shorthand way of writing
+
+     print "<some text>^";
+     rtrue;
+
+where "print" is a command to display the specified text, and "rtrue" causes
+the routine to exit immediately and return "true".  For those not familiar
+with other languages (such as C), a routine can (if you want it to) return
+something to the code that called it (it's a bit like a mail-order company.
+A customer (the calling code) asks the company (the routine) for something,
+and the company sends it what it asked for).
+
+In our case, when the Inform parser calls a "before" routine, it is saying
+"Do you want to handle this action yourself?  (If you don't, then I shall
+produce a default response.)".  If the routine returns "true", then the
+parser presumes that the before routine is handling the action, and will
+have nothing else to do with it.  If it returns "false" (which it will if
+you don't mess with it), then the parser is free to carry out a default
+operation  (or even to offer the action to other objects).
+
+For example, in the Starting_Room_Window's "before" routine, when the action
+is "Open" we are saying "Display 'The window is nailed shut.' and don't carry
+out the default operation (which, in our case, is to print 'That's not
+something you can open.')".
+
+You can make the game tell you which actions are being applied to which
+objects if you enter the debugging verb "Actions"; e.g.
+
+     >actions
+     [Action listing on.]
+
+     >smash window
+     [Action Attack with noun 18 (window) (from parser)]
+     You pound on the window with your fists, but it withstands the
+     onslaught.
+
+     >open window
+     [Action Open with noun 18 (window) (from parser)]
+     The window is nailed shut.
+
+     >get torch
+     [Action Take with noun 17 (torch) (from parser)]
+     Taken.
+
+     >w
+     [Action Go with noun 5 (west wall) (from parser)]
+     The only exit is east through the doorway.
+
+You might also find it educational to use another debugging verb, "routines",
+which causes the game to inform you whenever it executes a routine.  The
+example below is of using "actions" and "routines" simultaneously :
+
+     >actions
+     [Action listing on.]
+
+     >routines
+     [Action 23 (from parser)]
+     [Routine listing on.]
+
+     >open window
+     [Action Open with noun 18 (window) (from parser)]
+     [Running before for window]
+     The window is nailed shut.
+
+     >close window
+     [Action Close with noun 18 (window) (from parser)]
+     [Running before for window]
+     The window isn't open.
+
+     >get torch
+     [Action Take with noun 17 (torch) (from parser)]
+     Taken.
+
+     >n
+     [Action Go with noun 2 (north wall) (from parser)]
+     You have a look at how far below the window the ground is and
+     decide it might be better not to jump for it.
+
+     >get window
+     [Action Take with noun 18 (window) (from parser)]
+     [Running before for window]
+     That's hardly portable.
+
+"before" routines are the backbone of any Inform game; we shall be using
+them a lot as the tutorial progresses...
+
+
+3.2 Causing actions to occur
+----------------------------
+
+Now, we've fixed things so that "open window", "close window" and "smash
+window" all produce better messages, but what about "enter window"?  This
+should display a message telling the player why it isn't such a good idea
+to go through the window; the one that gets displayed if you try go move
+North from the Starting_Room would be ideal.
+
+We could just write this out again in the before routine of the
+Starting_Room_Window, like this:
+
+     Enter: "You have a look at how far below the window the ground \
+             is and decide it might be better not to jump for it.",
+
+but this can cause extra work.  For example, suppose, later on, you want to
+change things so that trying to go through the window results in the player
+smashing through the glass and dying with a very messy "Splat!" when he hits
+the ground, you will have to change the code in TWO places!
+
+The solution would be to change things so that "enter window" would be
+interpreted by the parser as being "north".  We could hard-wire this into the
+library, but this would be highly inadvisable, and anyway there's a better
+way to do it. (Isn't there always?)  ;-)
+
+We can simulate the player typing something at the keyboard by putting the
+action name and any objects to apply it to in angled brackets (also known
+as the greater than and less than symbols), so, for example :
+
+   <Take Torch> causes the game to act as if the player had
+                  typed "get torch",
+   <ThrowAt Torch Starting_Room_Window> has the same effect as if
+              the player typed "throw torch at window",
+
+and so on. (ThrowAt is the action generated when the player tries to throw
+something at something else.)
+
+So, when it encounters one of these "action-causing" commands, the game goes
+away and carries out that action, then returns and carries on with whatever
+routine had asked for that action to be carried out (whether or not the
+action was successful).
+
+We can apply this to our Starting_Room_Window like thus:
+
+     Nearby Starting_Room_Window "window"
+       with name "window" "view" "hills" "fields",
+            description "This is no time to admire the view - you've got \
+                         a job to do, remember?",
+            before [;
+             Open: "The window is nailed shut.";
+             Close: "The window isn't open.";
+             Attack: "You pound on the window with your fists, but it \
+                      withstands the onslaught.";
++            Enter: <Go n_obj>;
+                    rtrue;
+            ],
+       has scenery;
+ 
+Note that "Go" is the player movement action and "n_obj" is an object that
+is used to represent the direction "North" (and also the north wall of every
+room).  So the action we are causing is "Go North".
+
+There is a shorthand form of the action-causing command.  If the data is
+enclosed in double angled braces instead of single ones (ie <<Go n_obj>>),
+then it AUTOMATICALLY returns true; ie :
+
+     <<Go n_obj>>;
+
+is equivalent to:
+
+     <Go n_obj>;
+     rtrue;
+
+We can thus re-write the relevant part of our Starting_Room_Window as :
+
++    Enter: <<Go n_obj>>;
+
+You can verify that this really does simulate the action by using the
+"actions" and "routines" debugging verbs, e.g.:
+
+     >actions, routines
+     [Action listing on.]
+
+     [Action 23 (from parser)]
+     [Routine listing on.]
+
+     >enter window
+     [Action Enter with noun 18 (window) (from parser)]
+     [Running before for window]
+     [Action Go with noun 2 (north wall) (from outside)]
+     You have a look at how far below the window the ground is and
+     decide it might be better not to jump for it.
+
+So there you have it!  Our window is NEARLY perfect...
+
+
+3.3 Actual Real Live Serious Coding
+-----------------------------------
+
+And now there is only one thing left to do to the window.  What happens if we
+try to throw something at it?
+
+     >throw torch at window
+     Futile.
+
+As responses go, "Futile" is okay, but what if you want something a little
+more interesting, like "You lob the torch at the window with all your might,
+but it just bounces off and comes to rest on the floor.  Must be tough
+glass."?
+
+Well, you'll need a whole THREE LINES of code to program this.  Add the
+following text into the Starting_Room_Window's "before" routine:
+
++            ThrownAt: move noun to Starting_Room;
++                      print "You lob ", (the) noun, " at the window with \
++                              all your might, but it just bounces off \
++                              and comes to rest on the floor.  Must be \
++                              tough glass.^";
++                      rtrue;
+
+(ThrownAt is what is known as a "fake" action.  This is because it isn't
+directly generated by the parser; it is actually the "ThrowAt" action looked
+at from the victim's (the thing that the object is being thrown at) point of
+view.  Later on, we might well cover fake actions in more detail.)
+
+Now then, there's a few new things in this bit of code.  Firstly, "noun" is a
+variable which the parser sets just prior to entering a "before" routine; it
+points to the first object mentioned in the command (in our case, the thing
+been thrown).
+
+The "move" command will move the first object into the second; in our case,
+it moves the object pointed to by noun into the Starting_Room (in effect
+dropping the object).  Note that we could not have used <Drop Torch> here
+instead, because this would have printed the message "Dropped.", which we
+don't want.
+
+On this occasion, the print statement is used and is followed by a list of
+things to print, all separated by commas.  In effect, this is the same as:
+
+     print "You lob ";
+     print (the) noun;
+     print " at the window with all your might, but it just bounces off \
+            and comes to rest on the floor.  Must be tough glass.";
+
+And the final mistery is this '(the) noun' bit.  Actually, it's no mystery at
+all.  Printing "noun" will print the name of the object pointed to by "noun"
+(if we are throwing the torch at the window, then it will print "torch"),
+whilst prefixing "noun" with "(the)" will print the noun along with it's
+definite article (usually "the").  In a similar vein :
+
+     'print (The) noun' will display the name of noun and it's definite
+           article, but will make the latter start with a capital letter.
+
+     'print (a) noun' will display the name of noun, prefixing it with it's
+           indefinite article (usually "a" or "an").
+
+     'print (name) noun' will print the name of noun without an article (ie
+           on it's own).
+
+You should already be familiar with "rtrue"; it is present here merely to
+make the routine return "true", so that the default throwing operation (the
+printing of "futile") does not take place.
+
+Phew - that's finished the window!
+
+
+3.4 A few more rooms
+--------------------
+
+Right, we've done about all we can with these two rooms - I think I'll go
+"over the top" and add three (yes! three!) more rooms :
+
++    Object Dim_Landing "Dimly-lit landing"
++      with name "ladder" "stairs" "staircase" "doorway" "window",
++           description "The window in the northern wall of this \
++                        chamber would probably provide more light \
++                        were it not almost completely obscured by \
++                        branches which press on the other side of \
++                        the glass, almost as if trying to gain \
++                        entry.  A spiral staircase leads downwards \
++                        into increasing gloom, whilst a slightly \
++                        brighter room is visible through a western \
++                        doorway.",
++           w_to Vending_Machine_Room,
++           u_to Dim_Room,
++           d_to Tower_Entrance_Hall,
++           cant_go "Other than going west through the doorway or \
++                    descending the staircase, your only option is \
++                    to go back up the ladder."
++      has light;
+
++   Object Vending_Machine_Room "Well-lit room"
++      with name "peg" "window",
++           description "The light that streams through this chamber's \
++                        southern window is a joy after the gloom of \
++                        the last room.",
++           e_to Dim_Landing
++      has light;
+
++    Object Tower_Entrance_Hall "Bottom of stairs"
++      with description "The staircase ends here in a cramped room \
++                        without even a window to provide light.",
++           u_to Dim_Landing;
+
+(by the way, don't worry that I've given the Vending_Machine_Room the name
+"peg"; it will become clear why very shortly.)
+
+We will also need to make a change to the Dim_Room to connect it to these
+new areas:
+
+     Object Dim_Room "Dimly-lit room"
+       with name "ladder" "hole",
+            description "Only just enough light to see by shines through \
+                         the western doorway, but it is sufficient to \
+                         illuminate a room that would be featureless \
+                         were it not for a ladder that descends through \
+                         a hole in the floor.",
+            w_to Starting_Room,
++           d_to Dim_Landing
+       has light;
+
+Now then, the Dim_Landing's description mentions some branches, so I think
+we'll make them an object in their own right (so that the player can examine
+them) : put the following just bwlow the Dim_Landing's definition:
+
++    Nearby Dim_Landing_Branches "branches"
++      with name "branches" "branch", article "some",
++           description "They look like part of a tree, but it's \
++                        hard to see properly, what with them all \ 
++                        clustered around the window like that."
++      has static concealed;
+
+We have given the branches the attributes "static" and "concealed" instead
+of "scenery" because, if they have scenery, then they are still listed when
+the player types "get all" (although they aren't taken).  The "concealed"
+attribute effectively stops an object from being listed in room descriptions,
+and also stops it from being considered for actions like "get all"; you have
+to refer to it explicitly (e.g. "examine branches") to do anything to it.
+
+Note also the property "article" - the purpose of this is to change the
+indefinite article of the object (the default is "a").  So, instead of
+"a branches", the game will print "some branches" (which is much better,
+don't you think?).  It's a useful little property, essential if you want
+your game to look profession.
+
+
+3.5 Containers
+--------------
+
+Enter the definition of the following object just below the
+Vending_Machine_Room:
+
++    Nearby Shopping_Bag "large shopping bag"
++      with name "bag" "shopping" "hamper",
++           initial "A blue and white shopping bag hangs from a peg on \
++                    the eastern wall.",
++           description "A large, blue and white checked shopping bag.";
+
+I hope it's now clear why I included "peg" in the Vending_Machine_Room's
+"name" property!
+
+And so, at last, we have now created a second object that we can take. And a
+very useful one it will be, too.
+
+It is usual for adventure games to impose a limit on the number of separate
+objects a player can carry at once.  By default this is 100, but it can be
+changed by setting the constant MAX_CARRIED.  Since our player is unlikely to
+be able to carry 100 objects (at once), let's impose a more realistic limit. 
+Put the following at the top of the code, just after the "Parser" library
+file is included:
+
++    Constant MAX_CARRIED 6;
+
+This isn't much of a problem right now (since there's only two objects you
+can take), but before long we'll have introduced more than six objects,
+and the player`s going to have to start leaving things behind.  Whether
+he takes the right things with him is going to be sheer luck - some people
+like to put problems like this in their games, but it isn't very fair and
+the player will quickly become dispirited.  A dispirited player is highly
+unlikely to want to play any more of the game, so beware.
+
+Anyway, we can get around this by giving the player something to put the
+excess objects in, and, if you hadn't already guessed, that's what this
+shopping bag is for.  Compile and run the game, find and pick up the torch
+and bag, then type the following:
+
+     >put torch in bag
+     That can't contain things.
+
+Oops, almost forgot to tell you.  It won't actually work because we haven't
+written the code to deal with it!
+
+Make the following changes to the Shopping_Bag:
+
+     Nearby Shopping_Bag "large shopping bag"
+       with name "bag" "shopping" "hamper",
+            initial "A blue and white shopping bag hangs from a peg on \
+                     the eastern wall.",
+            description "A large, blue and white checked shopping bag.",
++           capacity 50
++      has container open;
+
+Now compile and run the game again.  Find and take the torch and bag, then
+type:
+
+     >put torch in bag
+     You put the torch into the large shopping bag.
+
+Yipee - it works!  To prove to yourself that the torch is now inside the
+shopping bag, type:
+
+     >i
+     You are carrying:
+       a large shopping bag
+         a torch
+
+And thus onto the all-important question : "How does it work?".
+
+The attribute "container" is the most important one.  Put simply, any object
+that has this attribute is a container - that is, the player should be able
+to put things into it and take them out again.  Containers aren't just things
+like shopping bags and rucksacks, either - boxes, cupboards and even a
+bottomless chasm are all chasms (although, in the case of the last one,
+anything you put into it will be lost forever).
+
+Now, the "open" attribute is also vital.  This has the incredibly simple
+meaning of the object being open.  It is most often applied to doors (which
+we shall discuss later), but has an important meaning when used with other
+types of object, too.  In our case, the player won't be allowed to put
+anything inside a container unless it has the "open" attibute (the rationale
+for this is that you might want to code up a box, or something, that can be
+opened and closed by the player, and you obviously won't want her to be able
+to put things into it whilst it is closed).  You should note that just
+because an object has "open" doesn't mean that the player can close it -
+there is another attribute for that (and we shall be discussing it later).
+
+Finally, the "capacity" property just defines the maximum number of items
+that this bag can contain.  Simple, eh?
+
+There is one other refinement you might like to make.  It is possible to
+declare one container as being the "main container"; if this is carried,
+then Inform will try to put older, least-used objects into it to make room
+as the player picks other objects up (although it is intelligent enough
+not to try to store away the player's light source!).  This is a feature
+that players love, so we'd better put it in.  Put the following just below
+the MAX_CARRIED constant declaration:
+
++    Constant SACK_OBJECT Shopping_Bag;
+
+Of course, since we've only coded two takeable objects so far, we can't see
+this feature in use.  Ah well; you'll just have to wait...
+
+
+3.6 The "after" routine
+-----------------------
+
+Create the following object (somewhere between the definitions of the
+Shopping_Bag and the Tower_Entrance_Hall) :
+
++    Object Purse "old draw-string purse"
++      with name "purse" "draw" "string", article "an",
++           initial "A battered old draw-string purse hangs from a peg \
++                    on the eastern wall.",
++           description "Fortunately, there don't seem to be \
++                        any holes - yet.";
+
+You will (no doubt) have noticed that nowhere do we specify a starting room
+for this object.  This is because it doesn't start in one - it starts out
+at the top level of the object tree, along with the rooms.  If this idea
+troubles you, then you could think of it as being in a "null" room - it
+doesn't really make any difference.
+
+In the game, the purse is hidden behind the shopping bag, and is only
+revealed when the bag is taken.  But surely, you are thinking, surely that
+would be a programming task of difficulties untold and hazards unchallenged
+in anything we have so far accomplished?
+
+I'm sure you know the answer to this question by now, but, just in case
+anyone hasn't spotted the pattern yet, the answer is "No".
+
+Remember the "before" routine?  (You remember, the one we introduced at
+the start of this part, and used to add all those silly messages that were
+only displayed when you tried to manipulate the window.)  Well, it's got
+a brother.  "before"'s brother's name is "after", and, as the name suggest,
+it is executed AFTER any action is performed on it's object.
+
+In actual fact, it is executed in the time between the action taking place
+and the response being displayed.  So, for the command "get torch", the
+"after" routine of the torch is executed after the torch is taken, but before
+the "Taken." message is displayed.
+
+Anyway, we can modify our Shopping_Bag so that the Purse is moved to the
+Vending_Machine_Room (in effect "revealing" the purse behind the bag) by
+putting in an "after" routine as shown:
+
+     Nearby Shopping_Bag "large shopping bag"
+       with name "bag" "shopping" "hamper",
+            initial "A blue and white shopping bag hangs from a peg on \
+                     the eastern wall.",
+            description "A large, blue and white checked shopping bag.",
+            capacity 50,
++           after [;
++            Take: move Purse to Vending_Machine_Room;
++                  "Taken.  Hmmm - there was something hanging behind \
++                   that.";
++           ],
+       has container open;
+
+Note that the "after" routine returns true - this suppresses the printing
+of the default message (which, in this case, is "Taken."), but does not
+interfere with the actual act of taking the shopping bag (which has already
+happened).  If we had wanted the default message to have been printed, we
+would have returned false.
+
+If you compile and run the game, you should find that the code does it's job
+as expected :
+
+     >get bag
+     Taken. Hmmm - there was something hanging behind that.
+
+     >look
+
+     Well-lit room
+     The light that streams through this chamber's southern window is a
+     joy after the gloom of the last room.
+
+     A battered old draw-string purse hangs from a peg on the eastern wall.
+
+     >get purse
+     Taken.
+
+
+3.7 If only...
+--------------
+
+However, this code is not perfect.  Consider the following transcript:
+
+     >get bag
+     Taken. Hmmm - there was something hanging behind that.
+
+     >get purse
+     Taken.
+
+     >drop bag
+     Dropped.
+
+     >get bag
+     Taken. Hmmm - there was something hanging behind that.
+
+     >look
+
+     Well-lit room
+     The light that streams through this chamber's southern window is a
+     joy after the gloom of the last room.
+
+     You can see a purse here.
+
+So, how did the purse get there?
+
+You should, with a little consideration, be able to see what the problem was
+pretty quickly.  The code in the "Take" bit of the Shopping_Bag's "after"
+routine is executed EVERY TIME the shopping bag is taken.  So, if the bag is
+taken then dropped, then taken again, the "Take" bit of the "after" routine
+is executed twice.
+
+You can confirm this by using the "actions" and "routines" debugging verbs:
+
+     >actions, routines
+     [Action listing on.]
+
+     [Action 23 (from parser)]
+     [Routine listing on.]
+
+     >get bag
+     [Action Take with noun 23 (large shopping bag) (from parser)]
+     [Running after for large shopping bag]
+     Taken. Hmmm - there was something hanging behind that.
+
+     >get purse
+     [Action Take with noun 24 (purse) (from parser)]
+     Taken.
+
+     >drop bag
+     [Action Drop with noun 23 (large shopping bag) (from parser)]
+     [Running after for large shopping bag]
+     Dropped.
+
+     >get bag
+     [Action Take with noun 23 (large shopping bag) (from parser)]
+     [Running after for large shopping bag]
+     Taken. Hmmm - there was something hanging behind that.
+
+     >look
+     [Action Look (from parser)]
+
+     Well-lit room
+     The light that streams through this chamber's southern window is a
+     joy after the gloom of the last room.
+
+     You can see a purse here.
+
+In order to solve this problem, we have to change the "after" routine of the
+Shopping_Bag so that the Purse is only moved to the Vending_Machine_Room when
+the bag is first taken.  There is nothing which we have covered so far that
+will allow us to do this; I'm going to have to introduce something completely
+new.
+
+This is the "if" construct, and has the form:
+
+     if ( <condition> )
+     {
+       <some code>
+     }
+     else
+     {
+       <some other code>
+     };
+
+What this says is this:  IF (and only if) <condition> is true, then execute
+<some code>, or else <condition> isn't true, in which case execute <some
+other code>.
+
+Stepping away from Inform for a moment, we might write:
+
+     if ( I witness a mugging on my way to the shops )
+     {
+       tell the police
+     }
+     else
+     {
+       buy 3 apples and a bag of sugar
+     };
+
+Or, as another example :
+
+     if ( the football match ends York City 3, Manchester United 0 )
+     {
+       have a party
+     }
+     else
+     {
+       sigh and say "That's Life."
+     };
+
+(for any non-English readers out there, Manchester United are a team in the
+Premier League (usually near the top of it, too), whilst York City are two
+divisions below them, in Division 2.  A few months before this was written,
+York City beat Manchester United 3-0 in one of our cup competitions.)
+
+The "else" bit is actually optional; if we didn't want anything to happen if
+the condition wasn't true, then we would write:
+
+     if ( an envelope is delivered to you )
+     {
+       open the envelope
+     };
+
+So, getting back to the point, what we want to say is :
+
+     if ( the Shopping_Bag hasn't been taken )
+     {
+       move Purse to Vending_Machine_Room;
+       "Taken.  Hmmm - there was something hanging behind that.";
+     };
+
+The only bit that we can't program now is the condition bit.  Believe it or
+not, Inform won't be able to understand "the Shopping_Bag hasn't been taken"
+- we'll have to rephrase it.
+
+It is helpful at this point to know that there is an attribute "moved".
+Unlike the other attributes we have discussed, "moved" isn't an attribute
+which we will (usually) have to worry about giving to something, because
+Inform will deal with all that.  Basically, an object is given the attribute
+"moved" whenever it is taken by the player, and an object will never lose
+"moved" unless we specifically take it away (and I can't really think of a
+good reason for doing that).
+
+So, we can use this to make our condition into "the Shopping_Bag hasn't got
+the attribute 'moved'".  Inform won't actually understand this, either, but
+it WILL understand this:
+
+     Shopping_Bag hasnt moved
+
+(and no, there shouldn't be punctuation in the "hasnt").  This is true if the
+Shopping_Bag doesn't have the attribute "moved" (if we wanted it to be true
+when the Shopping_Bag does have the attribute "moved", we would have writted
+"Shopping_Bag has moved").
+
+Using all this, we can replace the "after" routine of the Shopping_Bag with
+the following code:
+
+            after [;
++            Take: if (self hasnt moved)
++                  {
++                    move Purse to Vending_Machine_Room;
++                    "Taken.  Hmmm - there was something hanging behind \
++                     that.";
++                  };
+            ],
+
+Ah yes, there's just one other thing I haven't explained.  The variable
+"self" is always set to the object whose routine this is - we could have
+used "Shopping_Bag" instead, but it's quicker to type "self"!
+
+The following transcript will, I hope, prove to you that this works:
+
+     >get bag
+     Taken. Hmmm - there was something hanging behind that.
+
+     >get purse
+     Taken.
+
+     >drop bag
+     Dropped.
+
+     >get bag
+     Taken.
+
+     >look
+
+     Well-lit room
+     The light that streams through this chamber's southern window is a
+     joy after the gloom of the last room.
+
+And finally, I'll end this part with two extra notes about "if" constructs:
+
+(1)  Note that the curly braces can be left out if there is only one command
+between them; however, I don't advise this, since I feel that it has a large
+decremental effect on the readability of the program.  I only mention it
+now because some programmers do do it, and you might have become confused
+if I hadn't told you and you had tried to read a program written by somebody
+who had left them out.
+
+(2)  Remember that any command to return a value, such as rtrue, rfalse,
+return 6 (which we haven't covered yet), print_ret "hello" (something else
+we haven't covered), or "G'day, Sport!" will alway cause the routine to
+exit immediately after that code has been executed, EVEN IF the command
+to return something is inside an "if" construct.
+
+
+
+Part 4 - A Simple Puzzle
+========================
+
+     "Human nature is so well disposed towards those who are in
+      interesting situations, that a young person, who either
+      marries or dies, is sure to be kindly spoken of."
+
+          - Jane Austen (1775-1817), Emma
+
+
+4.1 Synopsis
+------------
+
+In the previous three parts of this tutorial we have distinctly failed to
+give the player anything that will occupy his thought for a moment.  There
+are no problems for him to solve; no puzzles.  I think it's time to put
+that right.
+
+Most games start off with a few easy puzzles; it helps to get the player's
+interest.  Our starting puzzle is going to be one of the simplest, and it
+goes something like this :
+
+The game (so far) has been set in a small tower; our "Room with view" was
+at the top of the tower, the "Well-lit room" is about half-way down, and
+the "Bottom of stairs" is at ground level.
+
+In the "Bottom of stairs" room we are going to put a door that leads to
+outside the tower, and the final objective of this puzzle is going to be
+getting through the door.  Now, since the "Bottom of stairs" room is normally
+dark, the player won't be able to see the door unless he takes a light source
+down there.
+
+The torch we created back in part 1 will (surprise surprise) be this light
+source; however, it's battery has run down and will need replacing before
+it can be used.  There will be a vending machine in the "Well-lit room",
+and the draw-string purse will contain a single silver coin.  Now, since
+there is a long tradition in adventure games of obtaining batteries from
+vending machines, the player will think that he has to put the coin into
+the vending machine in order to get a battery.  However, since no programmer
+in his right mind would use such a hackneyed idea, he will get a chocolate
+bar instead.  The battery will instead be hidden underneath the vending
+machine.
+
+When the player gets down to the door, he will find that it's locked, and
+needs to be unlocked with an iron key.  Fortunately (for him), the key will
+be hanging from some cobwebs in the "Dimly-lit room" (although the player
+will only be able to see the key if he is carrying a light source).
+
+Okay, that's what we're going to program in this part.  Not too daunting,
+is it?
+
+
+4.2 The Old Draw-String Purse
+-----------------------------
+
+We have so far only coded enough of this object for us to be able to discover
+it behind the shopping bag.  We should now finish off this object; make
+the following modifications:
+
+     Object Purse "old draw-string purse"
+       with name "purse" "draw" "string" "draw-string", article "an",
+            initial "A battered old draw-string purse hangs from a peg \
+                     on the eastern wall.",
+            description "The draw-string purse looks like it's on it's \
+                         last legs.  Fortunately, there don't seem to be \
+                         any holes - yet.",
++      has container openable;
+
+Note that this purse doesn't have the attribute "open" - it has "openable"
+instead.  "Openable" means that the player is able to open and close it by
+typing "open purse" and "close purse";  Inform will handle giving the Purse
+the attribute "open" and taking it away again at the appropriate times.
+Inform will also print "(which is closed)" or "(which is open)" after the
+purse in the player's inventory, and only list the contents of the purse if
+it is open.
+
+Now, we should code up the silver coin to go into it:
+
++    Object Silver_coin_1 "silver coin" Purse
++      with name "silver" "coin",
++           description "One side depicts the head of some long-forgotten \
++                        king, whilst on the other is a picture of a lion.";
+
+This creates the coin "inside" the Purse; note that, when the purse is moved
+to the Vending_Machine_Room, the coin will now be moved with it!
+
+Compile and run the game; this seems to work okay, yes?
+
+     >i
+     You are carrying:
+       an old draw-string purse (which is closed)
+       a large shopping bag (which is empty)
+       a torch
+
+     >open purse
+     You open the old draw-string purse, revealing a silver coin.
+  
+     >i
+     You are carrying:
+       an old draw-string purse (which is open)
+         a silver coin
+       a large shopping bag (which is empty)
+       a torch
+
+     >get coin
+     Taken.
+
+     >put coin in purse
+     You put the silver coin into the old draw-string purse.
+
+Well, that's okay.  But what about:
+
+     >put torch in purse
+     You put the torch into the old draw-string purse.
+
+     >put bag in purse
+     You put the large shopping bag into the old draw-string purse.
+
+     >i
+     You are carrying:
+       an old draw-string purse (which is open)
+         a large shopping bag (which is empty)
+         a torch
+         a silver coin
+
+Must be a jolly big purse, eh?
+
+Seriously, we'll have to write some code to stop anything other than coins
+being put in the purse.  This is actually pretty simple; we just have to
+write a "before" routine for the purse to intercept the "Receive" action
+which is generated when a player tries to put something into it ("Receive"
+is a fake action; it is really "Insert" looked at from the container's point
+of view).  So:
+
+     Object Purse "old draw-string purse"
+       with name "purse" "draw" "string" "draw-string", article "an",
+            initial "A battered old draw-string purse hangs from a peg \
+                     on the eastern wall.",
+            description "The draw-string purse looks like it's on it's \
+                         last legs.  Fortunately, there don't seem to be \
+                         any holes - yet.",
++           before [;
++            Receive: if (noun ~= Silver_coin_1)
++                     {
++                       "The purse is for coins only.";
++                     };
++           ],
+       has container openable;
+
+The ~= symbol means "is not equal to"; later, if we add more coins to the
+game, we will have to modify the code so that the player is allowed to put
+them into the purse as well.  If you compile and run the game, you should
+find that this stops you from putting anything except the silver coin into
+the purse:
+
+     >open purse
+     You open the old draw-string purse, revealing a silver coin.
+
+     >get coin
+     Taken.
+
+     >put coin in purse
+     You put the silver coin into the old draw-string purse.
+
+     >put torch in purse
+     The purse is for coins only.
+
+     >i
+     You are carrying:
+       an old draw-string purse (which is open)
+         a silver coin
+       a large shopping bag (which is empty)
+       a torch
+
+However, consider the following:
+
+     >close purse
+     You close the old draw-string purse.
+
+     >put torch in purse
+     The purse is for coins only.
+
+It won't let you put the torch into the purse, but surely the standard "Alas,
+it is closed." message would be better?  Well, I think so; if you disagree,
+then tough... (you probably wouldn't do this if this were a real game.)
+
+
+Anyway, it's easy enough to program.  Change the Purse's "before" routine
+to this:
+
+            before [;
++            Receive: if ((noun ~= Silver_coin_1) && (self has open))
+                      {
+                        "The purse is for coins only.";
+                      };
+            ],
+
+Here, we are adding a second condition to the "if" statement - the "&&"
+causes them to be boolean ANDed.  For those of you who don't know what this
+means, the main condition ( (noun ~= Silver_coin_1) && (self has open) ) is
+only true if the sub-condition on the left of the && ( noun ~= Silver_coin_1 )
+is true AND the sub-condition on the right of the && ( self has open ) is
+true.  To use an English example, "if Damon Hill wins and he hasn't hit
+Michael Schumacher then pat Hill on the back" would be written:
+
+     if ((Damon Hill wins) && (Damon Hill doesn't hit Michael Schumacher))
+     {
+       pat Hill on the back
+     };
+
+So, our code says that we should print "The purse is for coins only." and
+abandon the action only if the object being put into the purse isn't the
+object Silver_coin_1 (the only coin in the game so far), AND the purse is
+open.
+
+We can compile the game, run it, and test that this routine works:
+
+     >close purse
+     You close the old draw-string purse.
+
+     >put torch in purse
+     Alas, it is closed.
+
+     >open purse
+     You open the old draw-string purse, revealing a silver coin.
+
+     >put torch in purse
+     The purse is for coins only.
+
+So, that's our old draw-string purse finished with!  Now, onto an object
+that actually does something...
+
+
+4.3 The Vending Machine
+-----------------------
+
+I'm sure we've all seen vending machines; great hulking metal boxes that
+invariably reject any coins you might try to feed to them.  On the rare
+occaisions that they do accept your money, whatever you are trying to buy
+will stick to the manipulatory arm, well out of reach.  Since we want the
+player to enjoy this game, and not end up throwing his computer out of the
+window, our vending machine will be a little more user-friendly.  Let's
+start with something simple (put this immediately after the definition of
+the Vending_Machine_Room):
+
++    Nearby Vending_Machine "vending machine"
++      with name "vending" "machine" "slot" "spraypaint" "paint" "label",
++           initial "An old vending machine stands forlornly in a \
++                    corner.",
++           description "A large metal box on stilts; it's designer \
++                        thoughtfully put a window in the front of \
++                        this vending machine so that you could see \
++                        what you were buying.  Sadly, someone has \
++                        covered it with spraypaint (the mess almost \
++                        looks like ~Fozzy woz 'ere~, but that must \
++                        be a trick of the light).  A sticky label \
++                        bares the legend ~Insert coins here~ and \
++                        an arrow that points to a narrow slot.",
++      has static;
+
+If I've been doing my job right, then this should hold absolutely no
+mysteries for you whatsoever.  You should be able to write things like this
+on your own, now.
+
+Anyway, the machine should be able to accept the coin and regurgitate a
+chocolate bar; this is done using the "Receive" fake action we introduced in
+the last section.  Add the following "before" routine to the Vending_Machine:
+
++           before [;
++            Receive: if (noun == Silver_coin_1)
++                     {
++                       remove Silver_coin_1;
++                       move Wrapped_Chocolate_Bar to Vending_Machine_Room;
++                       "You put the sir coin into the slot and it \
++                        disappears into the vending machine with a \
++                        strange rattling sound.  After a moment, the \
++                        machine whirrs and expels a small, shiny bar...";
++                     };
++                     "That won't fit.";
++            Open: "You're not a thief!";
++           ],
+
+And also put the following object below the Silver_coin_1:
+
++    Object Wrapped_Chocolate_Bar "foil-wrapped chocolate bar"
++      with name "foil" "foil-wrapped" "chocolate" "bar",
++           description "This small bar, covered with shiny blue foil, \
++                        has the word ~Hullie~ and the phrase \
++                        ~the Best chocolate this side of the Thames~ \
++                        glued onto it.";
+
+(Note that the "before" routine prints a message when it recieves the "open"
+action : this is merely to discourage the player from trying to break into
+the vending machine, it has NO hidden purpose!)
+
+I don't think I've mentioned "==", have I?  Well, "==" is a comparison
+operator that checks that the thing on the left is the same as the thing on
+the right. So ("Mansell" == "Mansell") is true, but ("Mansell" == "Atherton")
+is false.
+
+The only other new feature of this is the "remove" command; this removes
+the specified object from the object tree, and is used to "get rid of" an
+object.  It's effect can be seen by using the "tree" debugging verb:
+
+     >tree
+     Room with view (16) 
+       a window
+     Dimly-lit room (19) 
+     Dimly-lit landing (20) 
+       some branches
+     Well-lit room (22) 
+       yourself
+         a silver coin
+         an old draw-string purse (which is open but empty)
+         a large shopping bag (which is empty)
+         a torch
+       a vending machine
+     foil-wrapped chocolate bar (25) 
+     Bottom of stairs (28)
+
+     >put coin in machine
+     You put the silver coin into the slot and it disappears into the
+     vending machine with a strange rattling sound. After a moment,
+     the machine whirrs and expels a small, shiny bar...
+
+     >tree
+     Room with view (16) 
+       a window
+     Dimly-lit room (19) 
+     Dimly-lit landing (20) 
+       some branches
+     Well-lit room (22) 
+       a foil-wrapped chocolate bar
+       yourself
+         an old draw-string purse (which is open but empty)
+         a large shopping bag (which is empty)
+         a torch
+       a vending machine
+     silver coin (27) 
+     Bottom of stairs (28) 
+
+Incidentally, we don't need to give the Vending_Machine the "container"
+attribute to allow us to intercept the "Receive" (fake) action in the
+"before" routine.  This is due to the way Inform operates and the order in
+which it does things; it is all described in Chapter 1 Section 4 of the
+Designer's Manual, but briefly:
+
+Inform only attempts to reconcile the requested action with it's own view of
+the world (ie that you can only insert objects into an object that has the
+"container" attribute) AFTER it has executed all of the "before" routines.
+
+So, since the "before" routine for the Vending_Machine returns "true" if the
+action is "Receive", Inform never even looks to see if the Vending_Machine
+has the "container" attribute" (since when a "before" routine returns "true",
+Inform immediately stops trying to do anything with that action).
+
+
+4.4 The Chocolate Bar
+---------------------
+
+Text adventure code can grow rapidly.  Even an object as minor as the
+chocolate bar must have some code attatched to it.  The player should be able
+to unwrap and eat it - and that's what we've going to code now.
+
+"But isn't that difficult?" you say.  Well, no, not really.  You see, there
+is an attribute, "Edible", that should be given to an object you want to be
+able to eat; Inform will handle "eat bar" for you!
+
+Therefore, add the following routine to the Wrapped_Chocolate_Bar :
+
++           before [;
++            Eat: "You lick the foil, but it doesn't taste very nice.  \
++                  Maybe you should try unwrapping it first...";
++            Open: if (parent(self) == player)
++                  {
++                    remove self;
++                    move Unwrapped_Chocolate_Bar to player;
++                    move Blue_Foil to location;
++                    "You remove and discard the foil, revealing a \
++                     bar of solid brown chocolate.";
++           ];
+
+(note that "Open" is the action generated by Inform when the player tries
+to "unwrap" anything).
+
+And put the following object definitions below it:
+
++    Object Unwrapped_Chocolate_Bar "bar of chocolate"
++      with name "chocolate" "bar",
++           description "Light brown milk chocolate - looks yummy!",
++      has edible;
++
++    Object Blue_Foil "shiny blue foil"
++      with name "shiny" "blue" "foil", article "some",
++           initial "Some shiny blue foil lies discarded on the floor.",
++           description "This foil has the word ~Hullie~ and the phrase \
++                        ~the Best chocolate this side of the Thames~ \
++                        glued onto it.";
+
+The main mystery here is that "parent(self)" bit in the
+Wrapped_Chocolate_Bar's "before" routine.  Just what does that do?
+
+Well, parent is a routine that is supplied by the library.  Unlike all of the
+other routines we have used so far, this one can have something in brackets
+after it; the thing in brackets is called an argument.  Some other routines
+have more than one argument separated by commas in their brackets, but parent
+just has one argument.
+
+What it does is simple.  It returns the parent of the object that is it's
+argument.  In other words, it returns a pointer to the object immediately
+above the given object in the object tree.  So, parent(Vending_Machine)
+is Vending_Machine_Room, and parent(Starting_Room_Window) is Starting_Room.
+ The parent of an object being carried by the player is the "player" object,
+which is pointed to by the variable "player".
+
+So, before we allow the player to unwrap the chocolate bar, he must be
+actually holding the bar, not carrying it in the shopping bag or looking at
+it on the floor or anything.
+
+It generally isn't a good idea to move objects directly into the player using
+the "move" command, since it bypasses the limit on the number of items he/she
+can carry, but since we've just removed an object it should be okay on this
+occaision... (if you take one egg out of an egg box and immediately put
+another one in, you KNOW that there will be space for it...)
+
+Finally, if the player tries to eat the bar, the player is told to unwrap it
+first.  Note that, because of the way the "Eat" action has been written (in
+the library), the game will automatically pick up the chocolate bar and/or
+remove it from any container before it executes the "before" routines, so we
+don't need to check that the player is holding it, e.g.
+
+     >put bar in bag
+     You put the foil-wrapped chocolate bar into the large shopping bag.
+
+     >eat bar
+     (first taking the foil-wrapped chocolate bar)
+     You lick the foil, but it doesn't taste very nice. Maybe you should
+     try unwrapping it first...
+
+
+4.5 Search for the Battery
+--------------------------
+
+If you will remember, I said that the battery for the torch is hidden
+underneath this old vending machine.  Because of this, it is not in plain
+sight and can only be revealed if the player looks underneath the vending
+machine (by typing "look under vending machine", or similar).  Since I'm a
+kind soul at heart, I'll also reveal the battery if the player types "search
+vending machine".
+
+The actions we will need to "trap" to code this puzzle are "Search" and
+"LookUnder" - I'm sure you can guess when each one is generated!  Armed with
+this knowledge, we can have a go at coding this up:  add the following object
+(it doesn't matter were so long as it isn't between an "Object" statement and
+a "Nearby" statement, but for neatness's sake put it somewhere near the
+torch's definition, say just below the Starting_Room_Window):
+
++    Object Battery "new battery"
++      with name "new" "battery",
++           description "A small, shiny cylinder with a pip at one end and \
++                        a depression at the other.";
+
+and stick the following code into the Vending_Machine's "before" routine:
+
++            LookUnder: if (Vending_Machine hasnt general)
++                       {
++                         move Battery to Vending_Machine_Room;
++                         give Vending_Machine general;
++                         "You feel around in the darkened depths beneath \
++                          the vending machine, and eventually drag out \
++                          a shiny new battery.  I wonder how that got \
++                          there...";
++                       };
++                       "No, there's nothing else under there.";
++            Search: <<LookUnder Vending_Machine>>;
+
+(if this were a real game, then the battery should have some rationale. In
+other words, there should be some reason why it is underneath the vending
+machine, even if you don't tell the player what it is!  Since this isn't a
+real game, however, I couldn't be bothered.)
+
+Note that the line of code after the "if" statement is only executed if the
+condition is false; this is because the "You feel around...new battery";
+statement, as I'm sure you remember, returns true and stops the execution of
+the routine.
+
+You will note that, in the condition, we are checking for the presence of an
+attribue "general"; now, general is an attribute that has no (defined)
+meaning to Inform.  On it's own, it has no effect.  So, why are we using it?
+
+Well, because it has no effect the programmer is free to use it as he wants;
+most of the time, the "general" attribute will be used to signify when the
+puzzle associated with this object has been solved.  In our case, we are
+using it to indicate whether or not the battery has been retreived from
+beneath the vending machine (because otherwise the player could find it
+twice!).
+
+So, the "if" statement is checking that the battery hasn't already been
+found.  But wait, how does the Vending_Machine obtain the "general" attribute
+when the battery is found?
+
+I'm sure that most of you will have guessed this already.  The magic line
+"give Vending_Machine general" is the one that does it.  Basically, the
+"give" command will give to the object mentioned (in our case,
+"Vending_Machine") the attributes specified (in this example there is only
+one, "general"). So we are giving the attribute "general" to the
+Vending_Machine!
+
+The "give" command can also be used to take attributes away from objects
+by suffixing the attribute names with a tilde.  For example, if we had a
+puzzle that changed the chocolate bar to stone, we would have a line "give
+Unwrapped_Chocolate_Bar ~edible".  We may well use this feature later.
+
+This is probably the most complex bit of code we have written so far; if
+you can't see how it works, then take a moment or two to look through it
+carefully.  I don't want anyone getting lost this early...
+
+
+4.6 Yet another container...
+----------------------------
+
+Now, we've got our torch and we've got our battery, but right now neither of
+them actually do anything!  In fact, aside from their descriptions, either or
+both might as well be bricks for all they do!  I think we should change this,
+and  good place to change it would be to code up a dead battery inside that
+torch...
+
++    Object Dead_Battery "old battery" Torch
++      with name "old" "dead" "battery", article "an",
++           description "A small, grimy cylinder with a pip at one end and \
++                        a depression at the other.";
+
+Put that just below the definition of the new battery, and make the following
+changes to the definition of the torch:
+
+     Nearby Torch "torch"
+       with name "torch",
+            initial "A long-discarded torch lies on the floor.",
+            description "A black cylinder with a lens at one end.",
++           has container openable;
+
+(note that, since the torch is now a container,  Inform will now print
+"(which is open)" and "(which is closed)" after the torch in the player's
+inventory lists.  If we didn't want this, then we could prevent it; however,
+it is a topic far too advanced for you right now.)
+
+As it stands, there is no real difference between the torch and the purse,
+and the torch suffers from the same problem that early versions of the purse
+did : you can put absolutely ANYTHING into it!  Consider:
+
+     >put bag in torch
+     You put the large shopping bag into the torch.
+
+Fortunately, the solution to this problem is also very similar to the one we
+applied to the purse.  Make the following changes:
+
+     Nearby Torch "torch"
+       with name "torch",
+            initial "A long-discarded torch lies on the floor.",
+            description "A black cylinder with a lens at one end.",
++           before [;
++            Receive: if ((noun ~= Battery) && (noun ~= Dead_Battery))
++                     {
++                       "Only a battery will go into the torch's battery \
++                        compartment.";
++                     };
++           ],
+       has container openable;
+
+By this stage, it should be obvious to you what this code does.  We seem to
+have eliminated the main problem :
+
+    >put old battery into torch
+    You put the old battery into the torch.
+
+However, what about :
+
+    >put old battery into torch
+    You put the old battery into the torch.
+    
+    >put new battery into torch
+    You put the new battery into the torch.
+
+    >i
+    You are carrying:
+      a large shopping bag (which is empty)
+      a torch (which is open)
+        a new battery
+        an old battery
+
+It is possible for BOTH batteries to be in the torch simultaneously!  Now, I
+know that some torches require two (or more) batteries, but this one doesn't,
+so this is obviously a bug which we must eradicate.  Fortunately, an obvious
+solution presents itself :
+
+     Nearby Torch "torch"
+       with name "torch",
+            initial "A long-discarded torch lies on the floor.",
+            description "A black cylinder with a lens at one end.",
+            before [;
+             Receive: if ((noun ~= Battery) && (noun ~= Dead_Battery))
+                      {
+                        "Only a battery will go into the torch's battery \
+                         compartment.";
+                      };
++                     if (((noun == Battery) &&
++                          (parent(Dead_Battery) == Torch))
++                         || ((noun == Dead_Battery) &&
++                          (parent(Battery) == Torch)))
++                     {
++                       "There is already a battery in there.";
++                     };
+            ],
+       has container openable;
+
+First things first.  The || acts on the two terms (the things in brackets)
+to either side of it in a similar way to the way && works.  However, it
+has a different meaning; whereas && means "AND", || means "OR".  So, "if
+Cantona scores or Giggs scores, then Manchester United have scored a goal"
+would be written as :
+
+     if ((Cantona scores) || (Giggs scores))
+     {
+       Manchester United have scored a goal;
+     };
+
+Right, lets get back to that torch.  Try not to be intimidated by the
+four-condition "if" statement (which has been split over four lines for
+clarity) - note the use of brackets to group the terms together.  If you have
+difficulty understanding it, write it out on a piece of paper, translating
+all of the terms into English.  You should end up with something like :
+
+     IF ((the player wants to put the new battery into the torch AND the old
+          battery is already in the torch) OR (the player wants to put the old
+          battery into the torch AND the new battery is already in the torch))
+     THEN don't let him put the battery in the torch.
+
+After a bit of thought, you should be able to see why this should work,
+and then you can test that it does, e.g.:
+
+    >put new battery in torch
+    You put the new battery into the torch.
+    
+    >put old battery in torch
+    There is already a battery in there.
+    
+    >get new battery
+    Taken.
+    
+    >put old battery in torch
+    You put the old battery into the torch.
+    
+    >put new battery in torch
+    There is already a battery in there.
+
+As an aside, if you try to do this yourself then you don't need to go through
+all the business of searching the vending machine to get the new battery -
+you can use the "purloin" debugging verb.  Basically, "purloin" grabs an
+object from wherever it may be, and places it in the player's inventory, e.g.:
+
+     >purloin new battery
+     [Purloined.]
+
+     >i
+     You are carrying:
+       a new battery
+
+You can have some fun with purloin, since it doesn't actually check that the
+object you want is takeable, e.g.:
+
+     >purloin vending machine
+     [Purloined.]
+     
+     >i
+     You are carrying:
+       a vending machine
+
+Of course, if you start doing things like this then your game won't make
+sense anymore... I'll be covering all of the debugging verbs in more detail
+at the end of this chapter.
+
+But I return to the matter in hand; that torch.  The code we have just
+written works, yes, but it's meaning is hardly intuitive.  You really have to
+THINK before you can see what it does.  Leave it a few years and you won't
+have a clue what's going on.  And what if there were three batteries?  Or
+thirteen? Or thirty?  The amount of code needed increases MASSIVELY for each
+successive battery you add.  Surely there must be a better way?
+
+That was a rhetorical question; there is a better way.  After all, what we
+are trying to say is "IF (there isn't already a battery in the torch) THEN
+...".  Now, since only batteries can be put in the torch, this is equivalent
+to saying "IF (there isn't anything in the torch) THEN..." (those with a
+background in logic and severe masochistic tendancies might like to try to
+prove this over your breakfasts.  It shouldn't take more than a minute...).
+
+Now then, this is also equivalent to saying "IF (the object 'Torch' has no
+children) THEN ...", where the objects immediately below an object in the
+object tree are termed "children".  There is a routine, children(<object>),
+that returns the number of children a specified object has; this routine will
+come in useful here :
+
+     Nearby Torch "torch"
+       with name "torch",
+            initial "A long-discarded torch lies on the floor.",
+            description "A black cylinder with a lens at one end.",
+            before [;
+             Receive: if ((noun ~= Battery) && (noun ~= Dead_Battery))
+                      {
+                        "Only a battery will go into the torch's battery \
+                         compartment.";
+                      };
++                     if (children(self) ~= 0)
+                      {
+                        "There is already a battery in there.";
+                      };
+            ],
+       has container openable;
+
+There; that's a lot easier to understand, isn't it?
+
+
+4.7 Let There Be Light!
+-----------------------
+
+There is one final thing which our torch must be able to do : emit light.
+Thus far, I'm afraid, we haven't written any code that will enable it to do
+so.
+
+Since this task is rather more complex than most of the tasks we have
+attempted previously, you may find it useful to write down (in English) just
+when the torch will be lit.  It will help you to think about what is to
+happen, and make it easier to realise how to code it up.
+
+     The torch will be lit IF
+       (a) It is switched on
+      AND
+       (b) It is closed
+      AND
+       (c) It contains a live battery
+
+So, the torch could become lit when ANY ONE of these conditions changes, and
+it could also stop being lit when ANY ONE of these conditions changes.
+Fortunately, however, condition (c) can't be changed when condition (b) is
+true (ie you can't put a battery in when the torch is closed).  Therefore,
+the only ways to light the torch are:
+
+     (a) to switch it on when :
+          (i) it is closed
+         AND
+          (ii) it contains a live battery
+
+     (b) to close it when :
+          (i) it is switched on
+         AND
+          (ii) it contains a live battery
+
+Now then, how are we going to code "switch on" and "switch off"?  Well, we
+don't have to, since the Inform library does it for us.  If we give an object
+the attribute "switchable", then Inform will automatically handle the
+commands "switch on <object>" and "switch off <object>" (and any similar
+commands, such as "switch <object> on").  It will give out an appropriate
+message if you try to switch on something that's already switched on, or
+switch off something that isn't switched on.  Isn't it wonderful?
+
+Inform automatically gives a switchable object the attribute "on" when it
+is switched on, and takes it away again when you switch it off.  In actual
+fact, "switchable" is very similar to the "openable" attribute we discussed
+in the last part.
+
+Now, since we are happy for Inform to do all this for the torch, we don't
+want to mess with the "before" routines for SwitchOn and SwitchOff (the
+actions generated for switching an object on and off).  We can just add the
+code to give and take the "light" attribute (remember that from part 1?)
+to/from the torch to an "after" routine (which, as I'm sure you remember,
+won't interfere with Inform's default responses to "SwitchOn" and
+"SwitchOff") :
+
+     Nearby Torch "torch"
+       with name "torch",
+            description "A black cylinder with a lens at one end.",
+            before [;
+             Receive: if ((noun ~= Battery) && (noun ~= Dead_Battery))
+                      {
+                        "Only a battery will go into the torch's battery \
+                         compartment.";
+                      };
+                      if (children(self)~=0)
+                      {
+                        "There is already a battery in there.";
+                      };
++            Burn: <<SwitchOn self>>;
+            ],
++           after [;
++            SwitchOn: if ((parent(Battery) == self) && (self hasnt open))
++                      {
++                        give self light;
++                        "<Click>.  Light springs from the torch's lens.";
++                      };
++                      "<Click>.  Nothing happens.";
++            SwitchOff: if (self has light)
++                       {
++                         give self ~light;
++                         "<Click>.  The light goes out.";
++                       };
++                       "<Click>.";
++            Open: if (self has light)
++                  {
++                    give self ~light;
++                    print "The light goes out.^^";
++                  };
++            Close: if ((parent(Battery) == self) && (self has on))
++                   {
++                     give self light;
++                     "You close the torch and the light springs from its \
++                      lens.";
++                   }; 
++           ],
++      has container openable switchable;
+
+(note that "Burn" is the action generated when the player tries to "light"
+anything.)
+
+(note also that we have removed the torch's "initial" property - this is
+due to what seems to be an "undocumented featue" in Inform; the "initial"
+property of an object which has the attribute "switchable" is ignored. 
+Although it would be very easy to get around this, I don't want to stray
+from the point, so I haven't tried to.)
+
+This is by far the longest piece of code we have written (so far), but don't
+be daunted - there really isn't anything new in there!  Take your time to
+step through it and work out which bit does what.  Note that 'print "..."'
+is used when we trap the "Open" action - this is so that the default message
+("You open the torch, revealing a new battery.") isn't suppressed.  Note
+also the use of "give self ~light" to remove the "light" attribute from
+the torch.
+
+Phew - and this actually works, as the following transcript demonstrates :
+
+     >get torch
+     Taken.
+     
+     >open it
+     You open the torch, revealing an old battery.
+     
+     >get old battery
+     Taken.
+     
+     >purloin new battery
+     [Purloined.]
+     
+     >put new battery in torch
+     You put the new battery into the torch.
+     
+     >close torch
+     You close the torch.
+
+     >light it
+     <Click>. Light springs from the torch's lens.
+     
+     >switch it off
+     <Click>. The light goes out.
+     
+     >switch it on
+     <Click>. Light springs from the torch's lens.
+     
+     >open it
+     The light goes out.
+     
+     You open the torch, revealing a new battery.
+     
+     >close it
+     You close the torch and the light springs from its lens.
+
+If you go down to the bottom of the stairs while carrying the lit torch,
+you will for the first time be able to see what's there:
+
+     Bottom of stairs
+     The staircase ends here in a cramped room without even a window to
+     provide light.
+
+
+4.8 Yech - cobwebs!
+-------------------
+
+And now we come to those cobwebs (and their key) in the Dimly-lit Room. They
+have proved to be unexpectedly troublesome to program.
+
+Things weren't helped when my computer crashed after I had written most of
+this section.  Guess who forgot to save it?  And guess who had autosave
+disabled?
+
+Anyway, back to the matter in hand.  Even after I had re-typed this section,
+I ran into the problem that I was trying to do it the wrong way.  I was
+trying some hack using the react_after property (which I will cover later),
+and ignoring the obvious option.
+
+To be frankly, there is a property, each_turn, the routine associated with
+which is executed after all the actions associated with the player have
+taken place, once for each turn whenever the object whose property it is
+is in scope ("is visible").
+
+In other words, an object's each_turn routine is executed for each turn
+the object is in scope.  Anyway, the necessary additions to the code look
+like this:
+
+     Object Dim_Room "Dimly-lit room"
++      with name "ladder" "hole" "corner",
+            description "Only just enough light to see by shines through \
+                         the western doorway, but it is sufficient to \
+                         illuminate a room that would be featureless \
+                         were it not for a ladder that descends through \
++                        a hole in the floor.^^Thick grey cobwebs hang \
++                        wraithlike from the walls and ceiling.",
+            w_to Starting_Room,
+            d_to Dim_Landing
+       has light;
+
++    Nearby Dim_Room_Cobwebs "cobwebs"
++      with name "cobweb" "cobwebs", article "lots of",
++           description "There are so many of them that it is more like a \
++                        grey silken sheet hanging down from the ceiling!",
++           each_turn [;
++            if (Iron_Key hasnt general)
++            {
++              if ((Iron_Key in Dim_Room) && ((Torch notin player) ||
++                  (Torch hasnt light)))
++              {
++                remove Iron_Key;
++              };
++              if ((Iron_Key notin Dim_Room) && ((Torch in player) &&
++                  (Torch has light)))
++              {
++                move Iron_Key to Dim_Room;
++                "^The light of your torch reveals something previously hidden \
++                 in a dark corner - an old iron key is caught up in one of \
++                 the cobwebs...";
++              };
++            };
++           ],
++      has static concealed;
+
++    Object Iron_Key "iron key"
++      with name "key" "iron", article "an",
++           initial "The light of your torch illuminates something in a \
++                    previously unlit corner of the room : an old iron key, \
++                    dangling from a cobweb.",
++           before [;
++            Take: give Dim_Room_Cobwebs general;
++           ];
+
+There's a couple of new things in the "if" statements; "in" and "notin".
+These basically do what you'd think they do : they check that one object is
+(or isn't) inside another.  So, (Iron_Key in Dim_Room) is roughly equivalent
+to (parent(Iron_Key) == Dim_Room), whilst (Iron_Key notin Dim_Room) could be
+written as (parent(Iron_Key) ~= Dim_Room).
+
+The basic theory behind this was that, after everything the player did whilst
+the cobwebs were in scope ("in sight"), Inform would check to see whether
+the player was holding his light source, and move the key into (or out of)
+the Dim_Room as appropriate.  See if you can see just how this would happen.
+
+In case you're wondering, the "^The light of your torch..." bit so that
+there will still be a message about the key when the player arrives in the
+Dim_Room carrying a light source.  The each_turn routine is only executed
+AFTER the room has been described.
+
+Simple, eh?
+
+
+4.9 Doors
+---------
+
+Doors are wonderful things.  They can be opened and closed, locked and
+unlocked, block off new areas, need a key.  They are ready-made puzzles.
+For the lazy author, a door is a gift from God.  For the rest of us, they
+are merely a gift from Graham.
+
+Inform handles almost everything about doors automatically.  The programmer
+has to do nothing more than fill out a form.  Easy as pi.  3.14159265...
+
+If you give an object the attribute "door", then Inform will consider it to
+be a door.  This doesn't, however, make it into what we think of a door. It
+just means that Inform applies some special rules to the object.
+
+Briefly, these rules are :
+
+  (i) If the player tries to move down a map connection that leads into the
+       door, then:
+       (a) If the door has the attribute "open", then he will move to the
+            object (usually a room) pointed to by the door's "door_to"
+            property.
+       (b) If not, then an appropriate message shall be generated.
+  (ii) If the player typed "Enter door", then the parser shall try to move the
+        player in the direction specified by the door's "door_dir" property.
+
+If you don't understand this, then don't worry; we'll work through this
+example very slowly.  You'll soon pick it up.
+
+Since our door must lead somewhere (well, strictly it doesn't, but it
+simplifies things if it does...), we should create this new location.  Since
+this location properly belongs to the next chapter, I won't bother to define
+it in detail; we'll do that later.  Put the following at an appropriate point
+in the code (say, just above the initialise routine)...
+
++    Object West_Of_Tower "West of tower"
++      has light;
+
+No frills needed there yet!  Now, let us create our door object : to start
+with, I'll only put in the stuff we have already covered (this should go
+just below the Tower_Entrance_Hall definition) :
+
++    Nearby Tower_Front_Door "wooden door"
++      with name "wooden" "door",
++           description "It looks very substantial.  You wouldn't have any \
++                        idea how to open it, were it not for the large \
++                        key-hole.",
++      has static door openable;
+
+(note the attribute "openable" - remember that from the old draw-string
+purse?  Well, it has just the same effect on a door...)
+
+Obviously, Inform will need to know to where the door will lead.  This can
+easily be done by using the "door_to" property - put the following just
+below the door's "description" property...
+
++           door_to West_Of_Tower,
+
+Inform also needs to know in which direction the door points - this is so
+that typing "Enter door" and, say, "North" (if the door points north) will
+both be treated as being identical.  ("Enter door" will be interpreted as
+being "North") :
+
++           door_dir w_to,
+
+In our case, then, the door will be pointing west.
+
+And - that's it!  We know have a working door - as you can see from the
+following transcript :
+
+     Bottom of stairs
+     The staircase ends here in a cramped room without even a window
+     to provide light.
+     
+     You can see a wooden door here.
+     
+     >w
+     You can't, since the wooden door is in the way.
+     
+     >open door
+     You open the wooden door.
+     
+     >w
+     
+     West of tower
+     ** Room undescribed! **
+
+Well - it's a working door, but it doesn't do quite what we want it to do...
+
+
+4.10 Openable and Lockable
+--------------------------
+
+The first problem is the way the door is described.  "You can see a wooden
+door here." - hardly inspiring, is it?  It doesn't even say whether it's
+open or closed!  Now, we could put in an "initial" property, which would
+make the description a bit more inspiring but still wouldn't indicate when
+it was open and closed.
+
+Fortunately, since people often want to change object descriptions depending
+on whether the object is open or closed, Inform has two special properties
+which do this; "when_open" and "when_closed".  Basically, if an object has
+the attribute "open" then Inform will print the text associated with the
+property "when_open" whenever the object is described in a room description.
+Similar is when_closed, although this defines the text to display when the
+object DOESN'T have the attribute "open".
+
+To see when_open and when_closed in action, add them to the Tower_Front_Door
+object definition:
+
++           when_open "Light streams through a large doorway to the west; \
++                      a door stands open beside it.",
++           when_closed "There is a large, solid-looking wooden door in the \
++                        western wall.  It is closed.",
+
+So that the door now has a more appropriate description :
+
+    Bottom of stairs
+    The staircase ends here in a cramped room without even a window
+    to provide light.
+    
+    There is a large, solid-looking wooden door in the western
+    wall. It is closed.
+
+Anyone can open and walk through this door - however, I earlier said that
+it should be locked, and only openable once it has been unlocked with the
+iron key.  This is extremely easy to code up, since Inform does all the
+donkey work for you.
+
+If an openable item has the attribute "locked", then it cannot be opened.
+Now then, if an item has the attribute "lockable", then it can be locked and
+unlocked (Inform adding and removing the "locked" attribute) using the object
+specified by the property "with_key".  It's vaguely similar to the
+relationship between "open" and "openable".
+
+So, we first make our door initially locked by giving it the attribute
+"locked". Then, we allow the player to unlock it using it's key by giving
+the door the attribute "lockable".  Finally, we specify what the door's key
+is using the property "with_key".  The lockable door looks like this :
+
+     Nearby Tower_Front_Door "wooden door"
+       with name "wooden" "door",
+            when_open "Light streams through a large doorway to the west; \
+                       a door stands open beside it.",
+            when_closed "There is a large, solid-looking wooden door in the \
+                         western wall.  It is closed.",
+            description "It looks very substantial.  You wouldn't have any \
+                         idea how to open it, were it not for the large \
+                         key-hole.",
+            door_to West_Of_Tower,
+            door_dir w_to,
++           with_key Iron_Key,
++      has static door openable lockable locked;
+
+And it's that simple!  Just in case we've got any doubters out there, the
+following transcript proves that it does work...
+
+     Bottom of stairs
+     The staircase ends here in a cramped room without even a window
+     to provide light.
+     
+     There is a large, solid-looking wooden door in the western
+     wall. It is closed.
+     
+     >open door
+     It seems to be locked.
+     
+     >unlock it
+     What do you want to unlock the wooden door with?
+     
+     >iron key
+     You unlock the wooden door.
+     
+     >open door
+     You open the wooden door.
+     
+     >lock it
+     What do you want to lock the wooden door with?
+     
+     >iron key
+     First you'll have to close it.
+     
+     >w
+     
+     West of tower
+     ** Room undescribed! **
+     
+     >undo
+     Bottom of stairs
+     [Previous turn undone.]
+
+     >close door
+     You close the wooden door.
+     
+     >lock door with iron key
+     You lock the wooden door.
+     
+As a final touch, since light is described as streaming through the open
+door, we should make the bottom of the stairs should become lit when the
+door is open.  Of course, most players won't notice this, since it will
+only have an effect if the player switches off his torch whilst the door
+is open, but it's little touches like this that separate the good games
+from the great games.
+
+I was tempted to leave this as an exercise for you, but I've taken pity
+on you and decided against it.  After all, the designer's manual is packed
+full of exercises.  Just add this code to the Tower_Front_Door :
+
++           after [;
++            Open: give Tower_Entrance_Hall light;
++            Close: give Tower_Entrance_Hall ~light;
++           ],
+
+
+4.11 Two-way doors
+------------------
+
+This door now works as intended, but it is rather one-way.  From outside, we
+can't open, close, lock or unlock it.  Now, we could allow this by simply
+placing a second door object in the West_Of_Tower location, initially
+unlocked and open.  This would only work, however, when the only way from one
+side of the door to the other was through the door.  Add another one (by,
+say, allowing the player to jump out of the window when wearing a parachute)
+and you'd break it.  The door could be encountered open when the player had
+closed it.  And vice versa.  You could hack round this, but it wouldn't be
+very elegant.
+
+A superior solution is to make the door object present in both the
+Tower_Entrance_Hall AND West_Of_Tower, and modify the contents of various
+properties depending on where the player is.
+
+But how, I hear you cry, can this be done?  Surely it is impossible!
+
+Hahaha - no.  Assaulting the first point first (because it's the simplest),
+it IS possible for an object to be present in more than one location.  To
+do this, you basically just give it a found_in property, which should contain
+the objects in which the object is to be found.  Note that there MUST be
+two or more of these objects - if you want an object only to be present
+in one room, then just use Nearby or Object <identifier> "<short name>"
+<starting room>.  found_in won't work with only one object!  (as I found
+out to my cost a few years back...)
+
+So, that's the easier bit out of the way.  On to the tricky bit.  ;-)
+
+Of the properties I have mentioned so far, some have associated routines
+and some have associated data (e.g. strings, pointers to other objects,
+numbers, directions...).  I shall now drop a bombshell - make sure you are
+sitting comfortably - the properties that have associated data can instead
+have associated routines.
+
+If the associated data would have consisted of a string, then the routine
+that replaces it should display that string and return true (if it returns
+false, then the default string would also be displayed).  If, however, the
+data would have been something else, then the routine should return whatever
+the data would have been (or NULL if it didn't have any data).
+
+Of course, there can be anything else you like in these routines.  This is an
+extremely powerful feature of Inform, because it allows us to customise the
+defaults to our every whim.  For example, the "description" property (the one
+that holds the stuff that is displayed when an object is examined) for an oil
+lamp might look a little like this :
+
+     description [;
+      print "^It is an battered old thing, currently ";
+      if (oil_left = 10)
+      {
+        "full of oil.";
+      };
+      if (oil_left > 5)
+      {
+        "more than half-filled with oil.";
+      };
+      if (oil_left > 2)
+      {
+        "less than half-filled with oil.";
+      };
+      if (oil_left = 1)
+      {
+        "nearly empty of oil.";
+      };
+      "containing no oil.";
+     ],
+
+You could also, say, make something interesting happen when a player tried
+to move south...
+
+     s_to [;
+      if (Magic_Amulet has worn)
+      {
+        print "As you step through the doorway, you feel the particles of your \
+         body being pulled apart.  Your surroundings fade to black, and then \
+         you are standing at...^";
+        PlayerTo( Stonehenge );
+        rtrue;
+      };
+      return Pyramid_Room;
+     ],
+
+Where PlayerTo( new_location ) is an Inform library routine which moves
+the player to the specified location and describes it.
+
+(note that the s_to routine returns true, not NULL, if the Magic_Amulet is
+being worn.  In true Inform fashion, if a routine returns TRUE then execution
+of whatever is happening is cancelled.)
+
+Anyway, getting back to our door, we need to make the when_open and
+when_closed properties into routines, so that they print sensible
+descriptions of the door (ie. so that light isn't said to  stream through
+from the inside of the tower to the outside!).  We also need to put routines
+in door_to and door_dir to handle the fact that the door has moved.
+
+Note that I have also made the "description" property into a routine, so that
+the door's detailed description makes more sense when the door is open :
+
+     Object Tower_Front_Door "wooden door"
+       with name "wooden" "door",
++           when_open [;
++            if (location == Tower_Entrance_Hall)
++            {
++              "Light streams through a large doorway to the west; \
++                      a door stands open beside it.";
++            };
++            "The dim, dark insides of the tower are visible through \
++             the doorway, which lies to the east.";
++           ],
++           when_closed [;
++            if (location == Tower_Entrance_Hall)
++            {
++              "There is a large, solid-looking wooden door in the \
++               western wall.  It is closed.";
++            };
++            "A closed door is set into the side of the tower here.";
++           ],
++           description [;
++            print "It looks very substantial.  You wouldn't have ";
++            if (self has open)
++            {
++              print "had ";
++            };
++            "any idea how to open it, were it not for the large key-hole.";
++           ],
++           door_to [;
++            if (location == Tower_Entrance_Hall)
++            {
++              return West_Of_Tower;
++            };
++            return Tower_Entrance_Hall;
++           ],
++           door_dir [;
++            if (location == Tower_Entrance_Hall)
++            {
++              return w_to;
++            };
++            return e_to;
++           ],
+            with_key Iron_Key,
+            after [;
+             Open: give Tower_Entrance_Hall light;
+             Close: give Tower_Entrance_Hall ~light;
+            ],
+            found_in Tower_Entrance_Hall West_Of_Tower,
+       has static door openable lockable locked;
+
+     Object West_Of_Tower "West of tower"
++      with e_to Tower_Front_Door,
+       has light;
+
+Take a little time to look at this if you can't see how it all works.  Well,
+that's this door finished!
+
+
+4.12 Sorry, I'm out of time
+===========================
+
+Well, I was planning to write a lot more.  This part was going to end with an
+in-depth look at scoring and the debugging verbs, part 5 was going to deal
+with time and I had plans for living creatures in part 6.  However, I have
+become bogged down in other work, and do not have the time to write any more
+of this tutorial.  Sorry.
+
+I hope I have helped anyone who previously fell at the early hurdles.  If you
+have any comments, then I can be emailed at :
+
+jaieff@spuddy.mew.co.uk
+
+Have fun!

@@ -1,0 +1,238 @@
+!--------------------------------------------------------------------------
+! BAZAAR: an interactive shopping trip
+! by Sam Hulick <shulick@raisin.ucs.indiana.edu>
+! and Gareth Rees <gdr11@cl.cam.ac.uk>
+! 
+! The player's money is represented by the PlayersCash object; it should
+! never leave the player's possession during the course of the game.
+! Monetary objects like coins and bills/notes should be of the class
+! MoneyClass.  When picked up, they vanish from the player's inventory and
+! their value (stored in their number property) is transferred to the
+! PlayersCash object.
+!--------------------------------------------------------------------------
+
+Constant Story "BAZAAR";
+Constant Headline "^an interactive shopping trip^by Sam Hulick and Gareth
+    Rees^";
+
+Include "parser";
+Include "verblib";
+Include "grammar";
+
+!--------------------------------------------------------------------------
+! These global definitions define the unit of currency and the format that
+! money comes in.
+!--------------------------------------------------------------------------
+
+Constant Currency "pound";
+Constant CurrencyPlural "pounds";
+Constant CurrencyFormat "note";
+Constant CurrencyFormatPlural "notes";
+Array CurrencyNames table [; 'note' 'pound' 'pounds' ];
+Array CurrencyNamesPlural table [; 'notes' ];
+
+!--------------------------------------------------------------------------
+! In the USA you would use the following instead:
+! 
+!   Constant Currency "dollars";
+!   Constant CurrencyPlural "dollars";
+!   Array CurrencyNames table [; 'bill' 'dollar' 'dollars' ];
+!   Array CurrencyNamesPlural table [; 'bills' ];
+!   Constant CurrencyFormat "bill";
+!   Constant CurrencyFormatPlural "bills";
+!
+! and in more traditional adventure circumstances, perhaps:
+!
+!   Constant Currency "gold";
+!   Constant CurrencyPlural "gold";
+!   Array CurrencyNames table [; 'gold' 'piece' 'coin' ];
+!   Array CurrencyNamesPlural table [; 'pieces' 'coins' ];
+!   Constant CurrencyFormat "piece";
+!   Constant CurrencyFormatPlural "pieces";
+!--------------------------------------------------------------------------
+
+Object  PlayersCash "money" selfobj
+ with   name "embarrassing" "lack" "of" "money" "cash",
+        short_name [;
+            if (self.number == 0) print "embarrassing lack of money";
+            else print "money";
+            rtrue;
+        ],
+        number 0,
+        article "your",
+        before [;
+            if (self.number == 0 && action ~= ##Examine)
+                "But you have no money!";
+         Eat: "Talk about rich food!";
+         Drop,ThrowAt,Transfer,Insert,PutOn:
+            "You are much too reluctant to part with your hard-earned \
+            cash.";
+        ],
+        description [;
+            if (self.number == 0) "You, my friend, are broke.";
+            print "You have ", (EnglishNumber) self.number, " ";
+            if (self.number == 1) print (string) Currency;
+            else print (string) CurrencyPlural;
+            ".";
+        ];
+
+!--------------------------------------------------------------------------
+! Objects representing money are members of MoneyClass.  The class tries to
+! get everything right: plurals ("take all the twenty pound notes"),
+! articles ("an eight pound note" vs "a ten pound note") and so on.
+!--------------------------------------------------------------------------
+
+Class   MoneyClass
+ with   parse_name [ n ok w i;
+            if (parser_action == ##TheSame) {
+                if (parser_one.number == parser_two.number)
+                    return -1;
+                return -2;
+            }
+            do {
+                ok = 0;
+                if (TryNumber(wn) == self.number) {
+                    ok = 1; n ++; wn++;
+                } else {
+                    w = NextWord();
+                    for (i = 1: i <= CurrencyNames-->0: i++) {
+                        if (w == CurrencyNames-->i) {
+                            ok = 1;
+                            n ++;
+                        }
+                    }
+                    for (i = 1: i <= CurrencyNamesPlural-->0: i++) {
+                        if (w == CurrencyNamesPlural-->i) {
+                            ok = 1;
+                            n ++;
+                            parser_action = PluralFound;
+                        }
+                    }
+                }
+            } until (ok == 0);
+            return n;
+        ],
+        article [ a b;
+            if (self.number <    10) { a =    1; b = 1; jump PrintArticle; }
+            if (self.number <   100) { a =   10; b = 1; jump PrintArticle; }
+            if (self.number <  1000) { a =  100; b = 1; jump PrintArticle; }
+            if (self.number < 10000) { a = 1000; b = 1; jump PrintArticle; }
+            a = 10000; b = 1000;
+            .PrintArticle;
+            if (self.number / a == 8 || self.number / b == 11 or 18)
+                print "an";
+            else print "a";
+        ],              
+        short_name [;
+            if (self.number > 1)
+                print self.number, " ";
+            print (string) Currency;
+            if (CurrencyFormat ~= NULL)
+                print " ", (string) CurrencyFormat;
+            rtrue;
+        ],
+        plural [;
+            if (self.number > 1)
+                print self.number, " ";
+            print (string) Currency;
+            if (CurrencyFormat ~= NULL)
+                print " ", (string) CurrencyFormatPlural;
+            rtrue;
+        ],
+        after [;
+         Take,Remove:
+            PlayersCash.number = PlayersCash.number + self.number;
+            remove self;
+            "You feel a bit richer now.";
+        ];
+
+!--------------------------------------------------------------------------
+! Objects that must be purchased are members of BuyClass.  The number
+! property is the price of the item.
+!--------------------------------------------------------------------------
+
+Class   BuyClass
+ with   before [;
+         Take,Remove:
+            if (self.number ~= 0)
+                print_ret "You haven't paid for ", (the) self, ".";
+         Buy:
+            if (PlayersCash.number < self.number)
+                "You haven't enough money to pay for it.";
+            PlayersCash.number = PlayersCash.number - self.number;
+            print "You hand over ", (EnglishNumber) self.number, " ";
+            if (self.number == 1) print (string) Currency;
+            else print (string) CurrencyPlural;
+            self.number = 0;
+            print_ret " and ", (the) self, " is yours.";
+        ];
+
+!--------------------------------------------------------------------------
+! The game starts here.  The bazaar and its stallholder are stolen from
+! Graham Nelson's game "Balances".
+!--------------------------------------------------------------------------
+
+[ Initialise;
+    location = Bazaar;
+    "^^^^^Time for a quick trip to the market...^^";
+];
+
+Object  Bazaar "Bazaar"
+ has    light
+ with   name "bazaar" "jabbering" "natives" "native",
+        description "This is a crowded, noisy bazaar. Directly in front \
+            of you is a stall. But the contemptuous-looking stallholder \
+            is doing a very poor trade: hardly anyone wants to buy his \
+            merchandise.",
+        each_turn [;
+            switch(random(4)) {
+             1: "^~Roll up! Roll up! Get your adventuring merchanise \
+                 here!~";
+             2: "^~Come on, then! Just three pounds gets you a brass \
+                 lamp!~";
+             3: "^~Elvish swords! You want them, we have them! A snip at \
+                 twenty-three pounds!~";
+             4: "^~Bargains! Bargains! Come and get 'em!~";
+            }
+        ],
+        cant_go "Everywhere, the crowds of jabbering natives block your \
+            way to all the good stalls. In fact, the only stall you can \
+            get at is this dismal one.";
+
+Nearby  StallHolder "stallholder"
+ has    animate scenery
+ with   name "barker" "burly" "man",
+        number 0,
+        description "A boxer gone to seed who failed as a magician down \
+            the coast, that'd be your guess.",
+        life [;
+         Attack, Kiss: "No way. He must weigh twice what you do.";
+         Order, Answer: "The stallholder glowers at you.";
+        ];
+
+!--------------------------------------------------------------------------
+! With the monster definition of MoneyClass out of the way, actual examples
+! of monetary items are easy to define.
+!--------------------------------------------------------------------------
+
+Nearby Twenty "x" class MoneyClass with number 20;
+Nearby Ten "x" class MoneyClass with number 10;
+Nearby Five "x" class MoneyClass with number 5;
+Nearby One "x" class MoneyClass with number 1;
+
+!--------------------------------------------------------------------------
+! Finally, some objects to purchase.
+!--------------------------------------------------------------------------
+
+Nearby  Lamp "brass lamp"
+ class  BuyClass
+ has    light
+ with   name "brass" "lamp" "lantern",
+        number 3;
+
+Nearby  Sword "elvish sword"
+ class  BuyClass
+ with   name "sword" "elvish",
+        number 23;
+
+End;

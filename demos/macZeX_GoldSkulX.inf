@@ -1,0 +1,97 @@
+!!
+!!   GoldSkulX.inf
+!!   -------------
+!!
+!!   This is an example of an Inform game which uses the
+!!   styled text facilities of the ZeX interpreter.
+!!
+!!   Greg Ewing
+!!   greg@cosc.canterbury.ac.nz
+!!
+Constant Story "{&lmargin(36) &parindent(0) {&size(24) &skip Gold Skull^}}";
+Constant Headline 
+  "{&lmargin(36) &parindent(0) {&size(9)& ^}\
+	{&size(14) An Interactive Diversion with {&em Style}} ^\
+	{&size(10) Ported by {&bold John Holder} from a TADS demo by {&bold Mike Roberts}.^\
+	Modified to demonstrate {&tt ZeX}'s styled text facilites by {&bold Greg Ewing}.^}\
+   &size(14)& ^}";
+
+#include "Parser";
+#include "VerbLib";
+
+Object Outside_Cave "Outside Cave"
+  with 
+    short_name "{&bold Outside Cave}",
+    description "You are standing outside out a nasty looking cave which \
+	is to your north.",
+    n_to Cave, cant_go "The only exit is to the north.",
+  has  light;
+
+Nearby smallRock "small rock"
+  with 	name "small" "rock",
+	description "It's a rather ordinary looking rock that weighs several \
+		kilos.",
+        before
+	[; PutOn: if (second == pedestal)
+		  {
+		    give pedestal general;
+		  }
+	   Take: if ((pedestal hasnt general) && (self in pedestal))
+		 {
+		   deadflag=1;
+		   "As you lift the small rock from its resting \
+                   place, the center of the pedestal rises up. To your great \
+                   suprise, {&em a volley of poisoned arrows springs through the \
+                   air from a hidden recess and into your body.}";
+		 }
+	         if ((self in pedestal) && (goldSkull in pedestal))
+		 {
+		   give pedestal ~general;
+		 }
+	];
+
+Object Cave "Cave"
+  with 
+    short_name 	"{&bold Cave}",
+    description "The cave is brightly lit by the sunlight pouring through \
+		its entrance to the south, revealing an even more grusome-\
+		looking cave than you imagined.",
+    s_to Outside_Cave, cant_go "The only exit is out of the cave to the south.",
+  has light;
+
+Nearby pedestal "pedestal"
+  with	name "pedestal",
+  has supporter static;
+
+Object goldSkull "gold skull" pedestal
+  with	name "gold" "skull",
+	description "The gold skull gleams wickedly in the light.",
+        before
+	[; Take: if ((pedestal hasnt general) && (self in pedestal))
+		 {
+		   deadflag=1;
+		   "As you greedily lift the gold skull from its resting \
+                   place, the center of the pedestal rises up. To your great \
+                   suprise, {&em a volley of poisoned arrows springs through the \
+                   air from a hidden recess and into your body.}";
+		 }
+	         if ((self in pedestal) && (smallRock in pedestal))
+                 {
+		   give pedestal ~general;
+		 }
+	   PutOn: if (second == pedestal)
+		 {
+		   give pedestal general;
+		 }
+	];
+
+[ Initialise;
+  0->1 = 0->1 + 127; !! Enable ZeX formatting
+  location = Outside_Cave;
+  print "^^^^^This is a {&em cheaper}, more {&em intelligent} and more \
+  {&em stylish} port of {&tt goldskul.t}, a TADS demo by {&bold Mike Roberts}.\
+  ^^";
+];
+
+#include "Grammar";
+end;

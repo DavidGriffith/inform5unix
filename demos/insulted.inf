@@ -1,0 +1,196 @@
+! --------------[ Inform Shakespearean Insult Generator v1.0]----------------
+! Possibly the most gratiutiously vulgar, flatulent use of Inform yet devised!
+! ---------------------------------------------------------------------------
+! This routine is based roughly on a "shakespearean insult" scheme posted on
+! usenet created by Jerry McGuire (a high school English teacher, no less).
+! There are several WWW pages that feature the use of this "algorithm"....
+! ---------------------------------------------------------------------------
+! Warning: Extremely sloppy code follows! I have to admit, i scarcely have
+! any idea what I'm doing. I coded this in Pascal first, and then, largely
+! by a semi-painful process of trial and error, transmogrified it into Inform
+! code that actually works! It is of course a very silly thing, but perhaps
+! some my find it more amusing (for a few minutes) than sawing at their wrists
+! with saftey razors that they have frantically and desperately smashed free
+! with their shaving mirror.... um... Anyone that has far too little content
+! in their Inform adventures, and is looking for more totally vacuous filler
+! material, is free to use any of this code they can manage to steal....
+! ---------------------------------------------------------------------------
+! You'll probably need to use $BUFFER_LENGTH=3000 on commmandline to compile.
+! --------------------[ Tim Middleton as544@torfree.net ]--------------------
+
+Switches dsv5x;
+Constant DEBUG;
+
+Constant Story "Shakespearean Insult-o-Rondez-Vous-with-Rama^";
+Constant Headline "^";
+
+Include "Parser";
+
+Object LibraryMessages "lm"                      ! patch library messages...
+      with
+        before
+        [; Prompt: sh_insult("^What now, ", "> "); rtrue;
+        ];
+
+Include "VerbLib";
+
+Global Sh_Ads table "artless" "base-court"       ! table of insult adjectives
+              "bawdy"         "bat-fowling"
+              "beslubbering"  "beef-witted"      ! number of entries is read
+              "bootless"      "beetle-headed"    ! from sh_ads-->0
+              "churlish"      "boil-brained"
+              "cockered"      "clapper-clawed"
+              "clouted"       "clay-brained"
+              "craven"        "common-kissing"
+              "currish"       "crook-pated"
+              "dankish"       "dismal-dreaming"
+              "dissembling"   "dizzy-eyed"
+              "droning"       "doghearted"
+              "errant"        "dread-bolted"
+              "fawning"       "earth-vexing"
+              "fobbing"       "elf-skinned"
+              "froward"       "fat-kidneyed"
+              "frothy"        "fen-sucked"
+              "gleeking"      "flap-mouthed"
+              "goatish"       "fly-bitten"
+              "gorbellied"    "folly-fallen"
+              "impertinent"   "fool-born"
+              "infectious"    "full-gorged"
+              "jarring"       "guts-griping"
+              "loggerheaded"  "half-faced"
+              "lumpish"       "hasty-witted"
+              "mammering"     "hedge-born"
+              "mangled"       "hell-hated"
+              "mewling"       "idle-headed"
+              "paunchy"       "ill-breeding"
+              "pribbling"     "ill-nurtured"
+              "puking"        "knotty-pated"
+              "puny"          "milk-livered"
+              "quailing"      "motley-minded"
+              "rank"          "onion-eyed"
+              "reeky"         "plume-plucked"
+              "roguish"       "pottle-deep"
+              "ruttish"       "pox-marked"
+              "saucy"         "reeling-ripe"
+              "spleeny"       "rough-hewn"
+              "spongy"        "rude-growing"
+              "surly"         "rump-fed"
+              "tottering"     "shard-borne"
+              "unmuzzled"     "sheep-biting"
+              "vain"          "spur-galled"
+              "venomed"       "swag-bellied"
+              "villainous"    "tardy-gaited"
+              "warped"        "tickle-brained"
+              "wayward"       "toad-spotted"
+              "weedy"         "unchin-snouted"
+              "yeasty"        "weather-bitten";
+
+Global Sh_Nms table                              ! table of insult names
+               "apple-john"
+               "baggage"
+               "barnacle"
+               "bladder"
+               "boar-pig"
+               "bugbear"
+               "bum-bailey"
+               "canker-blossom"
+               "clack-dish"
+               "clotpole"
+               "coxcomb"
+               "codpiece"
+               "death-token"
+               "dewberry"
+               "flap-dragon"
+               "flax-wench"
+               "flirt-gill"
+               "foot-licker"
+               "fustilarian"
+               "giglet"
+               "gudgeon"
+               "haggard"
+               "harpy"
+               "hedge-pig"
+               "horn-beast"
+               "hugger-mugger"
+               "jolthead"
+               "lewdster"
+               "lout"
+               "maggot-pie"
+               "malt-worm"
+               "mammet"
+               "measle"
+               "minnow"
+               "miscreant"
+               "moldwarp"
+               "mumble-news"
+               "nut-hook"
+               "pigeon-egg"
+               "pignut"
+               "puttock"
+               "pumpion"
+               "ratsbane"
+               "scut"
+               "skainsmate"
+               "strumpet"
+               "varlot"
+               "vassal"
+               "whey-face"
+               "wagtail";
+
+Global sh_ar -> 0 0 0;                           ! temp array to hold adjs.
+                                                 ! note: *3* maximum.
+object Room "A Room"                             ! A room to be insulted in.
+    with
+    description "Not much here...",              ! Doesn't take much to be
+    has light;                                   ! insulted. (-:
+nearby Chair "chair"                             ! better sit down for this.
+    with
+    name "chair" "seat" "throne",
+    description "Looks sittable!",
+    has supporter;                               ! or can be thrown around...
+
+[ sh_dupe_chk an l ret;                          ! filter duplicate insults.
+ ret=random(sh_ads-->0);                         ! random adjective to try.
+ if (an>0) {                                     ! more than one adj to check?
+     for (l=0:l<an:l++) {                        ! loop though picked adjs.
+         if (sh_ar ->l == ret) return -1;        ! duplicate found... exit.
+     }
+ }
+ return ret;                                     ! no duplicate, return value.
+];
+
+[ sh_insult pre post an y c;                     ! generate insult.
+ c = random(3);                                  ! 1 to *3* adjectives.
+ for (an=0:an<c:an++) {                          ! loop to pick adjectives.
+     do { y=sh_dupe_chk(an) } until (y>-1);      ! loop until adj unique.
+     sh_ar ->an = y;                             ! add adj value to tmp array.
+ }
+ if (pre~=0) print (string) pre;                 ! address the victim!
+ for (an=0:an<c:an++) {                          ! loop through picked adjs.
+     print (string) sh_ads-->(sh_ar->an), " ";   ! print adjectives, then
+ }                                               ! ....
+ y = random(sh_nms-->0);                         ! pick the vile sobriquet
+ print (string) sh_nms-->(y);                    ! and print it...
+ if (post~=0) print (string) post;               ! with post string, if any.
+];
+
+[ sh_insSub; sh_insult("Thou ", "!^"); ];        ! for the insult command...
+                                                 ! note the space, and ^....
+[ Initialise;
+ Location = Room;                                ! here we are.
+ print "^^";
+ style bold;                                     ! bold colour print mode.
+ sh_insult("Wherefore art thou, thou ", "?!^");  ! A pet name for Romeo...?
+ style roman;                                    ! back to normal printing.
+ print "  --Romeo And Juliet, II.ii.35 (paraphrased)^^";
+ return 2;                                       ! Don't print game banner
+];
+
+Include "Grammar";
+
+verb "insult" "ins" *      -> sh_ins;            ! make a quick insult cmd
+
+! ************************************************************************
+!  My humble apologies to all Shakespeare fans and admirers everywhere!!!
+!  What would the Immortal Bard say if he could see this!? Shameful!! (-;
+! ************************************************************************

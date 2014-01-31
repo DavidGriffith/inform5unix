@@ -1,0 +1,60 @@
+Constant Story "GOLDSKULL";
+Constant Headline "^An Interactive Example^Ported by John Holder and \
+    Gareth Rees from a TADS demo by Mike Roberts.^";
+
+Include "Parser";
+Include "VerbLib";
+Include "Grammar";
+
+Object  Outside_Cave "Outside Cave"
+ has    light
+ with   name "nasty" "looking" "cave",
+        description "You are standing outside out a nasty looking cave \
+            which is to your north.",
+        n_to Cave, 
+        cant_go "The only exit is to the north.",
+        each_turn [;
+            if (GoldSkull in player) {
+                deadflag = 2;
+                "^You escaped with the treasure!";
+            }
+        ];
+
+Nearby  SmallRock "small rock"
+ with   name "small" "rock",
+        description "It's a rather ordinary looking rock that weighs \
+            several kilos.";
+
+Object  Cave "Cave"
+ has    light
+ with   name "sun" "sunlight" "entrance",
+        description "The cave is brightly lit by the sunlight pouring \
+            through its entrance to the south, revealing an even more \
+            gruesome-looking cave than you imagined.",
+        s_to Outside_Cave,
+        cant_go "The only exit is out of the cave to the south.";
+
+Nearby  Pedestal "pedestal"
+ has    supporter static
+ with   name "pedestal",
+        each_turn [;
+            if (children(self) < 1) {
+                deadflag=1;
+                "^Suddenly, you notice the center of the pedestal \
+                starting to rise. Before you can move, a volley of \
+                poisoned arrows springs through the air from a hidden \
+                recess and into your body.";
+            }
+        ];
+
+Object  GoldSkull "gold skull" Pedestal
+ with   name "gold" "skull",
+        description "The gold skull gleams wickedly in the light.";
+
+[ Initialise;
+    location = Outside_Cave;
+    print "^^^^^This is a cheaper and more intelligent port of \
+        goldskul.t, a TADS demo by Mike Roberts...^^";
+];
+
+end;

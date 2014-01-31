@@ -1,0 +1,140 @@
+!--------------------------------------------------------------------------
+! The Carousel Room from Zork II: an example
+!
+! Graham Nelson, 3/95, after Lebling & Blank
+!--------------------------------------------------------------------------
+
+Constant Story "CAROUSEL";
+Constant Headline "^An Interactive Snippet from Zork II^by Dave Lebling \
+    and Marc Blank (1981)^";
+
+Constant MAX_SCORE 4;
+Include "parser";
+Include "verblib";
+Include "grammar";
+
+[ Initialise;
+    location = Arched_Hall;
+    print "^^^^^Are you feeling dizzy? It must be the...^^";
+];
+
+Object  Arched_Hall "Arched Hall"
+ has    light
+ with   description "This is an arched hall of fine marble. The hall is \
+            blocked to the north by an unfordable stream, where the \
+            marble is cracked and broken. Perhaps a flood or collapse of \
+            the cave was responsible. To the south the hall opens into a \
+            large room. There is rather annoying whirring sound coming \
+            from that room.",
+        s_to Carousel_Room;
+
+Object  Carousel_Room "Carousel Room"
+ has    light general
+ with   description [;
+            print "You are in a large circular room whose high ceiling is \
+                lost in gloom.  Eight identical passages leave the \
+                room.^";
+            if (self has general)
+                "A loud whirring sound comes from all around, and you \
+                feel sort of disoriented in here.";
+            "The whirring sound is very quiet, and you no longer feel \
+            dizzy.";
+        ],
+        n_to Arched_Hall,   
+        ne_to side_room_ne,  
+        nw_to side_room_nw,
+        se_to side_room_se, 
+        sw_to side_room_sw,  
+        s_to side_room_s,
+        e_to side_room_e,   
+        w_to side_room_w,
+        before [ i;  
+         Go:
+            print "You're not sure which direction is which.  This room \
+                is very disorienting.^";
+            switch (random(7)) {
+             1: i = Arched_Hall;
+             2: i = side_room_ne;
+             3: i = side_room_nw;
+             4: i = side_room_se;
+             5: i = side_room_sw;
+             6: i = side_room_s;
+             7: i = side_room_e;
+            }
+            PlayerTo(i);
+            rtrue;
+        ];
+
+Class   side_room
+ with   description "This is a little side-chamber, with no other exit.",
+ has    light;
+
+Object  side_room_ne "NE of Carousel"
+ class  side_room
+ with   sw_to Carousel_Room;
+
+Object  side_room_nw "NW of Carousel"
+ class  side_room
+ with   se_to Carousel_Room;
+
+Object  side_room_e "E of Carousel"
+ class  side_room
+ with   w_to Carousel_Room;
+
+Nearby  table "oak table"
+ has    static supporter
+ with   name "oak" "table" "engraved" "engravings",
+        initial "An engraved oak table rests beside one wall.",
+        description "~Place Treasures Here~.",
+        after [;
+         Receive:
+            if (noun == pile) { deadflag = 2; "Chime!"; }
+        ];
+
+Object  side_room_w "Room 8"
+ class  side_room
+ with   e_to Carousel_Room;
+
+Nearby  pile "pile of jewels"
+ has    scored
+ with   name "pile" "of" "jewels" "gems";
+
+Object  side_room_se "SE of Carousel"
+ class  side_room
+ with   nw_to Carousel_Room;
+
+Object  side_room_sw "SW of Carousel"
+ class  side_room
+ with   ne_to Carousel_Room;
+
+Object  side_room_s "S of Carousel"
+ class  side_room
+ with   n_to Carousel_Room;
+
+Nearby  switch "large switch"
+ has    switchable static on
+ with   name "large" "switch" "lever",
+        when_off "A large switch is down on the wall.",
+        when_on  "A large switch is up on the wall.",
+        before [;
+         Pull: <<SwitchOff self>>;
+         Push: <<SwitchOn self>>;
+        ],
+        after [;
+         SwitchOn:  "Nothing obvious happens.";
+         SwitchOff: 
+            give Carousel_Room ~general;
+
+            !  Note that, since Inform is an untyped language, it is
+            ! entirely legal to over-write the "before" of Carousel_Room
+            ! with a number... in this case -1, which means "no before
+            ! routine at all" and is the value of "before" for any object
+            ! which doesn't provide one.  This conveniently deletes the
+            ! "disoriented" rule from the game.
+
+            Carousel_Room.before = -1;
+            "There is a shower of sparks, and the whirring sound dies \
+            down.";
+        ];
+
+End;

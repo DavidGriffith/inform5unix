@@ -1,0 +1,152 @@
+!--------------------------------------------------------------------------
+! Example demonstrating "property_list", an exciting new feature in Library
+! release 5/9.
+! 
+! Graham Nelson, 2/95
+!--------------------------------------------------------------------------
+
+Constant Story "LIST PROPERTY";
+Constant Headline "^An Interactive Example^Copyright (c) 1995 by Graham \
+    Nelson.^";
+Constant MAX_CARRIED 8;
+
+Include "parser";
+
+Object  travel_bag "travel bag"
+ has    container openable open
+ with   name "travel" "bag";
+
+Constant SACK_OBJECT travel_bag;
+
+Include "verblib";
+Include "grammar";
+
+[ Initialise;
+    location = Lost_Property;
+    move travel_bag to player;
+    print "^^^^^Fancy inspecting a miscellany?  Go on, you know you \
+        do...^^";
+];
+
+Object  Lost_Property "Lost Property Office"
+ has    light
+ with   description "A dusty, echoing room with a green baize table.";
+
+Nearby  table "green baize table"
+ has    scenery supporter
+ with   name "green" "baize" "table";
+
+Class   plastic_cutlery
+ with   name "plastic" "cutlery", article "a plastic",
+        list_together [;
+            if (inventory_stage ~= 1) rfalse;
+            if (c_style & NOARTICLE_BIT == 0) c_style=c_style+NOARTICLE_BIT;
+            if (c_style & ENGLISH_BIT == 0)   c_style=c_style+ENGLISH_BIT;
+            if (c_style & NEWLINE_BIT ~= 0)   c_style=c_style-NEWLINE_BIT;
+            if (c_style & INDENT_BIT ~= 0)    c_style=c_style-INDENT_BIT;
+            print "a plastic ";
+        ];
+Nearby  fork  "fork"  class plastic_cutlery with name "fork";
+Nearby  knife "knife" class plastic_cutlery with name "knife";
+Nearby  spook "spoon" class plastic_cutlery with name "spoon";
+
+Class   hat_class has clothing with list_together "hats", name "hat" "hats";
+Nearby  hat1 "fez" class hat_class with name "fez";
+Nearby  hat2 "Panama" class hat_class with name "panama";
+Nearby  hat3 "sombrero" class hat_class with name "sombrero";
+
+Attribute is_letter;
+Class   letter
+ has    is_letter
+ with   list_together [;
+            if (inventory_stage==1) {
+                print "the letters ";
+                c_style = c_style | (ENGLISH_BIT + NOARTICLE_BIT);
+                if (c_style & NEWLINE_BIT ~= 0) c_style = c_style-NEWLINE_BIT;
+                if (c_style & INDENT_BIT ~= 0)  c_style = c_style-INDENT_BIT;
+            }
+            else
+                print " from a Scrabble set";
+        ],
+        short_name [;
+            if (listing_together has is_letter) rfalse;
+            print "letter ", object self, " from a Scrabble set";
+            rtrue;
+        ],
+        article "the";
+Nearby  s1 "X" class letter with name "x";
+Nearby  s2 "Y" class letter with name "y";
+Nearby  s3 "Z" class letter with name "z";
+Nearby  s4 "P" class letter with name "p";
+Nearby  s5 "Q" class letter with name "q";
+Nearby  s6 "R" class letter with name "r";
+
+Nearby  cake "defrosting Black Forest gateau"
+ with   name "black" "forest" "gateau" "cake",
+ has    edible;
+
+Nearby  punch "Punch magazine"
+ has    proper
+ with   name "punch" "magazine",
+        description "Five years out of date by the cover, a hundred by \
+            the contents.",
+        list_together 1;
+
+Nearby  spectator "issue of the Spectator"
+ with   name "spectator" "issue" "magazine", article "a recent",
+        description "Up to date by the cover, a nightmare view of the \
+            future within.",
+        list_together 1;
+
+Nearby  die "die"
+  with  name "die" "dice",
+        after [; 
+         Drop: print "It comes up ", random(6); "!"; 
+        ];
+
+Attribute is_coin;
+Class   coin_class
+ has    is_coin
+ with   name "coin",
+        description "A round unstamped disc, presumably local currency.",
+        parse_name [ i j w;
+            if (parser_action==##TheSame) {
+                if ((parser_one.&name)-->0 == (parser_two.&name)-->0)
+                    return -1;
+                return -2;
+            }
+            w = (self.&name)-->0;
+            for (: : i++) {
+                j = NextWord();
+                if (j == 'coins') parser_action = ##PluralFound;
+                else if (j ~= 'coin' or w) return i;
+            }
+        ],
+        list_together "coins",
+        plural [;
+            print_addr (self.&name)-->0;
+            if (listing_together hasnt is_coin) print " coins";
+        ],
+        short_name [;
+            if (listing_together has is_coin) {
+                print_addr (self.&name)-->0; 
+                rtrue; 
+            }
+        ],
+        article [;
+            if (listing_together has is_coin) print "one"; 
+            else print "a";
+        ];
+Class   gold_coin_class   class coin_class with name "gold";
+Class   silver_coin_class class coin_class with name "silver";
+Class   bronze_coin_class class coin_class with name "bronze";
+Nearby  coin1 "silver coin" class silver_coin_class;
+Nearby  coin2 "silver coin" class silver_coin_class;
+Nearby  coin3 "silver coin" class silver_coin_class;
+Nearby  coin4 "silver coin" class silver_coin_class;
+Nearby  coin5 "bronze coin" class bronze_coin_class;
+Nearby  coin6 "gold coin"   class gold_coin_class;
+Nearby  coin7 "gold coin"   class gold_coin_class;
+Nearby  coin8 "gold coin"   class gold_coin_class;
+
+End;

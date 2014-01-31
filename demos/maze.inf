@@ -1,0 +1,404 @@
+!---------------------------------------------------------------------------!
+!                                                                           !
+! This file is intended as an illustration of the rather cryptic line in    !
+! the Designer's Manual about using the "number" property of the compass    !
+! directions to code a maze.  This maze copies the "Alike_Maze" from        !
+! Adventure (specifically, from Graham Nelson's Inform port thereof) and    !
+! implements it with two rooms: Maze_Room and Maze_Dump, and three          !
+! routines:  LoadMaze, SetMaze and MoveInMaze.                              !
+!                                                                           !
+! This method uses the "number" property to keep track of the location of   !
+! objects in the maze, which has two major implications:  1. every object   !
+! which the player can drop in the maze MUST have the number property       !
+! defined; and 2. the number property cannot be used for anything else.     !
+! The latter is avoidable by defining another property, say "maze_number,"  !
+! and using it instead.                                                     !
+!                                                                           !
+! Although this method works fairly well, there are three caveats:          !
+! 1. "Places" will list the entire maze as one room (in this case,          !
+! "Standard Maze").  This may or may not be desirable.                      !
+! 2. "Objects" will list objects dropped in the last room visited properly, !
+! but anything in Maze_Dump will be listed as "lost."  This is probably     !
+! correctable.                                                              !
+! 3.  This method is NOT recommended if you have any NPCs who can wander    !
+! around in the maze.  While you COULD keep track of each NPC's location    !
+! with his or her "number" property, you'd have to code the movement rules  !
+! completely differently.                                                   !
+!                                                                           !
+! I don't have a great deal of experience with Inform (and in real life I   !
+! use COBOL), so there may be better and easier alternatives to some of     !
+! this.  I welcome any and all comments, which you can e-mail to me at:     !
+! blore@ibm.net.                                                            !
+!                   -- Steven Howard, 6/4/1996                              !
+!---------------------------------------------------------------------------!                                                                           
+
+Switches dxs;
+
+Constant DEBUG;
+
+Constant Story "The Famous One-Room Maze";
+Constant Headline "^An Interactive Labyrinth ^\
+        Copyright 1996 by Steven Howard, but freely usable.  ^";
+
+Include "Parser";
+Include "Verblib";
+
+!---------------------------------------------------------------------------!
+!  First, the routines:  LoadMaze, SetMaze and MoveInMaze                   !
+!---------------------------------------------------------------------------!
+
+[ LoadMaze i obj;                     
+  for (obj = selfobj + 1: obj <= top_object: obj++)
+      {if (obj in Maze_Room)
+        {if (obj.&number == 0) 
+                print "*** ERROR: Can't move ", (the) obj, ". ***";
+         else
+                {obj.number = Maze_Room.number;
+                 move obj to Maze_Dump;};
+         };
+       if (obj in Maze_Dump && obj.number == i)
+           move obj to Maze_Room;
+      };
+  Maze_Room.number = i;
+  ];
+  
+!---------------------------------------------------------------------------!
+!  LoadMaze is called before the player moves into a new room in the        !
+!  maze.  It moves items currently on the floor to the holding area         !
+!  Maze_Dump, using each object's "number" property to store its            !
+!  "real location".  Meanwhile, it moves any objects in Maze_Dump whose     !
+!  number property is equal to the new room number into Maze_Room.          !
+!  Finally, it sets the number property of Maze_Room to the new value.      !
+!---------------------------------------------------------------------------!
+
+[ SetMaze ;  
+  n_obj.number=0;
+  ne_obj.number=0;
+  e_obj.number=0;
+  se_obj.number=0;
+  s_obj.number=0;
+  sw_obj.number=0;
+  w_obj.number=0;
+  nw_obj.number=0;
+  u_obj.number=0;
+  d_obj.number=0;
+  out_obj.number=0;
+  switch (Maze_Room.number) {
+               1: {n_obj.number = 1;
+                   e_obj.number = 2;
+                   s_obj.number = 4;
+                   w_obj.number = 11;
+                   u_obj.number = 100;};
+               2: {e_obj.number = 4;
+                   s_obj.number = 3;
+                   w_obj.number = 1;};
+               3: {n_obj.number = 22;
+                   e_obj.number = 2;
+                   s_obj.number = 6;
+                   d_obj.number = 17;};
+               4: {n_obj.number = 2;  
+                   e_obj.number = 15;
+                   s_obj.number = 16;
+                   w_obj.number = 1;
+                   u_obj.number = 14;
+                   d_obj.number = 14;};
+               5: {e_obj.number = 6;
+                   w_obj.number = 7;};
+               6: {e_obj.number = 3;
+                   s_obj.number = 8;
+                   w_obj.number = 5;
+                   d_obj.number = 7;};
+               7: {e_obj.number = 8;
+                   s_obj.number = 9;
+                   w_obj.number = 5;
+                   u_obj.number = 6;};
+               8: {n_obj.number = 10;
+                   e_obj.number = 7;
+                   s_obj.number = 8;
+                   w_obj.number = 6;
+                   u_obj.number = 9;
+                   d_obj.number = 24;};
+               9: {n_obj.number = 8;
+                   s_obj.number = 18;
+                   w_obj.number = 7;};
+              10: {n_obj.number = 10;
+                   e_obj.number = 101;
+                   w_obj.number = 8;
+                   d_obj.number = 19;};
+              11: {n_obj.number = 1;
+                   e_obj.number = 21;
+                   s_obj.number = 11;
+                   w_obj.number = 11;};
+              12: {e_obj.number = 13;
+                   s_obj.number = 101;
+                   w_obj.number = 23;};
+              13: {n_obj.number = 101;
+                   w_obj.number = 12;
+                   nw_obj.number = 25;};
+              14: {u_obj.number = 4;
+                   d_obj.number = 4;};
+              15: {w_obj.number = 4;
+                   out_obj.number = 4;};
+              16: {w_obj.number = 4;
+                   out_obj.number = 4;};
+              17: {u_obj.number = 3;
+                   out_obj.number = 3;};
+              18: {w_obj.number = 9;
+                   out_obj.number = 9;};
+              19: {u_obj.number = 10;
+                   out_obj.number = 10;};
+              20: {e_obj.number = 101;
+                   out_obj.number = 101;};
+              21: {w_obj.number = 11;
+                   out_obj.number = 11;};
+              22: {s_obj.number = 3;
+                   out_obj.number = 3;};
+              23: {e_obj.number = 12;
+                   out_obj.number = 12;};
+              24: {u_obj.number = 8;
+                   out_obj.number = 8;};
+              25: {se_obj.number = 13;
+                   out_obj.number = 13;};
+             };
+  ];
+!---------------------------------------------------------------------------!                                                                           
+!  SetMaze is called whenever the player enters a new room in the maze.     !
+!  The number property for the compass directions follow a simple code:     !
+!  0 means movement in this direction is not allowed; 1 - 99 means          !
+!  movement in this direction leads into room 1 - 99 of the maze, as        !
+!  appropriate; 100 or more means movement in this direction leads out      !
+!  of the maze.  Obviously, a gigantic maze of more than 99 rooms would     !
+!  require changing this scheme somewhat.                                   !
+!---------------------------------------------------------------------------!                                                                           
+
+[ MoveInMaze ;
+        if (noun.number == 0) return 0;
+        if (noun.number == 100) return Starting_Room;
+        if (noun.number == 101) return At_Brink_Of_Pit;
+        return Maze_Room; 
+];
+ 
+!---------------------------------------------------------------------------!                                                                           
+! MoveInMaze "translates" the numbers assigned by SetMaze.  Making it       !
+! a separate routine like this saves typing.                                !
+!---------------------------------------------------------------------------!                                                                           
+
+
+Object Starting_Room "Starting Room"
+        with name "starting" "room" "cavern" "stone" "suspiciously" 
+            "twisty" "passage" "south",
+        description "You are standing in a stone cavern.  A \
+            suspiciously twisty passage leads south.",
+        s_to Maze_Room,
+        in_to Maze_Room,
+        before [ ;
+                Go:  if (noun == s_obj or in_obj
+                                && Maze_Room.number ~= 1) 
+                        {LoadMaze(1);
+                         rfalse;};
+               ];
+       
+!---------------------------------------------------------------------------!                                                                           
+! An "ordinary" room just outside the maze.  The before rule makes sure the !      
+! player enters the right room in the maze.  It's not strictly necessary    !
+! here, since the maze is defined with number = 1 and the only way to get   !
+! here is from Room 1, but this situation is unusual.  At_Brink_of_Pit,     !
+! below, is an example of why this type of rule is needed.                  !
+!---------------------------------------------------------------------------!                                                                           
+
+!---------------------------------------------------------------------------!                                                                           
+! To help map the maze, we give the player a bunch of "things" to drop:     !
+!---------------------------------------------------------------------------!                                                                           
+
+Nearby red_thing "red thing"
+        with name "red" "thing",
+        description "It's a red thing.  You wouldn't understand.",
+        number 0;
+
+Nearby blue_thing "blue thing"
+        with name "blue" "thing",
+        description "It's a blue thing.  You wouldn't understand.",
+        number 0;
+
+Nearby yellow_thing "yellow thing"
+        with name "yellow" "thing",
+        description "It's a yellow thing.  You wouldn't understand.",
+        number 0;
+       
+Nearby green_thing "green thing"
+        with name "green" "thing",
+        description "It's a green thing.  You wouldn't understand.",
+        number 0;
+        
+Nearby purple_thing "purple thing"
+        with name "purple" "thing",
+        description "It's a purple thing.  You wouldn't understand.",
+        number 0;
+        
+Nearby orange_thing "orange thing"
+        with name "orange" "thing", article "an",
+        description "It's an orange thing.  You wouldn't understand.",
+        number 0;
+
+!---------------------------------------------------------------------------!                                                                           
+! And now, the maze itself:                                                 !
+!---------------------------------------------------------------------------!                                                                           
+
+Object Maze_Room "Standard Maze"
+        with name "maze" "passage" "passages" "little" "twisty"
+                "standard" "dead" "end",
+        description 
+                [; 
+                if (self.number < 15)
+                      "You are in the standard maze of twisty little \
+                      passages.";
+                if (self.number == 25)
+                      "This is the pirate's dead end.";
+                "You have reached a dead end.";],
+        short_name [ ;
+                if (action == ##Places or ##Objects) rfalse;
+                if (self.number < 15) {print "Standard Maze";
+                        #IFDEF DEBUG; print " (", self.number, ")";#ENDIF;
+                        rtrue};                    
+                print "Dead End";
+                #IFDEF DEBUG; print " (", self.number, ")";#ENDIF;
+                rtrue;                    
+                ],
+        number 1,               
+        n_to   MoveInMaze,
+        ne_to  MoveInMaze,
+        e_to   MoveInMaze,
+        se_to  MoveInMaze,
+        s_to   MoveInMaze,
+        sw_to  MoveInMaze,
+        w_to   MoveInMaze,
+        nw_to  MoveInMaze,
+        u_to   MoveInMaze,
+        d_to   MoveInMaze,
+        out_to MoveInMaze,
+        cant_go [; if (noun==out_obj && self.number < 15)
+                        "Easier said than done.";
+                   if (self.number > 14)
+                        "You'll have to go back the way you came.";
+                   "You can't go that way.";],
+        before [ ;
+                Go:   if (noun.number == 0 || noun.number > 99) rfalse;
+                      if (self.number ~= noun.number) 
+                         LoadMaze (noun.number);
+               ],
+        after [ ;
+                Go: SetMaze();
+                    if (self has general) <<Look>>;
+                    give self general;
+              ];
+
+!---------------------------------------------------------------------------!                                                                           
+! number holds the current room number in the maze.  Rooms 1 through 14     !
+! represent the maze proper (i.e. those rooms whose description in the      !
+! original is "You are in a maze of twisty little passages, all alike").    !
+! Rooms 15 through 24 are the ordinary dead ends (i.e. those rooms whose    !
+! description is "You have reached a dead end" and where "out" takes you    !
+! to the previous room).  Room 25 is the pirate's dead end.                 !
+!                                                                           !
+! The before rule on "Go" calls "LoadMaze" if the player is moving          !
+! within the maze.                                                          !
+!                                                                           !
+! Somewhat deceptively, moving within the maze also causes a "Look"         !
+! action, making every room appear to have never been visited before.       !
+! This could be improved by keeping track of which rooms have already       !
+! been visited and only doing a <<Look>> in those which have not.           !
+!---------------------------------------------------------------------------!                                                                           
+
+Object Maze_Dump "Maze Dump";
+
+Nearby plaid_thing "plaid thing"
+        with name "plaid" "thing",
+        description "It's a plaid thing.  You wouldn't understand.",
+        number 2;
+
+Nearby treasure_chest "treasure chest"
+        with name "strangely" "familiar" "treasure" "chest",
+        initial "You have found the treasure chest!",
+        description "It's strangely familiar . . .",
+        number 25;
+
+!---------------------------------------------------------------------------!                                                                           
+! Maze_Dump isn't connected to any other rooms in the game.  It's just a    !
+! holding place for items dropped in the maze which aren't in the current   !
+! room.                                                                     !
+! There are two things left lying around in the maze.  A "plaid thing"      !
+! has been dropped in the second room, and the pirate's chest is in its     !
+! expected location.                                                        !
+!---------------------------------------------------------------------------!                                                                           
+
+Object At_Brink_of_Pit "At Brink of Pit"
+        with name "twisty" "passages" "passage" "maze" "guard" "rail",
+        description "You are at the brink of a thirty-foot pit. \
+                A newly-installed guard rail prevents climbing down.  \
+                Those twisty passages continue off in all directions.",
+        d_to "The guard rail prevents it.",
+        w_to Maze_Room,
+        n_to Maze_Room,
+        e_to Maze_Room,
+        s_to Maze_Room,
+        before [ ;
+                Go:  if (noun == s_obj && Maze_Room.number ~= 20) 
+                        {LoadMaze(20);
+                         rfalse;};
+                     if (noun == n_obj && Maze_Room.number ~= 12)    
+                        {LoadMaze (12);
+                         rfalse;};
+                     if (noun == e_obj && Maze_Room.number ~= 13) 
+                        {LoadMaze (13);
+                         rfalse;};
+                     if (noun == w_obj && Maze_Room.number ~= 10)
+                        {LoadMaze (10);
+                         rfalse;};
+                ];
+
+!---------------------------------------------------------------------------!                                                                           
+! This illustrates the use of the before rule on "Go" to handle the case    ! 
+! where the player leaves the maze and later enters a different room.       !
+!---------------------------------------------------------------------------!                                                                           
+
+Nearby pit "pit"
+        with name "brink" "of" "pit",
+        description "It's a long way down.  Luckily, the sturdy \ 
+                guard rail prevents anyone from trying to climb down.",
+        before [ ;
+                Climb:  "The guard rail prevents it.";
+               ],
+        has scenery;
+
+!---------------------------------------------------------------------------!                                                                           
+! In Adventure the pit is an exit.  Here, it's just window dressing.        !
+!---------------------------------------------------------------------------!                                                                           
+
+Object glow_stick "glow stick"
+        with name "glow" "stick" "luminous" "tube" "green" "fluid"
+        "plastic" "of",
+        description "A plastic tube of luminous green fluid.",
+        number 0,
+        has light;
+
+!---------------------------------------------------------------------------!                                                                           
+! Of course, the player needs to see.  This also illustrates why it's       !
+! necessary to actually move the player from Maze_Room to Maze_Room.  At    !
+! first thought, it seems we could accomplish the same thing by calling     !
+! LoadMaze, calling SetMaze, performing a Look action and returning true    !
+! in the before routine for Maze_Room.  But that wouldn't handle the player !
+! dropping the only light source in the maze.                               !
+!---------------------------------------------------------------------------!                                                                           
+
+Include "Grammar";
+
+[ Initialise;
+        location = Starting_Room;
+        move glow_stick to player;
+        "^^^^^^^You've seen this maze before.  Now, go find that \
+         pirate chest.^";
+        
+];
+
+end;
+

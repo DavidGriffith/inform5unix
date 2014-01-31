@@ -1,0 +1,25 @@
+
+                       Inform Library 5/12 Now Out
+                       ---------------------------
+                            (23 October 1995)
+
+The new release of the Inform library, 5/12, is now available from
+ftp.gmd.de (at present in the directory incoming/if-archive).
+
+It has been four months since 5/11, and a considerable number of bugs
+have been fixed, mostly obscure parser bugs but several that have come to
+fame through the release of "Christminster": 50 changes in all have been
+made.
+
+There are powerful new features to handle conversation with non-player
+characters.
+
+As usual, the Changes.txt file details alterations.  But see also the
+second edition of the Inform Designer's Manual, also out today, which
+uses library 5/12 throughout.  All information in the changes file is
+included in the new DM, and the DM is a better place to look for details
+on the new features.
+
+Many thanks, as ever, to all those who reported bugs.
+
+  Graham Nelson

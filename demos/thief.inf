@@ -1,0 +1,493 @@
+!--------------------------------------------------------------------------
+! THE THIEF: an interactive demonstration by Gareth Rees
+! 
+! The Inform designer's manual has a brief example of a thief who can walk
+! around the map like the player does.  However, that example didn't really
+! exploit the full complexities of Inform movement rules, so here's an
+! example game in which the thief can walk through doors, pick locks, cross
+! bridges and so on, and change his actions as the map changes.
+! 
+! There are various subtleties.  First of all, some movement routines print
+! messages when the player travels (e.g. "You duck your head as you go
+! through the door.").  Clearly, these should be modified or omitted when
+! the thief moves, so we provide a global variable `moving_thief' which is
+! set to 1 when the thief is moving so that the movement routines can
+! modify their behaviour appropriately.
+! 
+! Second, doors report their destination and direction by checking to see
+! which room they are in, for example:
+! 
+!       door_dir [;
+!           if (self in EastSide) return w_to;
+!           return e_to;
+!       ],
+! 
+! If you want this to work with the thief you should be careful to avoid
+! the following, which although apparently equivalent, doesn't quite work:
+! 
+!       door_dir [;
+!           if (location == EastSide) return w_to;
+!           return e_to;
+!       ],
+! 
+! The problem is that `location' always refers to where the player is, and
+! the thief might be somewhere else entirely.  Even in the first case, we
+! still have to take care to move the door to where the thief is (it might
+! have been moved elsewhere by `MoveFloatingObjects').
+!--------------------------------------------------------------------------
+
+Constant DEBUG;
+Constant Story "THE THIEF";
+Constant Headline "^An interactive demonstration^by Gareth Rees^";
+Global moving_thief = 0;
+
+Include "parser";
+Include "verblib";
+
+[ Initialise;
+    location = EastSide;
+    StartDaemon(Thief);
+    "^^^^^The question is, who's going to get the treasure, you or that \
+    pesky thief?^^";
+];
+
+
+!--------------------------------------------------------------------------
+! PEOPLE WHO CARRY/WEAR OBJECTS
+! 
+! People who are members of CarryingClass can wear clothing and carry
+! objects, and (unless concealed) they will be listed (in two lists, one
+! for clothing, one for everything else) when the person is examined.
+! 
+! Note: any object of this class should not print a new-line after their
+! description, because the listing of their inventory follows directly.
+!--------------------------------------------------------------------------
+
+Class   CarryingClass
+ has    animate transparent
+ with   before [ i j k;
+         Examine:
+            if (location == thedark) return L__M(##Examine,1);
+            PrintOrRun(self,description,1);
+            objectloop (k in self) {
+                if (k hasnt worn && k hasnt concealed) {
+                    give k workflag;
+                    i++;
+                }
+                else give k ~workflag;
+            }
+            if (i > 0) {
+                print " ", (CPronounNom) self, " is carrying ";
+                WriteListFrom(child(self), FULLINV_BIT + ENGLISH_BIT +
+                    WORKFLAG_BIT + CONCEAL_BIT);
+            }
+            objectloop (k in self) {
+                if (k has worn && k hasnt concealed) {
+                    give k workflag;
+                    j++;
+                }
+                else give k ~workflag;
+            }
+            if (j > 0) {
+                if (i == 0) {
+                    print " ", (CPronounNom) self, " is";
+                }
+                else print ", and";
+                print " wearing ";
+                WriteListFrom(child(self), ENGLISH_BIT + WORKFLAG_BIT);
+            }
+            if (i > 0 || j > 0) print ".";
+            new_line;
+            rtrue;
+        ];
+
+
+!--------------------------------------------------------------------------
+! THINGS THAT CAN BE FOLLOWED
+! 
+! Members of FollowClass can be followed when they travel from the player's
+! current room into another room. The code maintains the room that the
+! object just left (in just_visited) and the direction that it went (in
+! follow_dir). When the player types "follow thing", FollowScope adds to
+! scope all objects that are is_followable, and which have just_visited
+! equal to the location. If a match is made, the player is moved in the
+! follow_dir direction. This copes with, e.g. the object going through a
+! door and locking it.
+! 
+! The various properties are maintained by MoveNPC() and MovePrintNPC() -
+! the latter describing the movement of the object, though it has to assume
+! that map connections never twist and turn in order to print the direction
+! of arrival.
+! 
+! The entry point NewRoom() is used to clear the just_visited property,
+! otherwise you could follow objects you never even saw move.
+!--------------------------------------------------------------------------
+
+Property follow_dir 0;
+Property just_visited 0;
+Attribute is_followable;
+
+Class   FollowClass
+ has    is_followable
+ with   just_visited 0,
+        follow_dir 0;
+
+[ NewRoom i;
+    for (i = selfobj + 1: i <= top_object: i++)
+        if (i has is_followable)
+            i.just_visited = 0;
+];
+
+[ FollowScope i;
+    if (scope_stage == 1) rfalse;
+    if (scope_stage == 2) {
+        for (i = selfobj + 1: i <= top_object: i++) {
+            if (i has is_followable && i.just_visited == location)
+                PlaceInScope(i);
+        }
+        rfalse;
+    }
+    "You've no idea where that is.";
+];
+
+[ FollowSub;
+    if (noun == player) "You can't follow yourself.";
+    if (noun in location) "No need!";
+    if (noun.follow_dir == 0)
+        print_ret "You start after ", (the) noun, " but you can't find ",
+            (PronounAcc) noun, ". As far as you're concerned, ",
+            (PronounNom) noun, " has vanished into thin air.";
+    <Enter noun.follow_dir>;
+];
+
+[ NoFollowSub;
+    if (noun == player) "You can't follow yourself.";
+    print_ret (The) noun, " is right here.";    
+];
+
+[ PronounAcc i;
+    if (i hasnt animate) print "it";
+    else { if (i has female) print "her"; else print "him"; } ];
+
+[ PronounNom i;
+    if (i hasnt animate) print "it";
+    else { if (i has female) print "she"; else print "he"; } ];
+
+[ CPronounNom i;
+    if (i hasnt animate) print "It";
+    else { if (i has female) print "She"; else print "He"; } ];
+
+[ MoveNPC n dest dir;
+    if (n has is_followable) {
+        n.just_visited = parent(n);
+        n.follow_dir = dir;
+    }
+    if (dest == 0) remove n;
+    else move n to dest;
+];
+
+[ MovePrintNPC n dest dir;
+    if (n in location) {
+        print "^", (The) n, " stalks away";
+        if (dir ~= in_obj or out_obj or u_obj && dir ~= d_obj)
+            print "to the ", (DirectionName) dir.door_dir;
+        print ".^";
+    }
+    MoveNPC(n, dest, dir);
+    if (n in location)
+        print "^", (The) n, " stalks in.^";
+];
+
+Include "grammar";
+
+Verb "follow" "chase" "pursue" "trail"
+    * scope=FollowScope                 -> Follow
+    * "after" scope=FollowScope         -> Follow
+    * noun                              -> NoFollow
+    * "after" noun                      -> NoFollow;
+
+
+!--------------------------------------------------------------------------
+! THE DUNGEON
+! 
+! Some scenery for the thief to wander round, with changing exits and
+! entrances.
+!--------------------------------------------------------------------------
+
+Constant TooWide "The fissure is too wide to cross.";
+
+Object  EastSide "East side of the fissure"
+ has    light
+ with   name "fissure",
+        description "Mist rises from the gaping fissure to the west, and \
+            passages lead north and east.",
+        n_to [;
+            if (moving_thief == 0)
+                print "The passage turns to the right.^";
+            return PassageA;
+        ],
+        e_to PassageB,
+        w_to TooWide,
+        s_to 0,
+        before [;
+         Jump:
+            deadflag = 1;
+            "You plunge to your doom.";
+         Wave:
+            if (noun == BlackRod) {
+                if (CrystalBridge hasnt absent) {
+                    remove CrystalBridge;
+                    give CrystalBridge absent;
+                    self.w_to = TooWide;
+                    WestSide.e_to = TooWide;
+                    "The crystal bridge shimmers and then fades away \
+                    completely.";
+                }
+                move CrystalBridge to self;
+                give CrystalBridge ~absent;
+                self.w_to = CrystalBridge;
+                WestSide.e_to = CrystalBridge;
+                "There is a shimmering to the west and a crystal bridge \
+                appears, spanning the fissure.";
+            }
+        ];
+
+Object  CrystalBridge "crystal bridge"
+ has    static door open absent
+ with   name "crystal" "bridge",
+        initial "A crystal bridge spans the fissure.",
+        found_in WestSide EastSide,
+        door_dir [;
+            if (self in EastSide) return w_to;
+            return e_to;
+        ],
+        door_to [;
+            if (self in EastSide) return WestSide;
+            return EastSide;
+        ];
+
+Object  Mist "mist"
+ has    scenery
+ with   name "mist",
+        description "cold and clammy",
+        found_in WestSide EastSide;
+
+Object  Fissure "fissure"
+ has    scenery
+ with   name "fissure" "pit" "chasm" "gaping",
+        description "Very deep.",
+        found_in WestSide EastSide;
+
+Object  WestSide "West Side of the Fissure"
+ has    light
+ with   description "Mist coils and writhes from a gaping fissure to the \
+            east. There are no other exits.",
+        e_to TooWide;
+
+Object  PassageA "Twisty Passage"
+ has    light
+ with   description "Little twisty passages lead west and south, and there \
+            is an exit to daylight to the north.",
+        w_to [;
+            if (moving_thief == 0)
+                print "The passage turns to the left.^";
+            return EastSide;
+        ],
+        n_to [;
+            if (moving_thief == 1) rfalse;
+            if (GoldCoin notin player)
+                "You're not leaving without the treasure.";
+            deadflag = 2;
+            rtrue;
+        ],
+        s_to PassageB;
+
+Nearby  Lever "lever"
+ has    static
+ with   name "lever",
+        initial "There is a lever here.",
+        before [;
+         Push,Pull:
+            if (self has general) "Nothing happens.";
+            give self general;
+            give SecretDoor ~absent;
+            EastSide.s_to = SecretDoor;
+            "You hear a grinding sound away to the southwest.";
+        ];
+
+Nearby  BlackRod "black rod"
+ with   name "black" "rod" "star",
+        initial "There is a black rod with a star on the end here.";
+
+Object  PassageB "Twisty Passage"
+ has    light
+ with   description "Little twisty passages lead west and north.",
+        w_to EastSide,
+        n_to PassageA;
+
+Nearby  ShinyKey "shiny key"
+ with   name "shiny" "key";
+
+Object  TreasureChamber "Treasure Chamber"
+ has    light
+ with   description "The secret treasure chamber of Zork, once the legend \
+            that all adventurers sought after; now it seems a bit \
+            depleted. There is an exit to the north.",
+        n_to SecretDoor;
+
+Nearby  GoldCoin "gold coin"
+ with   name "treasure" "gold" "coin",
+        initial "A single gold coin is all that remains of the treasure \
+            of the Flatheads.";
+
+Object  SecretDoor "secret door"
+ has    static locked lockable openable door absent
+ with   name "secret" "door",
+        found_in EastSide TreasureChamber,
+        with_key ShinyKey,
+        describe [ i;
+            i = RunRoutines(self,door_dir);
+            print_ret "^There is a secret door here, leading ",
+                (DirectionName) i, "!";
+        ],
+        door_dir [;
+            if (self in TreasureChamber) return n_to;
+            return s_to;
+        ],
+        door_to [;
+            if (self in TreasureChamber) return EastSide;
+            return TreasureChamber;
+        ];
+
+
+!--------------------------------------------------------------------------
+! THE THIEF HIMSELF
+! 
+! As of library 5/11, it's possible to steal things from thief using "get
+! object from thief"; this is because of a bug in `RemoveSub' in
+! `verblib.h' that will be corrected in 5/12.
+!--------------------------------------------------------------------------
+
+Object  Thief "thief" PassageA
+ class  FollowClass CarryingClass
+ with   name "thief" "gentleman" "distinguished",
+        initial "There is a distinguished gentleman here.",
+        description "A distinguished gentleman.",
+        life [;
+         Attack: deadflag = 1; "He skewers you with his stiletto.";
+         Ask,Answer,Order,Tell: "The thief only laughs.";
+         ThrowAt: "He dodges your missile with ease.";
+        ],
+        daemon [ i j k;
+            ! The thief steals the gold coin if possible
+            if (GoldCoin in parent(self)) {
+                move GoldCoin to self;
+                if (self in location)
+                    print "^~My, what an interesting gold coin,~ says the \
+                        thief, picking it up.^";
+            }
+            if (GoldCoin in player && self in location) {
+                move GoldCoin to self;
+                print "^The thief steals the gold coin from you.^";
+            }
+
+            ! Count the available exits quickly
+            objectloop(i in Compass)
+                if (ZRegion(parent(self).(i.door_dir)) == 1 or 2)
+                    k ++;
+            if (k == 0) rtrue;
+
+            ! Pick an exit at random and attempt to travel that way
+            j = random(k); k = 0;
+            objectloop(i in Compass) {
+                if (ZRegion(parent(self).(i.door_dir)) == 1 or 2) {
+                    k ++;
+                    if (k == j) {
+                        MoveThief(i);
+                        rtrue;
+                    }
+                }
+            }
+        ];
+
+Nearby  Stiletto "stiletto dagger"
+ with   name "stiletto" "dagger" "knife";
+
+Nearby  Cloak "black cloak"
+ has    clothing worn
+ with   name "cloak" "black";
+
+! Returns 1 if it moved the thief successfully
+! Returns 0 if it couldn't move the thief in the requested direction
+
+[ MoveThief
+    dir   ! the direction to move the thief (n_obj, s_obj etc)
+    dest  ! the room in which the thief ends up
+    p     ! the room in which the thief starts out
+    zr    ! the ZRegion of the destination
+    o     ! the door the thief is trying to go through
+    po;   ! the parent of the door
+
+    ! Find out what's in the requested direction.  This code won't work if
+    ! the thief can enter vehicles, but in this demo he can't, so this is
+    ! OK.
+    p = parent(Thief);
+    dest = p.(dir.door_dir);
+    zr = ZRegion(dest);
+
+    ! It might be a string which would be printed to the player.
+    ! Assume that this means that the thief can't go in that direction.
+    if (zr == 3) rfalse;
+
+    ! It might be a routine which is activated when the player tries to 
+    ! move in that direction.  We'll set moving_thief to 1 and hope that
+    ! the routine does the right thing (it should return the
+    ! destination if possible, or else 0 or 1 if there is no exit).
+    if (zr == 2) {
+        moving_thief = 1;
+        dest = RunRoutines(p, (dir.door_dir));
+        moving_thief = 0;
+        if (dest == 0 or 1) rfalse;
+    }
+
+    ! If there's no exit in the given direction
+    if (zr == 0 || dest == 0) rfalse;
+
+    ! If the destination has the `door' attribute, then it's a door
+    if (dest has door) {
+        ! Find out where the door goes. Make sure the door is (temporarily)
+        ! in the same room as the thief, otherwise the code will go wrong
+        ! (see discussion at top of file).
+        o = dest;
+        po = parent(o);
+        move o to p;
+        dest = ValueOrRun(o,door_to);
+        move o to po;
+        if (dest == 0) rfalse; ! It might not lead anywhere.
+
+        if (o has locked) {
+            ! Need a check here to see if the thief has the keys or
+            ! lockpicks required to open this door.  In the demo, he always
+            ! succeeds.
+            give o ~locked;
+            if (p == location)
+                print "^", (The) Thief, " picks the lock of ", (the) o, ".^";
+        }
+        if (o hasnt open && o has openable && o hasnt locked) {
+            ! The thief can open closed doors. Here, he leaves then open
+            ! behind him.
+            give o open;
+            if (p == location)
+                print "^", (The) Thief, " opens ", (the) o, ".^";
+            if (dest == location)
+                print "^", (The) o, " opens.^";
+        }
+        if (o hasnt open) rfalse;
+    }
+
+    ! Now dest contains the destination room, so move the thief
+    MovePrintNPC(Thief,dest,dir);
+    rtrue;
+];
+
+End;

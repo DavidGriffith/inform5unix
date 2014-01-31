@@ -1,0 +1,54 @@
+
+                 Inform Designer's Manual: Second Edition
+                 ----------------------------------------
+                            (23 October 1995)
+
+The second edition of the main Inform manual is now available from
+ftp.gmd.de (at present in the directory incoming/if-archive).  It is
+currently in TeX source but postscript and plain text versions should
+follow.  Anyone interested in translating it to hypertext or (say) Microsoft
+Word is encouraged to get in touch with me (most of the work could be done
+by machine translation, but it wouldn't be a trivial job just the same).  In
+any case, (once past the macro definitions at the top of the file) it is not
+impossible to read the TeX source, as TeX in the end is only a "markup
+language".
+
+The manual is now a quite substantial book, over twice the size of last
+September's first edition: it runs to about 210 pages, of which most of the
+last 100 are reference material, a lexicon of terms used, answers to
+exercises and a thorough index (about 2000 points in the text are indexed). 
+There are 98 exercises, all with solutions in full, giving a wide range of
+examples; each section gives references to example games.  The material has
+been properly organised into six chapters:
+
+  Fundamentals
+  The Model World
+  Describing and Parsing
+  Testing and Hacking
+  Language and Compiler Reference
+  Library Reference
+
+of which the last two chapters are detailed and formal, whereas the first
+four are tutorial in style.  A modest game called `Ruins' is constructed as
+a running example throughout.  There is a very detailed contents section
+(running for five pages) and it will hopefully be much easier to navigate
+the second edition than the first.
+
+The manual documents Inform 5.5 and later, and library release 5/12 and
+later: thus it is completely up to date, since library 5/12 also comes out
+today.
+
+Inform's example games will need light updating in line with the year and a
+half of development since they were written ("Balances" especially), and
+this will soon happen: in the mean time, they'll continue not to use modern
+features, but they'll still work.
+
+
+Grateful thanks to all those who proposed fiendish exercises: I wasn't able
+to include all those suggested, because they sometimes overlapped, but I
+have tried.
+
+I would be very grateful to hear of misprints, etc., as soon as they are
+spotted, preferably by email: there are bound to be some.
+
+  Graham Nelson
