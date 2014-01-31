@@ -357,7 +357,11 @@
 #endif
 
 #ifdef UNIX
-#define MACHINE_STRING   "Unix"
+  #ifdef LINUX
+  #define MACHINE_STRING "Linux"
+  #else
+  #define MACHINE_STRING   "Unix"
+  #endif
 #define Source_Prefix    ""
 #define Source_Extension ".inf"
 #define Include_Extension ".h"
@@ -375,30 +379,6 @@ extern char Temp1_Name[], Temp2_Name[];
 #define Temp2_Hdr "/tmp/InformTemp2"
 #define DEFAULT_MEMORY_SIZE LARGE_SIZE
 #define US_POINTERS
-#endif
-
-#ifdef LINUX
-
-/* Added on advice of Brendon Wyber: */
-#define US_POINTERS
-
-#define MACHINE_STRING   "Linux"
-#define Source_Prefix    ""
-#define Source_Extension ".inf"
-#define Include_Extension ".h"
-#define Code_Prefix      ""
-#define Code_Extension   ".z3"
-#define V4Code_Extension ".z4"
-#define V5Code_Extension ".z5"
-#define V6Code_Extension ".z6"
-#define V7Code_Extension ".z7"
-#define V8Code_Extension ".z8"
-#define Transcript_Name "game.txt"
-#define Debugging_Name  "game.dbg"
-extern char *Temp1_Name, *Temp2_Name;
-#define Temp1_Hdr "/tmp/InformTemp1"
-#define Temp2_Hdr "/tmp/InformTemp2"
-#define DEFAULT_MEMORY_SIZE LARGE_SIZE
 #endif
 
 #ifdef PC_QUICKC
