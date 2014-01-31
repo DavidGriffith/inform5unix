@@ -42,7 +42,7 @@
 /*   (If no machine is defined, then cautious #defines will be made.)        */
 /* ------------------------------------------------------------------------- */
 
-#define GRAHAM
+/* #define GRAHAM */
 
 /* ------------------------------------------------------------------------- */
 /*   The other #definable options (some of them set by the above) are:       */
