@@ -1,0 +1,546 @@
+
+                     What's New in Inform 5.5, v1502
+                     -------------------------------
+                             (5 July 1995)
+
+  Version 5.5 is the first upgrade of the Inform compiler to provide new
+features (rather than just fix bugs) for about 10 months.
+
+  For the last year or so, my intention has been to keep the Inform language
+stable, but to continually enhance the library.  Although these additions do
+change the language, they are hopefully minor and logical, and several have
+long been asked for.  Inform 5.5 removes no features of 5.4 (except in so
+far as it tests for a few more definite errors, so some old but subtly wrong
+code may not compile: this is probably a good thing).  However, it does now
+produce warnings if the source code uses obselete features (leftovers from
+Inform 1 right up to those from Inform 5.4).  The new syntax is so much
+nicer that I suggest changing over to it rather than switching off these
+warnings at the command line.
+
+  The short answer is: tidier object-name printing, more logical and flexible
+syntax for creating arrays, tables of data, slightly better grammar
+replacement, a switch statement and provision for compiling very much larger
+games (up to twice the size of the previous maximum, which was pretty huge
+anyway).
+
+  *** It is recommended that Inform 5.5 should only be used with ***
+                *** library release 5/10 and later ***
+
+(there was a minor bug in 5/9 which can cause compilation errors: an
+example of "old but subtly wrong code").  In any case, accompanying this
+release is library 5/11.
+
+
+0.  Bugs fixed from v1405 (all minor)
+-------------------------------------
+
+  (a) comments caused problems when coming between a loop construct (e.g.
+"for (i=1:i<10:i++)") and its block of code.
+  (b) using the "box" command inside an embedded routine (which is seldom
+sensible, actually!) sometimes produced mysterious compilation errors.
+  (c) the code for explicitly-defined string constants, such as
+
+          Constant Game "Lost Trifles of Bluffocom";
+
+has been thoroughly rewritten, since the old method produced wrong
+results in some cases (such as if a global variable had been
+given as initial value a string, e.g. by: global Var="hello";).
+  (d) initial values like strings and dictionary words for global variables
+(at declaration time) now work properly.
+  (e) removal of a foolish restriction rather than bug: string constants
+had to be preceded by a # in usage, (e.g.  print #Dragons_Name;) for no
+good reason.  (E.g., print Dragons_Name;  now works.)
+  (f) the #r$RoutineName construction didn't work when RoutineName was
+within the first 256 bytes of the code area (only library internals live
+there, and this bug has never been observed in honest code!)
+  (g) actually, this is the same as in v. 5.4, but I seem to have forgotten
+to publicise it: the function  indirect(R);  (to call the function with
+address R, so for instance indirect(#r$MyFunction)) can now take an optional
+second and third argument.  indirect(R,x);  calls function R with one
+parameter, x, and  indirect(R,x,y);  calls it with two, x and y.
+  (h) the notoriously unhelpful (though happily rare) "a label has moved
+between passes" error message has been rewritten to suggest the likely
+cause: it now reads
+
+          An error has occurred just before this point with what Inform
+          thought was a constant.  Perhaps it was a global variable used
+          before its definition in the code.
+
+  (i) local variables can't be called "sp" (this is the name of the stack
+pointer, so crashes result) and an error is now produced if they are.
+
+0'.  Bugs fixed in, and additions made to, the beta-version
+-----------------------------------------------------------
+
+  A beta-testing version of Inform 5.5 was (silently by me) put onto the
+archive for porters to experiment with (though in the event many other
+people found it).  This version, v1501, included a serious bug (l) and
+several improvements have been made since:
+
+  (j) the assembly opcode @set_colour now works (actually, this bug is a
+year old, and was simultaneously found by two different people in the last
+couple of months).
+  (k) values in switch statements are now allowed to take the form "x to y"
+(for x<=v<=y), stolen from Modula-3 at Gareth Rees's suggestion.
+  (l) a bug in final file output caused incorrect game files to be
+produced if no version-number had been explicitly set (it now by default
+produces legal V5 files).
+  (m) details for the VMS port (for VAX or Alpha), the Linux, OS/2 and
+Mac ports have been updated; the latter now includes a Macintosh
+Programmer's Workshop version.
+  (n) it's difficult to compile dictionary words which contain apostrophes
+(e.g., words such as "jemima's") as constants under I5.4; under I5.5,
+apostrophes ' in dictionary words should now always be written with an ^. 
+For example, the constant 'isaac^s' refers to the word "isaac's".
+  (o) if you specify a property in an object description but give it no
+data values, I5.5 now supplies a 0 word as value (5.4 used to compile an
+empty list, which was logical but apt to confuse the interpreter).
+  (p) the grammar enhancements in (10) below were added.
+  (q) different file extensions for all of V3 to V8 inclusive can now be
+made, if the port makes suitable #defines in header.h.
+  (r) giving a non-default output filename at the command line didn't
+work in v1501, owing to a foolish bug.
+  (s) fuller details are given below of the V8 alterations needed to
+"Zip".
+  (t) overflow of the buffer used for text-transcription (to make "proofs"
+of the text in a game) is now checked for; previously this might have
+caused memory (typically the symbols table) to be corrupted on very large
+games when compiling with -r set.
+
+
+1.  Printing
+------------
+
+  Recall that the "print" and "print_ret" commands take a list of items,
+separated by commas, printing each in turn.  (The latter then prints a
+new-line and returns true.)  The new preferred syntax for these items is one
+of:
+
+      <expression>         print this number
+      "string"             print this string
+      char <expression>    print the character this is the ASCII code of
+      object <expression>  print the given object's true short name
+                           (this shouldn't be used except by the Library,
+                           as it will fail to notice the short_name routines
+                           many objects provide)
+      (the) expression     the definite article and short-name of this object
+      (The) expression     the same, but capitalising the definite article
+      (a) expression       the indefinite article and short-name
+      (name) expression    just the short-name
+      (char) expression    same as print char, for consistency
+      (number) expression  print the number but in words, not numerals
+      (string) expression  print the string at this (packed) address: good
+                               for printing out property values which are
+                               strings in double-quotes
+      (address) expression     print the string at this byte address: good
+                           for printing out dictionary words and little else
+      (Routine) expression     print nothing: but call   Routine(expression)
+                           in the expectation that it will print something
+
+These new features are cosmetic, but considerably tidy the look of code. 
+E.g., one would write
+
+      print_ret (The) x1, " explodes messily.  Perhaps it was unwise to \
+                drop it into ", (the) x2, ".";
+
+to produce, say,
+
+      The hand grenade explodes messily.  Perhaps it was unwise to drop
+      it into the glassworks.
+
+whereas in 5.4 it would have to have been
+
+      CDefArt(x1); print " explodes messily.  Perhaps it was unwise to \
+      drop it into "; DefArt(x2); ".";
+
+
+2.  Global variables, tables and arrays
+---------------------------------------
+
+  The whole syntax for declaring global variables has been tidied up and
+extended.  The new syntax for declaring a variable "frotz" is:
+
+      Global frotz;                                Ordinary variable, set to 0
+      Global frotz = <value>;                           ..., set to this value
+
+      Global frotz <array-type> <array-data>;
+
+But since one very rarely wants to change the value of "frotz" in this case
+(it will remain the address of the array throughout the game), the more usual
+course is to declare
+
+      Array  frotz <array-type> <array-data>;
+
+which is identical in effect, except that "frotz" is now a constant.  (This
+can be convenient: it can now be quoted in other array definitions, for
+instance, or as a property value.)
+
+There are four types of array:
+
+  Syntax    Pronounced     Contents
+
+  ->        byte array     with entries written array->0 up to array->(n-1)
+                           (can hold chars and numbers between 0 and 255)
+
+  -->       word array     with entries array-->0 up to array-->(n-1)
+                           (can hold any Inform number)
+
+  string    string         a byte array, in which byte 0 holds the number of
+                           data entries in the array
+
+  table     table          a word array, in which word 0 holds the number of
+                           data entries in the array
+
+The array data can also be given in several ways:
+
+  a single value   -   allocate this many zero entries;
+
+  two or more values (divided by spaces)   -   these are the entries;
+
+  a string in double-quotes   -   the entries are the ASCII values of the
+                                  characters of this string, in sequence;
+
+or, as
+
+  [;  <value-1>; ....; <value-n>; ];
+
+which makes the entries these given values.  Semicolons in between the braces
+are ignored.  (The usefulness of this is that very long declarations, which
+would otherwise overflow Inform source code lines, can be made.)
+
+These initial values can be any legal constant (for the first time this
+allows dictionary words and routine names): e.g.,
+
+      105   "a quoted string"   'c'   'dictionary'   #r$RoutineName
+
+
+For instance,
+
+      Array frotz -> 20;
+
+makes an array of 20 bytes, entries of which can be read or written as
+frotz->0 ... frotz->19.  The initial values are all zero.  Whereas:
+
+      Array frotz -> 4 8 12 16 20;
+
+makes an array of 5 bytes, initially holding these five values.
+
+      Array colours --> "Red" "Yellow" "Blue";
+      ...
+      print (string) colours-->1;
+
+will print "Yellow".
+
+      Array frotz string "blorple";
+
+makes frotz point to an array with contents
+
+      7  'b'  'l'  'o'  'r'  'p'  'l'  'e'
+
+(This differs from  Array frotz -> "blorple"  in creating the initial 7.)
+
+
+A typical large table might have the form of:
+
+      Array Holidays table
+      [;  "New Year's Day"  "Twelfth Night";
+          "Ash Wednesday"   "Good Friday";
+          "Martin Luther King Day";
+      ];
+
+For instance, the names of songs played by the radio in "Curses" occupies a
+(pretty enormous) table, and
+
+      print (string) RadioSongs-->(random(RadioSongs-->0));
+
+prints out a random name from it.
+
+
+  In older versions of Inform the keywords "data", "initial" and "initstr"
+would have been used to initialise byte arrays suitably, and (annoyingly)
+word arrays couldn't be initialised to non-zero values at all.  These
+keywords still work, but are no longer needed.
+
+
+3.  Function calls
+------------------
+
+  Can now take up to 7 arguments, instead of being restricted to 3.
+(Except in version-3 games, but I hope everyone's gone over to Advanced
+(version-5) now.)
+
+
+
+4.  Switch statements
+---------------------
+
+  Inform now has a "switch" statement similar to that of C.  That is,
+
+      switch(expression)
+      {   value1: ...
+          value2: ...
+             ...
+          default: ...
+      }
+
+evaluates the expression, and executes the first ... code if it has value1,
+the second ... if it has value2, and so on: if it has none of the values
+given, the default ... code is run.  (The "default" clause is optional,
+but if present must be the last clause.)
+
+  (Unlike in C, there is no "case fall-through"; that is, once the value1
+code is executed, control automatically resumes from after the end of the
+switch statement.)
+
+  Each value can in fact be a list of values, comma-separated.  A value
+can either be a single Inform constant or something in the form
+
+          constant1 to constant2
+
+(the range being inclusive).  So, for example:
+
+      switch(random(6))
+      {   1: "A snake slithers.";
+          2 to 4: "An elephant bellows.";
+          default: "The jungle is ominously silent.";
+      }
+
+  The "default" clause can now also be put into embedded routines, like
+before rules.  So, for instance, a room can have the "before" value
+
+      before
+      [;  Jump: "The ceiling is too low.";
+          Look, Inv, Wait: ;
+          default: "An invisible force holds you inactive.";
+      ];
+
+and the "default" rule is run if none of the others are.  Note that the
+Look, Inv and Wait actions are unaffected as we have explicitly done nothing
+to them.
+
+
+5.  Abbreviate directive
+------------------------
+
+  The Abbreviate directive can now take a list of abbreviation strings, not
+just one at a time (and this saves writing out "Abbreviate" 64 times).  E.g.
+
+      Abbreviate
+           ". " ", " " the " "The" "You" "ing" "you" "and" "ight" "with"
+           "all" "'s no" "which" "It is" " th" " no" "t o" "e s" "e i"
+           " to" "e o" "e a" " ma" "t i" " fi" "e w" " for" " con" " ba"
+           "d o" " ro" " di" " can" " lo" "t s" "t w" " com" " ho"
+           " ga" "tion" " from" " ha" "ter" " ea" "This" " hi" " pr" " un"
+           "d s" " fa" "urs" "'s ~" " ex" "der" "d a" " gr" " cl"
+           "d i" " po" " door" "her" " a ";
+
+is a plausible set of abbreviation strings, saving about 20K on a 256K game
+file when Inform is compiling with the "economy" switch -e set.
+
+
+6.  Testing the version number
+------------------------------
+
+  A special rule now applies to the Ifdef directive.
+
+      #Ifdef VN_****;
+      ...
+      #Endif;
+
+where **** is the four-digit number n, will now compile the code ... exactly
+if the current Inform version number is at least n.  Thus,
+
+      #Ifdef VN_1501; print "The all new Inform show!^"; #Endif;
+
+compiles only under this and later updates.
+
+
+7.  More flexible < > construct
+-------------------------------
+
+  Previously, constructions like
+
+      <Action noun second>; 
+
+were rather restricted, in that Action always had to be an action name
+and noun and second couldn't be compound expressions.  The latter restriction
+is now removed, and the former almost so: if Action is given in brackets
+(...) then it's worked out as an expression in the usual way.  (Brackets
+are needed to tell Inform that the first word shouldn't be tested as a
+constant with ## in front, which is what it does with action names.)  So,
+for instance,
+
+      << (magic_action(frotz_spell)) noun.door_dir memory.number >>;
+
+will now compile.  All previously-allowed < > and << >> expressions should
+compile just as they always did.
+
+
+8.  Versions 7 and 8
+--------------------
+
+  Two new types of story file are implemented: versions 7 and 8, newly
+created for the purpose.  (Inform can produce version 6, but this isn't
+recommended for text-only games as version 6 is very hard to fully interpret
+because of complex graphical features.)
+
+  Version 8 is the one recommended for use, if a game of over 256K is
+required: it runs up to 512K in length.  Inform syntax is fully portable
+between version-5 (the default) and version-8; all you need to do is to
+compile with -v8 set.
+
+  At present versions 7 and 8 are not interpreted by the interpreters in
+public circulation.  However, V8 is particularly easy to add to Mark
+Howell's "Zip" interpreter; see the end of this file.  A fairly large V8
+file (a V8 form of the author's new game "Jigsaw") will soon be available
+for experiment.
+
+  Support for these new versions should percolate through the public domain
+in due course, since it's so easily coded, but if you're in a hurry you need
+only distribute your game with a suitably doctored interpreter.
+
+  It should be added that a 512K Inform game would be gargantuan, 2.5 times
+the size of "Curses" (which is itself large as games go) - easily large
+enough to code the entire Zork and Enchanter trilogies into one.
+
+
+9.  At the command line, and file inclusion
+-------------------------------------------
+
+  Apart from -v8 (and -v7), there are two new command line switches: to
+change the error message style to Microsoft standard format, and to suppress
+warnings about obselete usages.
+
+  There is one new memory command, $huge, which is an abbreviation for
+lots of large memory settings and saves bother when games have become pretty
+enormous.
+
+  If a command line argument begins with a plus sign +, then the rest of that
+word is taken to be a directory in which the Library can be found.  (This is
+convenient so that only one copy of the Library need be kept, which several
+projects in different directories can make use of.)  E.g., I use something
+like
+
+  inform -Tdcx $huge +Library curses/curses games/curses.z5
+
+
+  The Include directive has a convenient new feature: if the file-name to
+include begins with a >, like so
+
+  Include ">endgame";
+
+then the file "endgame" is sought from the same directory as the one doing
+the inclusion.  (Otherwise, if it has a / in, it's treated literally, and if
+not it's sought from the library directory.)  This is much less trouble
+when a game's source code is segmented into many files, as it usually is
+for large projects.
+
+
+10.  Grammar replacement
+------------------------
+
+  In library grammar, some verbs have many synonyms: for instance, 
+
+     "attack" "break" "smash" "hit" "fight" "wreck" "crack"
+     "destroy" "murder" "kill" "torture" "punch" "thump"
+
+are all treated as identical.  But you might want to distinguish between
+murder and lesser crimes.  For this, try
+
+     Extend only "murder" "kill" replace
+           * animate -> Murder;
+
+The keyword 'only' tells Inform to extract the two verbs "murder" and
+"kill".  These then become a new verb which is initially an identical copy
+of the old one, but then 'replace' tells Inform to throw that away in favour
+of an entirely new grammar.
+
+Similarly,
+
+     Extend only "get" * "with" "it" -> Sing;
+
+makes "get" behave exactly like "take" (as usual) except that it also
+recognises "with it", so that "get with it" makes the player sing but "take
+with it" doesn't.
+
+  You can now also add new verb synonyms.  For instance,
+
+     Verb "acquire" "grab" = "take";
+
+gives the "take" verb two new synonyms.
+
+
+
+Appendix: Adding Version 8 support to the "Zip" interpreter
+-----------------------------------------------------------
+
+Only one routine need be changed, "configure".  In my copy of the source (10
+March 93) it now looks as below (note that in my copy only one if statement
+has been added).
+
+
+/*
+ * configure
+ *
+ * Initialise global and type specific variables.
+ *
+ */
+
+#ifdef __STDC__
+static void configure (zbyte_t min_version, zbyte_t max_version)
+#else
+static void configure (min_version, max_version)
+zbyte_t min_version;
+zbyte_t max_version;
+#endif
+{
+    zbyte_t header[PAGE_SIZE];
+
+    read_page (0, header);
+    datap = header;
+
+    h_type = get_byte (H_TYPE);
+
+    if (h_type < V4) {
+        story_scaler = 2;
+        story_shift = 1;
+        property_mask = P3_MAX_PROPERTIES - 1;
+        property_size_mask = 0xe0;
+    } else {
+        story_scaler = 4;
+        story_shift = 2;
+        property_mask = P4_MAX_PROPERTIES - 1;
+        property_size_mask = 0x3f;
+    }
+
+    if (h_type == 8)             /* This is my amendment for V8... */
+    {   h_type=V5;
+        story_scaler = 8;
+        story_shift = 3;
+    }                            /* ...ending here. */
+
+    if (h_type < min_version || h_type > max_version
+        || (get_byte (H_CONFIG) & CONFIG_BYTE_SWAPPED))
+        fatal ("wrong game or version");
+
+    h_config = get_byte (H_CONFIG);
+    h_version = get_word (H_VERSION);
+    h_data_size = get_word (H_DATA_SIZE);
+    h_start_pc = get_word (H_START_PC);
+    h_words_offset = get_word (H_WORDS_OFFSET);
+    h_objects_offset = get_word (H_OBJECTS_OFFSET);
+    h_globals_offset = get_word (H_GLOBALS_OFFSET);
+    h_restart_size = get_word (H_RESTART_SIZE);
+    h_flags = get_word (H_FLAGS);
+    h_synonyms_offset = get_word (H_SYNONYMS_OFFSET);
+    h_file_size = get_word (H_FILE_SIZE);
+    if (h_file_size == 0)
+        h_file_size = get_story_size ();
+    h_checksum = get_word (H_CHECKSUM);
+    h_alternate_alphabet_offset = get_word (H_ALTERNATE_ALPHABET_OFFSET);
+
+    datap = NULL;
+
+}/* configure */
+
+
