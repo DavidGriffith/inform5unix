@@ -1493,7 +1493,7 @@ static void print_help(void)
 It is copyright (C) Graham Nelson, 1993, 1994, 1995.\n\n");
 #ifndef PROMPT_INPUT
   printf(
-"Syntax: \"inform [-list] [+directory] [$memcom ...] <file1> [<file2>]\"\n\n\
+"Syntax: \"inform5 [-list] [+directory] [$memcom ...] <file1> [<file2>]\"\n\n\
 <file1> is the name of the Inform source file; Inform translates this into\n\
    \"");
 printf(Source_Prefix); printf("<file1>"); printf(Source_Extension);
@@ -1589,7 +1589,7 @@ $memcom can be one or more memory allocation commands:\n\
 #endif
 
 #ifndef PROMPT_INPUT
-    printf("For example: \"inform -dex $large curses curses_5\".\n");
+    printf("For example: \"inform5 -dex $large curses curses_5\".\n");
 #endif
 }
 
