@@ -4,7 +4,7 @@ include $(top_srcdir)/config/Makefile.inc
 
 INCLUDES = grammar.h parser.h verblib.h
 
-EXTRA_NAMES = Grammar.h Parser.h Verblib.h VerbLib.h
+EXTRA_NAMES = Grammar.h Parser.h Verblib.h
 
 EXTRA_DIST = $(INCLUDES)
 
